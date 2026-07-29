@@ -77,7 +77,7 @@ export default function Hero() {
               {/* Main Photo Card */}
               <div className="relative overflow-hidden rounded-3xl border-4 border-white bg-white shadow-2xl">
                 <Image
-                  src="/images/agile_hero_professional.jpg"
+                  src="./images/agile_hero_professional.jpg"
                   alt="Certified Professionals Training"
                   width={500}
                   height={420}
