@@ -14,8 +14,10 @@ export default function Login() {
   const handleLogin = (e) => {
     e.preventDefault();
     if (email && password) {
-      // Static site compatible navigation
-      window.location.href = "/profile/index.html";
+      // Dynamic static-site redirect (works for both domain root & GitHub subpaths)
+      const isSubpath = window.location.pathname.includes('/crt-appson');
+      const basePath = isSubpath ? '/crt-appson' : '';
+      window.location.href = `${basePath}/profile/`;
     }
   };
 
@@ -202,7 +204,11 @@ export default function Login() {
                 <button
                   key={prov.name}
                   type="button"
-                  onClick={() => { window.location.href = "/profile/index.html"; }}
+                  onClick={() => {
+                    const isSubpath = window.location.pathname.includes('/crt-appson');
+                    const basePath = isSubpath ? '/crt-appson' : '';
+                    window.location.href = `${basePath}/profile/`;
+                  }}
                   className="flex h-11 items-center justify-center gap-2 rounded-xl border border-gray-200 text-xs font-bold text-gray-600 hover:bg-gray-50 transition-all cursor-pointer bg-white"
                 >
                   <span className="font-bold text-brand-blue text-sm">{prov.logo}</span>
