@@ -151,7 +151,20 @@ export default function CourseDetailsClient({ course }) {
                 </div>
 
                 <button
-                  onClick={() => openModal(`Enroll in ${course.title}`)}
+                  onClick={() => {
+                    const cartItem = {
+                      course: course.title,
+                      format: selectedFormat,
+                      price: getAdjustedPrice(),
+                      date: "Upcoming Batch (Select on checkout)"
+                    };
+                    if (typeof window !== "undefined") {
+                      localStorage.setItem("cp_cart", JSON.stringify(cartItem));
+                      const isSubpath = window.location.pathname.includes('/crt-appson');
+                      const basePath = isSubpath ? '/crt-appson' : '';
+                      window.location.href = `${basePath}/checkout/`;
+                    }
+                  }}
                   className="w-full block text-center rounded-xl bg-[#ff5c00] hover:bg-[#e05200] py-4 font-bold text-white text-xs transition-colors cursor-pointer"
                 >
                   Enroll Now
@@ -524,7 +537,20 @@ export default function CourseDetailsClient({ course }) {
 
           <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
             <button
-              onClick={() => openModal(`Enroll in ${course.title}`)}
+              onClick={() => {
+                const cartItem = {
+                  course: course.title,
+                  format: selectedFormat,
+                  price: getAdjustedPrice(),
+                  date: "Upcoming Batch (Select on checkout)"
+                };
+                if (typeof window !== "undefined") {
+                  localStorage.setItem("cp_cart", JSON.stringify(cartItem));
+                  const isSubpath = window.location.pathname.includes('/crt-appson');
+                  const basePath = isSubpath ? '/crt-appson' : '';
+                  window.location.href = `${basePath}/checkout/`;
+                }
+              }}
               className="w-full sm:w-auto text-center rounded-xl bg-[#ff5c00] px-8 py-3.5 font-bold text-white text-xs transition-colors hover:bg-[#e05200] cursor-pointer"
             >
               Enroll Now

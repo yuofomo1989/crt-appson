@@ -368,8 +368,10 @@ export default function Certifications() {
                             };
                             if (typeof window !== "undefined") {
                               localStorage.setItem("cp_cart", JSON.stringify(cartItem));
+                              const isSubpath = window.location.pathname.includes('/crt-appson');
+                              const basePath = isSubpath ? '/crt-appson' : '';
+                              window.location.href = `${basePath}/checkout/`;
                             }
-                            window.location.href = "/checkout";
                           }}
                           className="flex h-9 items-center justify-center gap-1.5 rounded-xl bg-brand-blue px-3.5 text-[10px] font-bold text-white hover:bg-opacity-90 shadow-md transition-all cursor-pointer"
                         >

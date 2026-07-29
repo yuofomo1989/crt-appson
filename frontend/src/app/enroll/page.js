@@ -29,8 +29,10 @@ export default function Enroll() {
     };
     if (typeof window !== "undefined") {
       localStorage.setItem("cp_cart", JSON.stringify(cartItem));
+      const isSubpath = window.location.pathname.includes('/crt-appson');
+      const basePath = isSubpath ? '/crt-appson' : '';
+      window.location.href = `${basePath}/checkout/`;
     }
-    router.push("/checkout");
   };
 
   return (
