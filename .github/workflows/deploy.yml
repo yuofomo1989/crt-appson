@@ -34,13 +34,13 @@ jobs:
         working-directory: frontend
 
       - name: Build static export
-        run: npm run build
+        run: npx next build
         working-directory: frontend
         env:
           NODE_ENV: production
 
       - name: Add .nojekyll file
-        run: touch frontend/out/.nojekyll
+        run: echo "" > frontend/out/.nojekyll
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
