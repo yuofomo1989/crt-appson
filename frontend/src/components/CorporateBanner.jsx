@@ -67,7 +67,7 @@ export default function CorporateBanner() {
           <div className="lg:col-span-6 relative">
             <div className="rounded-2xl overflow-hidden border-2 border-white/10 shadow-2xl">
               <Image
-                src="/images/about_us_professionals.jpg"
+                src="./images/about_us_professionals.jpg"
                 alt="Corporate Team Upskilling Meeting"
                 width={600}
                 height={350}
