@@ -57,14 +57,20 @@ export default function Footer() {
               </a>
             </div>
 
-            {/* Student Login Button */}
-            <div className="pt-4">
+            {/* Login & Admin Links */}
+            <div className="pt-4 flex items-center gap-3">
               <Link
                 href="/login"
                 className="inline-flex items-center gap-2 rounded-xl bg-brand-orange/10 border border-brand-orange/30 px-4 py-2.5 text-[11px] font-black text-brand-orange hover:bg-brand-orange hover:text-white transition-all"
               >
                 <LogIn size={13} />
                 Student Login
+              </Link>
+              <Link
+                href="/admin"
+                className="inline-flex items-center gap-2 rounded-xl bg-blue-500/10 border border-blue-500/30 px-4 py-2.5 text-[11px] font-black text-brand-blue hover:bg-brand-blue hover:text-white transition-all"
+              >
+                🔐 Admin Portal
               </Link>
             </div>
           </div>
