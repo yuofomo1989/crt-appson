@@ -102,9 +102,33 @@ export default function ContactPage() {
     setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
-  const handleSubmit = (e) => {
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
+    setSubmitting(true);
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+      await fetch(`${apiUrl}/leads`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          phone: `${form.countryCode} ${form.phone}`,
+          course: form.subject !== "Select a subject" ? form.subject : "General Contact Inquiry",
+          type: "inquiry",
+          source: "Website Contact Us Page",
+          message: form.message
+        })
+      });
+      setSubmitted(true);
+    } catch (err) {
+      console.error("Contact form error:", err);
+      setSubmitted(true);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -386,9 +410,10 @@ export default function ContactPage() {
                 <div className="flex justify-end pt-1">
                   <button
                     type="submit"
-                    className="inline-flex items-center gap-2 rounded-xl bg-brand-blue px-7 py-3 text-sm font-bold text-white shadow-md hover:bg-opacity-90 hover:shadow-lg transition-all"
+                    disabled={submitting}
+                    className="inline-flex items-center gap-2 rounded-xl bg-brand-blue px-7 py-3 text-sm font-bold text-white shadow-md hover:bg-opacity-90 hover:shadow-lg transition-all disabled:opacity-50 cursor-pointer"
                   >
-                    Send Message <Send size={15} />
+                    {submitting ? "Sending..." : "Send Message"} <Send size={15} />
                   </button>
                 </div>
               </form>

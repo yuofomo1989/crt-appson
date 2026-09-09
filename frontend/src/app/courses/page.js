@@ -1,137 +1,63 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PreFooter from "@/components/PreFooter";
 import { Star, Clock, Calendar, Search, ArrowRight, ShieldCheck, Filter, X, Award, ChevronRight, Check } from "lucide-react";
 import Link from "next/link";
 
-const allCourses = [
-  {
-    title: "PMP® Certification Training",
-    category: "Agile & Project Management",
-    provider: "PMI®",
-    level: "Intermediate",
-    rating: 4.9,
-    reviews: 1420,
-    duration: "4 Days (35 Contact Hours)",
-    nextDate: "Aug 15 - Aug 18, 2026",
-    price: "$1,095",
-    originalPrice: "$1,495",
-    badge: "Best Seller",
-    slug: "pmp-certification",
-    desc: "Voted #1 PMP prep bootcamp. Includes official training materials, simulator access, and application support.",
-  },
-  {
-    title: "CISSP® Certification Prep",
-    category: "Cybersecurity",
-    provider: "ISC2®",
-    level: "Advanced",
-    rating: 4.8,
-    reviews: 980,
-    duration: "5 Days (40 Hours)",
-    nextDate: "Aug 22 - Aug 26, 2026",
-    price: "$1,895",
-    originalPrice: "$2,295",
-    badge: "High Pass Rate",
-    slug: "cissp-certification",
-    desc: "Comprehensive training covering all 8 domains of CISSP Common Body of Knowledge for security managers.",
-  },
-  {
-    title: "AWS Certified Solutions Architect",
-    category: "Cloud Computing & IT",
-    provider: "AWS®",
-    level: "Intermediate",
-    rating: 4.9,
-    reviews: 1150,
-    duration: "3 Days (24 Hours)",
-    nextDate: "Aug 29 - Aug 31, 2026",
-    price: "$995",
-    originalPrice: "$1,295",
-    badge: "Trending",
-    slug: "aws-solutions-architect",
-    desc: "Master VPCs, EC2 instances, S3 storage buckets, and cost optimization techniques on AWS cloud structures.",
-  },
-  {
-    title: "CAPM® Exam Bootcamp",
-    category: "Agile & Project Management",
-    provider: "PMI®",
-    level: "Beginner",
-    rating: 4.7,
-    reviews: 340,
-    duration: "4 Days (23 Hours)",
-    nextDate: "Sep 05 - Sep 08, 2026",
-    price: "$795",
-    originalPrice: "$995",
-    badge: "Entry Level",
-    slug: "capm-certification",
-    desc: "Perfect starting certification for associate project managers looking to establish PMI credentials.",
-  },
-  {
-    title: "CompTIA Security+ Training",
-    category: "Cybersecurity",
-    provider: "CompTIA®",
-    level: "Beginner",
-    rating: 4.8,
-    reviews: 760,
-    duration: "5 Days (40 Hours)",
-    nextDate: "Sep 12 - Sep 16, 2026",
-    price: "$895",
-    originalPrice: "$1,195",
-    badge: "Entry Level",
-    slug: "comptia-security",
-    desc: "Establish baseline cybersecurity skills required to secure networks, install devices, and detect threats.",
-  },
-  {
-    title: "ITIL® 4 Foundation Course",
-    category: "IT Service Management",
-    provider: "PeopleCert / ITIL®",
-    level: "Beginner",
-    rating: 4.7,
-    reviews: 580,
-    duration: "2 Days (16 Hours)",
-    nextDate: "Sep 19 - Sep 20, 2026",
-    price: "$695",
-    originalPrice: "$895",
-    badge: "Popular",
-    slug: "itil-foundation",
-    desc: "Learn IT Service Management framework standards, incident handling lifecycles, and delivery operations.",
-  },
-  {
-    title: "Six Sigma Green Belt Training",
-    category: "Quality Management",
-    provider: "IASSC®",
-    level: "Intermediate",
-    rating: 4.8,
-    reviews: 420,
-    duration: "4 Days (32 Hours)",
-    nextDate: "Sep 22 - Sep 25, 2026",
-    price: "$995",
-    originalPrice: "$1,295",
-    badge: "Specialization",
-    slug: "six-sigma-green-belt",
-    desc: "Learn core DMAIC principles, statistical tools, and process quality improvement methods.",
-  }
-];
-
-const paths = ["All Paths", "Agile & Project Management", "Cybersecurity", "Cloud Computing & IT", "IT Service Management", "Quality Management"];
-const providers = ["All Providers", "PMI®", "ISC2®", "AWS®", "CompTIA®", "PeopleCert / ITIL®", "IASSC®"];
+const allCourses = [];
 const levels = ["All Levels", "Beginner", "Intermediate", "Advanced"];
 
 export default function Certifications() {
+  const [coursesList, setCoursesList] = useState([]);
+  const [categoriesList, setCategoriesList] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const [selectedPath, setSelectedPath] = useState("All Paths");
   const [selectedProvider, setSelectedProvider] = useState("All Providers");
   const [selectedLevel, setSelectedLevel] = useState("All Levels");
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-  const filteredCourses = allCourses.filter((course) => {
-    const matchesPath = selectedPath === "All Paths" || course.category === selectedPath;
-    const matchesProvider = selectedProvider === "All Providers" || course.provider === selectedProvider;
+  useEffect(() => {
+    async function fetchDynamicCourses() {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+      try {
+        const [cRes, catRes] = await Promise.all([
+          fetch(`${apiUrl}/courses`),
+          fetch(`${apiUrl}/categories`)
+        ]);
+        const cData = await cRes.json();
+        const catData = await catRes.json();
+
+        if (cData.status === 'success') {
+          setCoursesList(cData.data || []);
+        }
+        if (catData.status === 'success') {
+          setCategoriesList(catData.data || []);
+        }
+      } catch (err) {
+        console.error("Error fetching courses from API:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchDynamicCourses();
+  }, []);
+
+  // Compute dynamic filter options from database
+  const paths = ["All Paths", ...new Set(categoriesList.map(c => c.name || c.title))];
+  const providers = ["All Providers", ...new Set(coursesList.map(c => c.provider || c.badge || "PMI®").filter(Boolean))];
+  const levels = ["All Levels", "Beginner", "Intermediate", "Advanced"];
+
+  const filteredCourses = coursesList.filter((course) => {
+    const matchesPath = selectedPath === "All Paths" || (course.category_name || course.category) === selectedPath;
+    const matchesProvider = selectedProvider === "All Providers" || (course.provider || course.badge) === selectedProvider;
     const matchesLevel = selectedLevel === "All Levels" || course.level === selectedLevel;
-    const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          course.desc.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = (course.title || "").toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          (course.description || course.desc || "").toLowerCase().includes(searchQuery.toLowerCase());
     return matchesPath && matchesProvider && matchesLevel && matchesSearch;
   });
 
@@ -304,10 +230,10 @@ export default function Certifications() {
                       {/* Badge & Provider */}
                       <div className="flex items-center justify-between">
                         <span className="inline-block rounded-md bg-orange-50 px-2.5 py-1 text-[10px] font-bold text-brand-orange border border-orange-100">
-                          {course.badge}
+                          {course.badge || "Best Seller"}
                         </span>
                         <span className="text-[10px] text-brand-blue font-bold uppercase tracking-wider">
-                          {course.provider}
+                          {course.provider || "PMI®"}
                         </span>
                       </div>
 
@@ -317,30 +243,30 @@ export default function Certifications() {
                       </h3>
 
                       {/* Description */}
-                      <p className="text-[11px] text-gray-500 leading-relaxed font-semibold">
-                        {course.desc}
+                      <p className="text-[11px] text-gray-500 leading-relaxed font-semibold line-clamp-2">
+                        {course.description || course.desc || "Official certification prep bootcamp with instructor-led classes and 100% pass guarantee."}
                       </p>
 
                       {/* Rating */}
                       <div className="flex items-center gap-1 text-[11px]">
                         <Star size={12} className="text-amber-400" fill="currentColor" />
-                        <span className="font-bold text-gray-800">{course.rating}</span>
-                        <span className="text-gray-400">({course.reviews} reviews)</span>
+                        <span className="font-bold text-gray-800">{course.rating || "4.9"}</span>
+                        <span className="text-gray-400">({course.reviews || "1,240"} reviews)</span>
                       </div>
 
                       {/* Timing & Level info */}
                       <div className="space-y-2 pt-2 border-t border-gray-50 text-[10px] text-gray-500 font-bold">
                         <div className="flex items-center justify-between">
                           <span className="text-gray-400 uppercase">Path:</span>
-                          <span className="text-brand-navy">{course.category}</span>
+                          <span className="text-brand-navy">{course.category_name || course.category || "Project Management"}</span>
                         </div>
                         <div className="flex items-center justify-between">
                           <span className="text-gray-400 uppercase">Level:</span>
-                          <span className="text-brand-navy">{course.level}</span>
+                          <span className="text-brand-navy">{course.level || "Intermediate"}</span>
                         </div>
                         <div className="flex items-center justify-between">
                           <span className="text-gray-400 uppercase">Hours:</span>
-                          <span className="text-brand-navy">{course.duration}</span>
+                          <span className="text-brand-navy">{course.duration || "4 Days (35 Contact Hours)"}</span>
                         </div>
                       </div>
                     </div>
@@ -348,12 +274,14 @@ export default function Certifications() {
                     {/* Card Actions */}
                     <div className="mt-8 pt-5 border-t border-gray-50 flex items-center justify-between">
                       <div>
-                        <span className="text-[9px] text-gray-400 font-bold line-through block">{course.originalPrice}</span>
-                        <span className="text-base font-black text-brand-navy">{course.price}</span>
+                        {course.original_price && (
+                          <span className="text-[9px] text-gray-400 font-bold line-through block">${course.original_price}</span>
+                        )}
+                        <span className="text-base font-black text-brand-navy">${course.price}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Link
-                          href={`/courses/${course.slug}`}
+                          href={`/courses/${course.slug || course.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
                           className="flex h-9 items-center justify-center rounded-xl border border-gray-200 px-3.5 text-[10px] font-bold text-gray-700 hover:bg-gray-50 transition-colors"
                         >
                           Details
@@ -363,14 +291,12 @@ export default function Certifications() {
                             const cartItem = {
                               course: course.title,
                               format: "Live Online Class",
-                              price: parseFloat(course.price.replace("$", "").replace(",", "")),
-                              date: course.nextDate
+                              price: typeof course.price === 'number' ? course.price : parseFloat(String(course.price).replace("$", "").replace(",", "")),
+                              date: course.nextDate || "Aug 26 - Aug 29, 2026"
                             };
                             if (typeof window !== "undefined") {
                               localStorage.setItem("cp_cart", JSON.stringify(cartItem));
-                              const isSubpath = window.location.pathname.includes('/crt-appson');
-                              const basePath = isSubpath ? '/crt-appson' : '';
-                              window.location.href = `${basePath}/checkout/`;
+                              window.location.href = `/enroll`;
                             }
                           }}
                           className="flex h-9 items-center justify-center gap-1.5 rounded-xl bg-brand-blue px-3.5 text-[10px] font-bold text-white hover:bg-opacity-90 shadow-md transition-all cursor-pointer"

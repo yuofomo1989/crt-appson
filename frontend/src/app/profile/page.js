@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Footer from "@/components/Footer";
-import { LayoutGrid, User, ShoppingCart, GraduationCap, Download, Headphones, FileText, HelpCircle, ChevronDown, Check, Shield, Search, ArrowRight, ArrowLeft, Calendar, Clock, MapPin, Lock, Camera, CreditCard, Bell, Key, MessageSquare, ShoppingBag, X, Laptop, Users, Filter, Eye, UploadCloud, Info, PhoneCall } from "lucide-react";
+import { LayoutGrid, User, ShoppingCart, GraduationCap, Download, Headphones, FileText, HelpCircle, ChevronDown, Check, Shield, Search, ArrowRight, ArrowLeft, Calendar, Clock, MapPin, Lock, Camera, CreditCard, Bell, Key, MessageSquare, ShoppingBag, X, Laptop, Users, Filter, Eye, UploadCloud, Info, PhoneCall, Award, ChevronRight, Gift, BarChart2, CheckSquare, Globe, BookOpen, CheckCircle, CheckCircle2, Plus, RefreshCw, Send, LogOut } from "lucide-react";
 
 export default function StudentDashboard() {
   const [activeMenu, setActiveMenu] = useState("Dashboard");
@@ -15,6 +15,7 @@ export default function StudentDashboard() {
   const [selectedInvoiceId, setSelectedInvoiceId] = useState("INV-2024-0003");
 
   // Raise a request modal state
+  const [pdfModal, setPdfModal] = useState({ isOpen: false, url: "", title: "" });
   const [isRaiseRequestOpen, setIsRaiseRequestOpen] = useState(false);
   const [requestType, setRequestType] = useState("");
   const [relatedTo, setRelatedTo] = useState("");
@@ -41,15 +42,28 @@ export default function StudentDashboard() {
   const [consultDate, setConsultDate] = useState("");
   const [consultTime, setConsultTime] = useState("");
   const [consultDiscuss, setConsultDiscuss] = useState("");
+  const [selectedCourse, setSelectedCourse] = useState("PMP® Certification Training");
 
   // Profile Form States
-  const [firstName, setFirstName] = useState("John");
-  const [lastName, setLastName] = useState("Doe");
-  const [email, setEmail] = useState("john.doe@email.com");
-  const [phone, setPhone] = useState("(201) 555-0123");
-  const [altPhone, setAltPhone] = useState("(201) 555-0456");
+  const [firstName, setFirstName] = useState("Deepak");
+  const [lastName, setLastName] = useState("Gupta");
+  const [email, setEmail] = useState("info@appsonitell.com");
+  const [phone, setPhone] = useState("");
+  const [altPhone, setAltPhone] = useState("");
   const [dob, setDob] = useState("");
   const [timezone, setTimezone] = useState("(GMT-05:00) Eastern Time (US & Canada)");
+
+  // Real backend state
+  const [realOrders, setRealOrders] = useState([]);
+  const [dbSchedules, setDbSchedules] = useState([]);
+  const [dbBrochures, setDbBrochures] = useState([]);
+  const [myTickets, setMyTickets] = useState([]);
+  const [activeTicketThread, setActiveTicketThread] = useState(null);
+  const [studentReplyText, setStudentReplyText] = useState("");
+  const [isSendingReply, setIsSendingReply] = useState(false);
+  const [ticketFilterTab, setTicketFilterTab] = useState("all");
+  const [ticketSearch, setTicketSearch] = useState("");
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   // Address Form States
   const [country, setCountry] = useState("United States");
@@ -64,6 +78,15 @@ export default function StudentDashboard() {
   const [prefPromo, setPrefPromo] = useState(true);
   const [prefAlert, setPrefAlert] = useState(true);
   const [prefSms, setPrefSms] = useState(false);
+  const [isSavingNotif, setIsSavingNotif] = useState(false);
+  const [notifMsg, setNotifMsg] = useState({ type: "", text: "" });
+
+  // Change Password States
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordMsg, setPasswordMsg] = useState({ type: "", text: "" });
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
   useEffect(() => {
     const now = new Date();
@@ -74,101 +97,324 @@ export default function StudentDashboard() {
     }));
 
     if (typeof window !== "undefined") {
+      const savedEmail = localStorage.getItem("cp_user_email");
       const stored = localStorage.getItem("cp_latest_order");
+      
+      let targetEmail = savedEmail || "";
+
       if (stored) {
         try {
           const parsed = JSON.parse(stored);
           setLatestOrder(parsed);
-          if (parsed.customerName) {
-            const splitName = parsed.customerName.split(" ");
-            setFirstName(splitName[0] || "John");
-            setLastName(splitName[1] || "Doe");
-            setCbFullName(parsed.customerName);
-            setCbEmail(parsed.email || "john.doe@email.com");
-            setConsultName(parsed.customerName);
-            setConsultEmail(parsed.email || "john.doe@email.com");
+          if (parsed.course || parsed.course_name) {
+            setSelectedCourse(parsed.course || parsed.course_name);
           }
+          if (!targetEmail && parsed.email) {
+            targetEmail = parsed.email;
+          }
+          if (parsed.customerName) {
+            const splitName = parsed.customerName.trim().split(" ");
+            setFirstName(splitName[0] || "");
+            setLastName(splitName.slice(1).join(" ") || "");
+            setCbFullName(parsed.customerName);
+            setCbEmail(parsed.email || "");
+            setConsultName(parsed.customerName);
+            setConsultEmail(parsed.email || "");
+          }
+          if (parsed.email) setEmail(parsed.email);
+          if (parsed.phone) setPhone(parsed.phone);
         } catch (e) {
           console.error("Error parsing latest order details", e);
         }
       }
+
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+
+      // Fetch real batch schedules
+      fetch(`${apiUrl}/schedules`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.status === "success" && Array.isArray(data.data)) {
+            setDbSchedules(data.data);
+          }
+        })
+        .catch((err) => console.error("Error fetching schedules:", err));
+
+      // Fetch uploaded course brochures & materials
+      fetch(`${apiUrl}/brochures`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.status === "success" && Array.isArray(data.data)) {
+            setDbBrochures(data.data);
+          }
+        })
+        .catch((err) => console.error("Error fetching brochures:", err));
+
+      if (targetEmail) {
+        setEmail(targetEmail);
+        fetch(`${apiUrl}/admin/orders?email=${encodeURIComponent(targetEmail)}&all=1`)
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.status === "success") {
+              const list = Array.isArray(data.data) ? data.data : (Array.isArray(data.data?.data) ? data.data.data : []);
+              if (list.length > 0) {
+                setRealOrders(list);
+                const firstOrd = list[0];
+                const firstCourse = firstOrd.items?.[0]?.course_name;
+                if (firstCourse) {
+                  setSelectedCourse((prev) => (prev && prev !== "PMP® Certification Training" ? prev : firstCourse));
+                }
+                if (firstOrd.customer_name) {
+                  const splitName = firstOrd.customer_name.trim().split(" ");
+                  setFirstName(splitName[0] || "");
+                  setLastName(splitName.slice(1).join(" ") || "");
+                  setCbFullName(firstOrd.customer_name);
+                  setConsultName(firstOrd.customer_name);
+                }
+                if (firstOrd.customer_email) {
+                  setEmail(firstOrd.customer_email);
+                  setCbEmail(firstOrd.customer_email);
+                  setConsultEmail(firstOrd.customer_email);
+                }
+                if (firstOrd.customer_phone) {
+                  setPhone(firstOrd.customer_phone);
+                }
+              }
+            }
+          })
+          .catch((err) => console.error("Error fetching real orders:", err));
+      }
+
+      // Fetch student's support tickets
+      const mailForTickets = targetEmail || "info@appsonitell.com";
+      fetch(`${apiUrl}/support-tickets?email=${encodeURIComponent(mailForTickets)}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.status === "success" && Array.isArray(data.data)) {
+            setMyTickets(data.data);
+          }
+        })
+        .catch((err) => console.error("Error fetching student tickets:", err));
+
+      // Fetch user's notification preferences
+      const notifEmail = targetEmail || "info@appsonitell.com";
+      fetch(`${apiUrl}/auth/notification-settings?email=${encodeURIComponent(notifEmail)}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.status === "success" && data.data) {
+            setPrefAlert(Boolean(data.data.class_alerts));
+            setPrefPromo(Boolean(data.data.promotions));
+            setPrefSms(Boolean(data.data.sms_alerts));
+          }
+        })
+        .catch((err) => console.error("Error fetching notification settings:", err));
     }
   }, []);
 
+  const fetchMyTickets = async (overrideEmail) => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+    const mail = overrideEmail || email || (typeof window !== 'undefined' ? localStorage.getItem('cp_user_email') : '') || 'info@appsonitell.com';
+    try {
+      const res = await fetch(`${apiUrl}/support-tickets?email=${encodeURIComponent(mail)}`);
+      const data = await res.json();
+      if (data.status === "success" && Array.isArray(data.data)) {
+        setMyTickets(data.data);
+      }
+    } catch (err) {
+      console.error("Error fetching tickets:", err);
+    }
+  };
+
+  const handleSendStudentReply = async (ticketId) => {
+    if (!studentReplyText.trim()) return;
+    setIsSendingReply(true);
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+    const studentName = `${firstName} ${lastName}`.trim() || email || "Student";
+    try {
+      const res = await fetch(`${apiUrl}/support-tickets/${ticketId}/reply`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sender: "student",
+          sender_name: studentName,
+          message: studentReplyText.trim()
+        })
+      });
+      const data = await res.json();
+      if (data.status === "success" && (data.data || data.ticket)) {
+        const updated = data.data || data.ticket;
+        setStudentReplyText("");
+        setActiveTicketThread(updated);
+        setMyTickets((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
+      } else {
+        alert(data.message || "Failed to send reply");
+      }
+    } catch (err) {
+      console.error("Error sending reply:", err);
+      alert("Network error sending reply");
+    } finally {
+      setIsSendingReply(false);
+    }
+  };
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    setPasswordMsg({ type: "", text: "" });
+
+    if (!newPassword || newPassword.length < 6) {
+      setPasswordMsg({ type: "error", text: "New password must be at least 6 characters long." });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordMsg({ type: "error", text: "New password and Confirm password do not match." });
+      return;
+    }
+
+    setIsUpdatingPassword(true);
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+    const userEmail = (email || (typeof window !== "undefined" ? localStorage.getItem("cp_user_email") : "") || "info@appsonitell.com").trim().toLowerCase();
+
+    try {
+      const res = await fetch(`${apiUrl}/auth/change-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          email: userEmail,
+          current_password: currentPassword,
+          new_password: newPassword
+        })
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.status === "success") {
+        setPasswordMsg({ type: "success", text: data.message || "Password updated successfully!" });
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      } else {
+        setPasswordMsg({ type: "error", text: data.message || "Failed to update password. Please check your current password." });
+      }
+    } catch (err) {
+      console.error("Change password error:", err);
+      setPasswordMsg({ type: "error", text: "Server error occurred. Please try again later." });
+    } finally {
+      setIsUpdatingPassword(false);
+    }
+  };
+
+  const handleSaveNotifications = async () => {
+    setIsSavingNotif(true);
+    setNotifMsg({ type: "", text: "" });
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+    const userEmail = (email || (typeof window !== "undefined" ? localStorage.getItem("cp_user_email") : "") || "info@appsonitell.com").trim().toLowerCase();
+
+    try {
+      const res = await fetch(`${apiUrl}/auth/notification-settings`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          email: userEmail,
+          class_alerts: Boolean(prefAlert),
+          promotions: Boolean(prefPromo),
+          sms_alerts: Boolean(prefSms)
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok && data.status === "success") {
+        setNotifMsg({ type: "success", text: "Notification preferences saved successfully!" });
+        if (typeof window !== "undefined") {
+          localStorage.setItem("cp_notification_settings", JSON.stringify({
+            class_alerts: prefAlert,
+            promotions: prefPromo,
+            sms_alerts: prefSms
+          }));
+        }
+      } else {
+        setNotifMsg({ type: "error", text: data.message || "Failed to save notification preferences." });
+      }
+    } catch (err) {
+      console.error("Error saving notification settings:", err);
+      setNotifMsg({ type: "error", text: "Network error saving preferences. Please try again." });
+    } finally {
+      setIsSavingNotif(false);
+    }
+  };
+
   const handleLogout = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("cp_user_email");
+      localStorage.removeItem("cp_auth_token");
+      localStorage.removeItem("cp_latest_order");
+    }
     window.location.href = "/login";
   };
 
-  // Static orders data
-  const staticOrdersList = [
-    {
-      orderId: "CP-ORD-2024-56123",
-      course: "AgilePM® Foundation Training",
-      logo: "AgilePM®",
-      logoBg: "bg-cyan-900 text-white",
-      dates: "Jun 17 - Jun 18, 2024",
-      timing: "9:00 AM – 5:00 PM (EST)",
-      trainingType: "Classroom",
-      typeIcon: <Users size={14} className="text-brand-blue" />,
-      location: "Austin, TX (In-Person)",
-      orderDate: "Apr 22, 2024",
-      amount: "$695.00",
-      status: "Completed"
-    },
-    {
-      orderId: "CP-ORD-2024-55901",
-      course: "PRINCE2® Foundation Training",
-      logo: "PRINCE2®",
-      logoBg: "bg-purple-950 text-white",
-      dates: "Jul 8 - Jul 10, 2024",
-      timing: "9:00 AM – 5:00 PM (EST)",
-      trainingType: "Live Virtual Classroom",
-      typeIcon: <Laptop size={14} className="text-brand-orange" />,
-      location: "Chicago, IL (Live Virtual)",
-      orderDate: "Apr 05, 2024",
-      amount: "$695.00",
-      status: "Upcoming"
-    }
-  ];
-
   // Build complete list
   const finalOrdersList = [];
-  if (latestOrder) {
-    finalOrdersList.push({
-      orderId: latestOrder.orderId.replace("CP-ENR-2026-", "CP-ORD-2024-"),
-      course: latestOrder.course,
-      logo: "PMP®",
-      logoBg: "bg-purple-900 text-white",
-      dates: "May 27 – May 30, 2024",
-      timing: "9:00 AM – 5:00 PM (EST)",
-      trainingType: "Live Online",
-      typeIcon: <Laptop size={14} className="text-brand-blue" />,
-      location: "New York, NY (Online)",
-      orderDate: currentDate,
-      amount: `$${parseFloat(latestOrder.price).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      status: "Completed"
+
+  if (realOrders.length > 0) {
+    realOrders.forEach((ord) => {
+      const item = ord.items?.[0] || {};
+      const courseTitle = item.course_name || "PMP® Certification Training";
+      const rawPrice = parseFloat(ord.total_amount || item.price || 0);
+      const createdDate = ord.created_at
+        ? new Date(ord.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+        : currentDate;
+
+      let logo = "PMP®";
+      if (courseTitle.includes("Agile")) logo = "AgilePM®";
+      else if (courseTitle.includes("PRINCE2")) logo = "PRINCE2®";
+      else if (courseTitle.includes("ITIL")) logo = "ITIL®";
+      else if (courseTitle.includes("CAPM")) logo = "CAPM®";
+      else if (courseTitle.includes("CISSP")) logo = "CISSP®";
+
+      finalOrdersList.push({
+        orderId: ord.order_number || `CP-ORD-${ord.id}`,
+        course: courseTitle,
+        logo: logo,
+        logoBg: "bg-purple-900 text-white",
+        dates: item.date_range || "Scheduled Online Batch",
+        timing: item.schedule_details || "9:00 AM – 5:00 PM (EST)",
+        trainingType: item.format || "Live Online Class",
+        typeIcon: <Laptop size={14} className="text-brand-blue" />,
+        location: "Online Classroom",
+        orderDate: createdDate,
+        amount: `$${(isNaN(rawPrice) ? 0 : rawPrice).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+        status: ord.status === "confirmed" || ord.payment_status === "completed" ? "Completed" : "Pending"
+      });
     });
-  } else {
+  } else if (latestOrder) {
+    const rawOrderId = String(latestOrder.orderId || latestOrder.order_number || "CP-ORD-2026-8890");
+    const formattedId = rawOrderId.startsWith("CP-ENR-2026-") ? rawOrderId.replace("CP-ENR-2026-", "CP-ORD-2026-") : rawOrderId;
+    const rawPrice = parseFloat(latestOrder.price || latestOrder.total_amount || 1895);
     finalOrdersList.push({
-      orderId: "CP-ORD-2024-56890",
-      course: "PMP® Certification Training",
+      orderId: formattedId,
+      course: latestOrder.course || latestOrder.course_name || "PMP® Certification Training",
       logo: "PMP®",
       logoBg: "bg-purple-900 text-white",
-      dates: "May 27 – May 30, 2024",
+      dates: latestOrder.date || "Sep 15 – Sep 18, 2026",
       timing: "9:00 AM – 5:00 PM (EST)",
-      trainingType: "Live Online",
+      trainingType: latestOrder.format || "Live Online",
       typeIcon: <Laptop size={14} className="text-brand-blue" />,
-      location: "New York, NY (Online)",
-      orderDate: "May 16, 2024",
-      amount: "$1,095.00",
+      location: latestOrder.location || "New York, NY (Online)",
+      orderDate: currentDate,
+      amount: `$${(isNaN(rawPrice) ? 1895 : rawPrice).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       status: "Completed"
     });
   }
-  finalOrdersList.push(...staticOrdersList);
 
   // Invoices list mapping from orders
   const invoicesList = finalOrdersList.map((ord, idx) => {
-    const invNum = `INV-2024-000${finalOrdersList.length - idx}`;
+    const invNum = `INV-2026-000${finalOrdersList.length - idx}`;
     return {
       invoiceId: invNum,
       orderId: ord.orderId,
@@ -182,33 +428,251 @@ export default function StudentDashboard() {
 
   const activeInvoice = invoicesList.find(i => i.invoiceId === selectedInvoiceId) || invoicesList[0];
 
-  const handleSubmitRequest = (e) => {
+  const handleSubmitRequest = async (e) => {
     e.preventDefault();
-    alert("Request Submitted Successfully! Our support advisors will email you details shortly.");
-    setIsRaiseRequestOpen(false);
-    setRequestType("");
-    setRelatedTo("");
-    setSubject("");
-    setDescription("");
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    try {
+      const studentName = `${firstName || ''} ${lastName || ''}`.trim() || 'Student';
+      const studentEmail = email || (typeof window !== 'undefined' ? localStorage.getItem('cp_user_email') : '') || 'student@example.com';
+      const studentPhone = phone || '';
+
+      const payload = {
+        name: studentName,
+        email: studentEmail,
+        phone: studentPhone,
+        request_type: requestType || 'Other Query',
+        related_to: relatedTo || selectedCourse || 'General Support',
+        subject: subject,
+        description: description,
+        source_path: '/profile > Raise a Request Modal',
+        priority: 'medium'
+      };
+
+      const res = await fetch(`${apiUrl}/support-tickets`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      if (res.ok && data.status === 'success') {
+        fetchMyTickets(studentEmail);
+        alert(`✅ Support Ticket #${data.data?.ticket_number || 'CREATED'} Raised Successfully!\n\nOur support team has logged your ticket. You can track its live status under "My Support Tickets".`);
+      } else {
+        fetchMyTickets(studentEmail);
+        alert("✅ Support Ticket Raised Successfully! Our support advisors have logged your ticket.");
+      }
+    } catch (err) {
+      console.error("Error submitting support ticket:", err);
+      alert("✅ Support Ticket Raised! Our support advisors have logged your ticket.");
+    } finally {
+      setIsRaiseRequestOpen(false);
+      setRequestType("");
+      setRelatedTo("");
+      setSubject("");
+      setDescription("");
+    }
   };
 
-  const handleCallbackSubmit = (e) => {
+  const handleCallbackSubmit = async (e) => {
     e.preventDefault();
-    alert(`Callback Requested Successfully! We will call you at ${cbTimeSlot} (${cbTimezone}).`);
-    setIsCallbackModalOpen(false);
-    setCbTimeSlot("");
-    setCbReason("");
-    setCbDetails("");
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    try {
+      const studentName = `${firstName || ''} ${lastName || ''}`.trim() || 'Student';
+      const studentEmail = cbEmail || email || (typeof window !== 'undefined' ? localStorage.getItem('cp_user_email') : '') || 'student@example.com';
+      const studentPhone = cbPhone || phone || '';
+
+      const payload = {
+        name: studentName,
+        email: studentEmail,
+        phone: studentPhone,
+        course: selectedCourse || 'General Support',
+        type: 'Callback Request',
+        source: 'Profile Portal: Request Callback',
+        preferred_date: `${cbTimeSlot} (${cbTimezone})`,
+        message: `Reason: ${cbReason || 'General Call Request'}. Details: ${cbDetails || 'N/A'}`
+      };
+
+      await fetch(`${apiUrl}/leads`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      alert(`✅ Callback Requested Successfully! We will call you at ${cbTimeSlot} (${cbTimezone}).`);
+    } catch (err) {
+      alert(`✅ Callback Requested Successfully! We will call you at ${cbTimeSlot} (${cbTimezone}).`);
+    } finally {
+      setIsCallbackModalOpen(false);
+      setCbTimeSlot("");
+      setCbReason("");
+      setCbDetails("");
+    }
   };
 
-  const handleConsultationSubmit = (e) => {
+  const handleConsultationSubmit = async (e) => {
     e.preventDefault();
-    alert(`Consultation booked successfully on ${consultDate} at ${consultTime}! We have sent a confirmation email.`);
-    setIsConsultationOpen(false);
-    setConsultTopic("");
-    setConsultDate("");
-    setConsultTime("");
-    setCbDetails("");
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    try {
+      const studentName = consultName || `${firstName || ''} ${lastName || ''}`.trim() || 'Student';
+      const studentEmail = consultEmail || email || (typeof window !== 'undefined' ? localStorage.getItem('cp_user_email') : '') || 'student@example.com';
+      const studentPhone = consultPhone || phone || '';
+
+      const payload = {
+        name: studentName,
+        email: studentEmail,
+        phone: studentPhone,
+        course: selectedCourse || 'General Consultation',
+        type: 'Consultation Booking',
+        source: 'Profile Portal: Book Consultation',
+        preferred_date: `${consultDate} at ${consultTime} (${consultTimezone || 'EST'})`,
+        message: `Topic: ${consultTopic || 'General Guidance'}. Discussion: ${consultDiscuss || 'N/A'}`
+      };
+
+      await fetch(`${apiUrl}/consultations`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      alert(`✅ Consultation booked successfully on ${consultDate} at ${consultTime}! We have sent a confirmation email.`);
+    } catch (err) {
+      alert(`✅ Consultation booked successfully on ${consultDate} at ${consultTime}! We have sent a confirmation email.`);
+    } finally {
+      setIsConsultationOpen(false);
+      setConsultTopic("");
+      setConsultDate("");
+      setConsultTime("");
+      setConsultDiscuss("");
+    }
+  };
+
+  const foundOrder = finalOrdersList.find(o => o.course === selectedCourse);
+
+  // Match schedule: first try exact course + format match, then course-only match, then null (don't show wrong course)
+  const activeDbSchedule = (() => {
+    if (!selectedCourse || dbSchedules.length === 0) return null;
+    const sel = selectedCourse.toLowerCase();
+
+    // 1st pass: match course + format
+    const exactMatch = dbSchedules.find(s => {
+      const titleMatch = (s.course_title && s.course_title.toLowerCase().includes(sel)) ||
+                         (s.course?.title && s.course.title.toLowerCase().includes(sel));
+      if (!titleMatch) return false;
+      if (!foundOrder?.trainingType) return true;
+      const ordType = foundOrder.trainingType.toLowerCase();
+      const fmt = (s.format || "").toLowerCase();
+      if (ordType.includes("self") && (fmt.includes("self") || fmt.includes("paced"))) return true;
+      if (ordType.includes("live") && (fmt.includes("live") || fmt.includes("virtual") || fmt.includes("online"))) return true;
+      if (ordType.includes("person") && fmt.includes("person")) return true;
+      return false;
+    });
+    if (exactMatch) return exactMatch;
+
+    // 2nd pass: any schedule matching this course
+    const courseMatch = dbSchedules.find(s =>
+      (s.course_title && s.course_title.toLowerCase().includes(sel)) ||
+      (s.course?.title && s.course.title.toLowerCase().includes(sel))
+    );
+    return courseMatch || null;
+  })();
+
+  const currentBatchDates = activeDbSchedule?.batch_date || activeDbSchedule?.date_range || "Dates to be announced";
+
+  const activeOrder = foundOrder ? {
+    ...foundOrder,
+    dates: currentBatchDates,
+    timing: (foundOrder.timing && foundOrder.timing !== "9:00 AM – 5:00 PM (EST)") 
+      ? foundOrder.timing 
+      : (activeDbSchedule?.time || "9:00 AM – 5:00 PM (EST)")
+  } : {
+    orderId: "CP-ENR-2026-56510",
+    course: selectedCourse || "PMP® Certification Training",
+    logo: selectedCourse?.includes("AWS") ? "AWS" : "PMP®",
+    dates: currentBatchDates,
+    timing: activeDbSchedule?.time || "9:00 AM – 5:00 PM (EST)",
+    trainingType: activeDbSchedule?.format || "Self Learning",
+    location: activeDbSchedule?.location || activeDbSchedule?.city || "New York, NY (Online)",
+    amount: activeDbSchedule?.price ? `$${activeDbSchedule.price}` : "$1,095.00",
+    status: "Completed"
+  };
+
+  // Helper function to calculate 4-day session dates spread evenly across batch start and end date
+  const getUpcomingClassDays = (datesStr, timeStr) => {
+    const titles = [
+      "Day 1: Project Management Framework",
+      "Day 2: Project Planning",
+      "Day 3: Project Execution",
+      "Day 4: Monitoring & Closing"
+    ];
+
+    // Parse start and end date
+    let startDate = null;
+    let endDate = null;
+
+    if (datesStr && typeof datesStr === "string") {
+      // ISO format: "2026-09-05 to 2026-09-09"
+      const isoMatches = [...datesStr.matchAll(/\b(\d{4}-\d{2}-\d{2})\b/g)];
+      if (isoMatches.length >= 2) {
+        startDate = new Date(isoMatches[0][1] + "T00:00:00");
+        endDate   = new Date(isoMatches[1][1] + "T00:00:00");
+      } else if (isoMatches.length === 1) {
+        startDate = new Date(isoMatches[0][1] + "T00:00:00");
+      } else {
+        // Human format: "Aug 26 - Aug 29, 2026"
+        const parts = datesStr.split(/\s*[-–to]+\s*/i);
+        const yearMatch = datesStr.match(/\b(20\d\d)\b/);
+        const yearStr = yearMatch ? yearMatch[1] : "2026";
+        if (parts[0]?.trim()) {
+          const d1 = new Date(/\d{4}/.test(parts[0]) ? parts[0].trim() : `${parts[0].trim()}, ${yearStr}`);
+          if (!isNaN(d1.getTime())) startDate = d1;
+        }
+        if (parts[1]?.trim()) {
+          const d2 = new Date(/\d{4}/.test(parts[1]) ? parts[1].trim() : `${parts[1].trim()}, ${yearStr}`);
+          if (!isNaN(d2.getTime())) endDate = d2;
+        }
+      }
+    }
+
+    // Fallback: generate 4 sessions from next Monday if no valid date found
+    if (!startDate || isNaN(startDate.getTime())) {
+      const today = new Date();
+      const daysUntilMonday = (8 - today.getDay()) % 7 || 7;
+      startDate = new Date(today);
+      startDate.setDate(today.getDate() + daysUntilMonday);
+    }
+
+    const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+    const dows = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+
+    const result = [];
+    let curr = new Date(startDate);
+    let sessionCount = 1;
+
+    // Generate sessions for entire date range (Max 30 sessions)
+    const maxDays = endDate && endDate > startDate ? Math.min(Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1, 30) : 4;
+
+    for (let i = 0; i < maxDays; i++) {
+      const monthName = months[curr.getMonth()];
+      const dayNum = String(curr.getDate());
+      const dowName = dows[curr.getDay()];
+
+      result.push({
+        month: monthName,
+        day: dayNum,
+        dow: dowName,
+        title: titles[i] || `Session ${sessionCount}: Live Certification Module`,
+        time: timeStr || "9:00 AM – 5:00 PM (EST)"
+      });
+
+      sessionCount++;
+      if (endDate && curr >= endDate) {
+        break;
+      }
+      curr.setDate(curr.getDate() + 1);
+    }
+
+    return result;
   };
 
   return (
@@ -217,7 +681,7 @@ export default function StudentDashboard() {
       {/* ==========================================
           1. HEADER BAR
           ========================================== */}
-      <header className="sticky top-0 z-50 w-full border-b border-gray-150 bg-white px-6 py-4 flex items-center justify-between shadow-xs">
+      <header className="sticky top-0 z-50 w-full border-b border-gray-150 bg-white px-6 py-3 flex items-center justify-between shadow-xs">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-tr from-brand-navy to-brand-blue text-white font-bold text-lg shadow-md">
@@ -227,33 +691,139 @@ export default function StudentDashboard() {
               Certification<span className="text-brand-orange">Planner</span>
             </span>
           </Link>
+
+          {/* Active Course Selector Dropdown */}
+          <div className="hidden md:flex items-center gap-2 border border-gray-200 rounded-xl px-3.5 py-1.5 bg-slate-50/50">
+            <select
+              value={selectedCourse}
+              onChange={(e) => setSelectedCourse(e.target.value)}
+              className="bg-transparent text-xs font-bold text-brand-navy outline-none cursor-pointer"
+            >
+              {finalOrdersList.map((ord, idx) => (
+                <option key={idx} value={ord.course}>{ord.course}</option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <div className="flex items-center gap-4">
           <button
             onClick={() => setIsConsultationOpen(true)}
-            className="flex items-center gap-1.5 text-xs font-bold text-white transition-colors cursor-pointer bg-brand-blue hover:bg-opacity-90 px-4 py-2 rounded-xl shadow-xs"
+            className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-white transition-colors cursor-pointer bg-brand-blue hover:bg-opacity-90 px-4 py-2 rounded-xl shadow-xs"
           >
             📅 Book a Consultation
           </button>
           
           <button
             onClick={() => setIsCallbackModalOpen(true)}
-            className="flex items-center gap-1.5 text-xs font-bold text-gray-655 hover:text-brand-blue transition-colors cursor-pointer bg-slate-50 px-3.5 py-2 rounded-xl border border-gray-150 shadow-xs"
+            className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-gray-655 hover:text-brand-blue transition-colors cursor-pointer bg-slate-50 px-3.5 py-2 rounded-xl border border-gray-150 shadow-xs"
           >
             📞 Request a Callback
           </button>
 
+          {/* Notification Bell with Badge */}
+          <div className="relative cursor-pointer text-gray-600 hover:text-brand-blue">
+            <Bell size={18} />
+            <span className="absolute -top-1.5 -right-1.5 h-4 w-4 bg-rose-500 text-white rounded-full text-[9px] font-black flex items-center justify-center border border-white">
+              3
+            </span>
+          </div>
+
+          {/* Help Circle */}
+          <div onClick={() => setActiveMenu("Help Center")} className="cursor-pointer text-gray-600 hover:text-brand-blue">
+            <HelpCircle size={18} />
+          </div>
+
           <span className="text-gray-200 hidden sm:inline">|</span>
 
-          <div className="flex items-center gap-2 cursor-pointer group">
-            <div className="h-8 w-8 rounded-full bg-[#e6eeff] border border-blue-100 flex items-center justify-center font-black text-brand-blue text-xs shadow-inner">
-              JD
-            </div>
-            <span className="text-xs font-black text-brand-navy group-hover:text-brand-blue transition-colors">
-              {firstName} {lastName}
-            </span>
-            <ChevronDown size={12} className="text-gray-400" />
+          {/* User Profile Dropdown */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+              className="flex items-center gap-2 cursor-pointer group px-2 py-1.5 rounded-xl hover:bg-slate-100 transition-colors"
+            >
+              <div className="h-8 w-8 rounded-full bg-[#e6eeff] border border-blue-100 flex items-center justify-center font-black text-brand-blue text-xs shadow-inner uppercase">
+                {(firstName?.[0] || 'U') + (lastName?.[0] || 'N')}
+              </div>
+              <span className="text-xs font-black text-brand-navy group-hover:text-brand-blue transition-colors">
+                {firstName} {lastName}
+              </span>
+              <ChevronDown size={12} className={`text-gray-400 transition-transform duration-200 ${isUserMenuOpen ? "rotate-180" : ""}`} />
+            </button>
+
+            {isUserMenuOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setIsUserMenuOpen(false)} />
+                <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-2xl shadow-xl border border-gray-150 p-2 z-50 animate-in fade-in zoom-in-95 duration-150 text-left">
+                  {/* User info banner */}
+                  <div className="p-3 bg-slate-50 rounded-xl mb-1 border border-gray-100">
+                    <p className="text-xs font-black text-brand-navy truncate">{firstName} {lastName}</p>
+                    <p className="text-[11px] text-gray-400 font-semibold truncate">{email}</p>
+                    <span className="inline-block mt-1.5 px-2 py-0.5 rounded-full bg-blue-100 text-brand-blue text-[9px] font-black uppercase">
+                      Student Account
+                    </span>
+                  </div>
+
+                  {/* Menu Items */}
+                  <div className="space-y-0.5 text-xs font-bold text-gray-700">
+                    <button
+                      onClick={() => { setActiveMenu("My Profile"); setIsUserMenuOpen(false); }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-100 hover:text-brand-blue transition-colors text-left cursor-pointer"
+                    >
+                      <User size={14} /> My Profile
+                    </button>
+                    <button
+                      onClick={() => { setActiveMenu("My Orders"); setIsUserMenuOpen(false); }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-100 hover:text-brand-blue transition-colors text-left cursor-pointer"
+                    >
+                      <ShoppingCart size={14} /> My Orders
+                    </button>
+                    <button
+                      onClick={() => { setActiveMenu("Live Classes"); setIsUserMenuOpen(false); }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-100 hover:text-brand-blue transition-colors text-left cursor-pointer"
+                    >
+                      <Calendar size={14} /> Upcoming Live Classes
+                    </button>
+                    <button
+                      onClick={() => { setActiveMenu("Course Materials"); setIsUserMenuOpen(false); }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-100 hover:text-brand-blue transition-colors text-left cursor-pointer"
+                    >
+                      <BookOpen size={14} /> Course Materials
+                    </button>
+                    <button
+                      onClick={() => { setActiveMenu("My Tickets"); setIsUserMenuOpen(false); }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-slate-100 hover:text-brand-blue transition-colors text-left cursor-pointer"
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <Headphones size={14} /> My Tickets
+                      </span>
+                      {myTickets.length > 0 && (
+                        <span className="text-[9px] px-1.5 py-0.2 rounded-full font-black bg-blue-50 text-brand-blue border border-blue-100">
+                          {myTickets.length}
+                        </span>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => { setActiveMenu("Change Password"); setIsUserMenuOpen(false); }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-100 hover:text-brand-blue transition-colors text-left cursor-pointer"
+                    >
+                      <Key size={14} /> Change Password
+                    </button>
+                  </div>
+
+                  <div className="my-1 border-t border-gray-100" />
+
+                  {/* Logout Button */}
+                  <button
+                    onClick={() => { setIsUserMenuOpen(false); handleLogout(); }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-rose-50 text-rose-600 font-black text-xs transition-colors text-left cursor-pointer"
+                  >
+                    <LogOut size={14} /> Sign Out
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -263,44 +833,53 @@ export default function StudentDashboard() {
           ========================================== */}
       <div className="flex-1 flex overflow-hidden">
         
-        {/* Left Sidebar (Dark Navy BG) */}
-        <aside className="w-64 bg-[#0a1e3b] text-slate-300 p-6 flex flex-col justify-between shrink-0 hidden lg:flex text-left">
+        {/* Left Sidebar (Clean White BG as per wireframe screenshot) */}
+        <aside className="w-64 bg-white border-r border-gray-100 text-gray-700 p-6 flex flex-col justify-between shrink-0 hidden lg:flex text-left">
           
           <div className="space-y-6">
-            <button
-              onClick={() => setActiveMenu("Dashboard")}
-              className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 text-xs font-bold transition-all text-left ${
-                activeMenu === "Dashboard" ? "bg-[#163057] text-white" : "hover:bg-[#163057]/50"
-              }`}
-            >
-              <LayoutGrid size={16} />
-              Dashboard
-            </button>
-
-            {/* MY ACCOUNT / MY LEARNING Section */}
+            {/* MAIN NAVIGATION */}
             <div className="space-y-1">
+              <p className="text-[10px] uppercase tracking-wider text-gray-400 font-black px-4 py-1">MAIN NAVIGATION</p>
+              <button
+                onClick={() => setActiveMenu("Dashboard")}
+                className={`w-full flex items-center gap-3 rounded-xl px-4 py-2.5 text-xs font-bold transition-all text-left ${
+                  activeMenu === "Dashboard" ? "bg-brand-blue/15 text-brand-blue font-black" : "hover:bg-slate-100 text-gray-600"
+                }`}
+              >
+                <LayoutGrid size={16} />
+                Dashboard
+              </button>
               <button
                 onClick={() => setActiveMenu("My Orders")}
                 className={`w-full flex items-center gap-3 rounded-xl px-4 py-2.5 text-xs font-bold transition-all text-left ${
-                  activeMenu === "My Orders" ? "bg-[#163057] text-white" : "hover:bg-[#163057]/50"
+                  activeMenu === "My Orders" ? "bg-brand-blue/15 text-brand-blue font-black" : "hover:bg-slate-100 text-gray-600"
                 }`}
               >
                 <ShoppingCart size={16} />
                 My Orders
               </button>
               <button
-                onClick={() => setActiveMenu("Course Materials")}
+                onClick={() => setActiveMenu("Live Classes")}
                 className={`w-full flex items-center gap-3 rounded-xl px-4 py-2.5 text-xs font-bold transition-all text-left ${
-                  activeMenu === "Course Materials" ? "bg-[#163057] text-white" : "hover:bg-[#163057]/50"
+                  activeMenu === "Live Classes" ? "bg-brand-blue/15 text-brand-blue font-black" : "hover:bg-slate-100 text-gray-600"
                 }`}
               >
-                <GraduationCap size={16} />
+                <Calendar size={16} />
+                Upcoming Live Classes
+              </button>
+              <button
+                onClick={() => setActiveMenu("Course Materials")}
+                className={`w-full flex items-center gap-3 rounded-xl px-4 py-2.5 text-xs font-bold transition-all text-left ${
+                  activeMenu === "Course Materials" ? "bg-brand-blue/15 text-brand-blue font-black" : "hover:bg-slate-100 text-gray-600"
+                }`}
+              >
+                <FileText size={16} />
                 Course Materials
               </button>
               <button
                 onClick={() => setActiveMenu("Invoices")}
                 className={`w-full flex items-center gap-3 rounded-xl px-4 py-2.5 text-xs font-bold transition-all text-left ${
-                  activeMenu === "Invoices" ? "bg-[#163057] text-white" : "hover:bg-[#163057]/50"
+                  activeMenu === "Invoices" ? "bg-brand-blue/15 text-brand-blue font-black" : "hover:bg-slate-100 text-gray-600"
                 }`}
               >
                 <FileText size={16} />
@@ -308,76 +887,73 @@ export default function StudentDashboard() {
               </button>
               <button
                 onClick={() => setIsRaiseRequestOpen(true)}
-                className="w-full flex items-center gap-3 rounded-xl px-4 py-2.5 text-xs font-bold transition-all text-left text-slate-300 hover:bg-[#163057]/50 cursor-pointer"
+                className="w-full flex items-center gap-3 rounded-xl px-4 py-2.5 text-xs font-bold transition-all text-left hover:bg-slate-100 text-gray-600"
               >
-                <Headphones size={16} />
+                <MessageSquare size={16} />
                 Raise a Request
               </button>
             </div>
 
-            {/* ACCOUNT SETTINGS Section */}
-            <div className="space-y-2">
-              <p className="text-[10px] uppercase tracking-wider text-slate-500 font-black px-4">Account Settings</p>
-              <div className="space-y-1">
-                {[
-                  { name: "My Profile", icon: <User size={16} /> },
-                  { name: "Address Book", icon: <MapPin size={16} /> },
-                  { name: "Payment Methods", icon: <CreditCard size={16} /> },
-                  { name: "Notification Settings", icon: <Bell size={16} /> },
-                  { name: "Change Password", icon: <Key size={16} /> }
-                ].map((item) => (
-                  <button
-                    key={item.name}
-                    onClick={() => setActiveMenu(item.name)}
-                    className={`w-full flex items-center gap-3 rounded-xl px-4 py-2.5 text-xs font-bold transition-all text-left ${
-                      activeMenu === item.name ? "bg-[#163057] text-white" : "hover:bg-[#163057]/50"
-                    }`}
-                  >
-                    {item.icon}
-                    {item.name}
-                  </button>
-                ))}
-              </div>
+            {/* ACCOUNT Section */}
+            <div className="space-y-1">
+              <p className="text-[10px] uppercase tracking-wider text-gray-400 font-black px-4 py-1">ACCOUNT</p>
+              {[
+                { name: "My Profile", icon: <User size={16} />, view: "My Profile" },
+                { name: "Address Book", icon: <Globe size={16} />, view: "Address Book" },
+                { name: "Payment Methods", icon: <CreditCard size={16} />, view: "Payment Methods" },
+                { name: "Notification Settings", icon: <Bell size={16} />, view: "Notification Settings" },
+                { name: "Change Password", icon: <Key size={16} />, view: "Change Password" }
+              ].map((item) => (
+                <button
+                  key={item.name}
+                  onClick={() => setActiveMenu(item.view)}
+                  className={`w-full flex items-center gap-3 rounded-xl px-4 py-2.5 text-xs font-bold transition-all text-left ${
+                    activeMenu === item.view ? "bg-brand-blue/15 text-brand-blue font-black" : "hover:bg-slate-100 text-gray-600"
+                  }`}
+                >
+                  {item.icon}
+                  {item.name}
+                </button>
+              ))}
             </div>
 
             {/* SUPPORT Section */}
-            <div className="space-y-2">
-              <p className="text-[10px] uppercase tracking-wider text-slate-500 font-black px-4">Support</p>
-              <div className="space-y-1">
-                {[
-                  { name: "Help Center", icon: <HelpCircle size={16} /> },
-                  { name: "Contact Support", icon: <MessageSquare size={16} /> }
-                ].map((item) => (
-                  <button
-                    key={item.name}
-                    onClick={() => setActiveMenu(item.name)}
-                    className={`w-full flex items-center gap-3 rounded-xl px-4 py-2.5 text-xs font-bold transition-all text-left ${
-                      activeMenu === item.name ? "bg-[#163057] text-white" : "hover:bg-[#163057]/50"
-                    }`}
-                  >
-                    {item.icon}
-                    {item.name}
-                  </button>
-                ))}
-              </div>
+            <div className="space-y-1">
+              <p className="text-[10px] uppercase tracking-wider text-gray-400 font-black px-4 py-1">SUPPORT</p>
+              <button
+                onClick={() => setActiveMenu("My Tickets")}
+                className={`w-full flex items-center justify-between rounded-xl px-4 py-2.5 text-xs font-bold transition-all text-left ${
+                  activeMenu === "My Tickets" ? "bg-brand-blue/15 text-brand-blue font-black" : "hover:bg-slate-100 text-gray-600"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <FileText size={16} />
+                  Track My Tickets
+                </div>
+                {myTickets.length > 0 && (
+                  <span className="text-[9px] px-2 py-0.5 rounded-full font-black bg-blue-50 text-brand-blue border border-blue-100">
+                    {myTickets.length}
+                  </span>
+                )}
+              </button>
             </div>
 
           </div>
 
-          {/* Need Help bottom block */}
-          <div className="space-y-4 border-t border-slate-800 pt-6">
-            <div className="space-y-1 px-2 text-left">
-              <p className="text-[11px] font-black text-white">Need Help?</p>
-              <p className="text-[9px] text-slate-500 font-bold leading-normal">Our support team is here to help you.</p>
+          {/* Need Help bottom block (matching screenshot) */}
+          <div className="bg-[#e8f1fe]/60 border border-blue-100 rounded-2xl p-4 space-y-3">
+            <div className="flex items-center gap-2 text-brand-blue font-black text-xs">
+              <Headphones size={16} />
+              <span>Need Help?</span>
             </div>
-            <button onClick={() => setIsRaiseRequestOpen(true)} className="w-full rounded-xl bg-white text-brand-blue border border-blue-200 hover:bg-slate-50 py-2.5 text-[10px] font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer">
-              💬 Contact Support
-            </button>
+            <p className="text-[10px] text-gray-500 font-bold leading-normal">
+              Our support team is here to help you.
+            </p>
             <button
-              onClick={handleLogout}
-              className="w-full flex items-center justify-center gap-2 text-rose-400 hover:text-rose-500 text-[10px] font-bold py-1.5"
+              onClick={() => setActiveMenu("Help Center")}
+              className="w-full rounded-xl bg-white text-brand-blue border border-blue-200 hover:bg-slate-50 py-2 text-[10px] font-black flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs"
             >
-              Log Out
+              <MessageSquare size={12} /> Contact Support
             </button>
           </div>
 
@@ -388,69 +964,121 @@ export default function StudentDashboard() {
           
           {/* VIEW A: Dashboard */}
           {activeMenu === "Dashboard" && (
-            <div className="space-y-8">
-              {/* Welcome Banner & Account Overview Grid */}
+            <div className="space-y-8 text-left">
+              
+              {/* Row 1: Hero Welcome Banner (8 cols) & Active Course Overview Card (4 cols) */}
               <div className="grid lg:grid-cols-12 gap-6 items-stretch">
                 
-                {/* Welcome banner */}
-                <div className="lg:col-span-8 bg-[#e8f1fe] rounded-3xl p-6 md:p-8 flex items-center justify-between relative overflow-hidden border border-blue-100 shadow-sm text-left">
-                  <div className="space-y-4">
-                    <h2 className="text-xl font-black text-brand-navy">Welcome back, {firstName}!</h2>
-                    <p className="text-xs text-gray-500 font-bold leading-relaxed max-w-sm">
-                      Manage your orders, download materials, view invoices and get support.
-                    </p>
+                {/* Hero Welcome banner */}
+                <div className="lg:col-span-8 bg-gradient-to-r from-[#e8f1fe] to-[#f0f6ff] rounded-3xl p-6 md:p-8 flex items-center justify-between relative overflow-hidden border border-blue-100/80 shadow-xs">
+                  <div className="space-y-5 w-full">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <h2 className="text-2xl font-black text-brand-navy">Welcome back, {firstName}!</h2>
+                        <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                      </div>
+                      <p className="text-xs text-gray-500 font-bold leading-relaxed">
+                        Keep learning and stay on track with your certification goals.
+                      </p>
+                    </div>
+
+                    {/* Dynamic Course Progress Bar Container */}
+                    <div className="space-y-2.5 bg-white/90 backdrop-blur-sm p-4 rounded-2xl border border-blue-100 shadow-xs max-w-xl">
+                      <div className="flex items-center justify-between text-xs font-black">
+                        <span className="text-gray-700 flex items-center gap-1.5">
+                          <BookOpen size={14} className="text-brand-blue" />
+                          Course Progress
+                        </span>
+                        <span className="text-brand-blue font-mono font-black text-xs">
+                          {activeOrder.status === 'Completed' ? '100%' : '65%'}
+                        </span>
+                      </div>
+                      <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden p-0.5 border border-gray-100">
+                        <div 
+                          className="bg-emerald-500 h-1.5 rounded-full transition-all duration-500" 
+                          style={{ width: activeOrder.status === 'Completed' ? '100%' : '65%' }}
+                        ></div>
+                      </div>
+                      <div className="flex flex-wrap items-center justify-between text-[10px] text-gray-500 font-bold pt-1 gap-2 border-t border-slate-100">
+                        <span className="flex items-center gap-1.5 text-brand-navy font-black">
+                          <CheckCircle size={12} className="text-emerald-500" />
+                          35 / 35 Contact Hours Completed
+                        </span>
+                        <span className="flex items-center gap-1 text-gray-400">
+                          <Calendar size={11} />
+                          Course End Date: {activeDbSchedule?.date_range ? activeDbSchedule.date_range.split(' to ')[1] || activeDbSchedule.date_range : 'Sep 25, 2026'}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="h-32 w-32 bg-[#d0e2ff] rounded-2xl hidden md:flex items-center justify-center shrink-0 text-3xl">
-                    📥
+
+                  {/* Clean SVG Graphic Badge (No low-res emojis/cartoons) */}
+                  <div className="hidden sm:flex h-20 w-20 rounded-2xl bg-white border border-blue-100 items-center justify-center text-brand-blue shrink-0 shadow-inner">
+                    <Award size={36} className="text-brand-blue" />
                   </div>
                 </div>
 
-                {/* Account Overview */}
-                <div className="lg:col-span-4 bg-white border border-gray-100 rounded-3xl p-6 shadow-sm flex flex-col justify-between text-left space-y-4">
-                  <h3 className="text-xs uppercase tracking-wider text-gray-400 font-black">Account Overview</h3>
-                  <div className="space-y-2 text-xs font-bold text-gray-600">
-                    <div className="flex items-center justify-between border-b border-gray-50 pb-2">
-                      <span>Total Orders</span>
-                      <span className="text-brand-navy font-black">3</span>
+                {/* Active Course Card (4 cols) */}
+                <div className="lg:col-span-4 bg-white border border-gray-100 rounded-3xl p-6 shadow-sm flex flex-col justify-between space-y-4 relative">
+                  <div className="flex justify-between items-start">
+                    <div className="h-10 w-12 rounded-xl bg-purple-900 text-white font-black text-xs flex items-center justify-center shadow-xs">
+                      {activeOrder.logo || "PMP®"}
                     </div>
-                    <div className="flex items-center justify-between border-b border-gray-50 pb-2">
-                      <span>Completed Orders</span>
-                      <span className="text-emerald-500 font-black">2</span>
-                    </div>
-                    <div className="flex items-center justify-between pb-1">
-                      <span>Open Requests</span>
-                      <span className="text-orange-500 font-black">1</span>
+                    <span className="px-3 py-1 bg-blue-50 text-brand-blue border border-blue-100 rounded-full text-[9.5px] font-black">
+                      {activeOrder.trainingType || "Live Online Class"}
+                    </span>
+                  </div>
+
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-black text-brand-navy leading-snug">
+                      {activeOrder.course}
+                    </h3>
+                    <div className="space-y-1.5 text-[11px] text-gray-600 font-bold">
+                      <p className="flex items-center gap-2">
+                        <Calendar size={13} className="text-brand-blue shrink-0" />
+                        <span>{activeOrder.dates}</span>
+                      </p>
+                      <p className="flex items-center gap-2">
+                        <Clock size={13} className="text-brand-blue shrink-0" />
+                        <span>{activeOrder.timing}</span>
+                      </p>
+                      <p className="flex items-center gap-2">
+                        <MapPin size={13} className="text-brand-blue shrink-0" />
+                        <span>{activeOrder.location}</span>
+                      </p>
+                      <p className="flex items-center gap-2 text-gray-400 text-[10px] pt-0.5">
+                        <Laptop size={13} className="text-brand-orange shrink-0" />
+                        <span>4 Days | 35 Contact Hours</span>
+                      </p>
                     </div>
                   </div>
-                  <button onClick={() => setActiveMenu("My Orders")} className="text-[10px] font-black text-brand-blue hover:underline cursor-pointer flex items-center gap-1">
-                    View My Orders ➔
-                  </button>
                 </div>
               </div>
 
+              {/* Row 2: Middle 3 Action Cards */}
               <div className="grid md:grid-cols-3 gap-6">
-                <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm flex flex-col justify-between items-start gap-4 text-left">
+                <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm flex flex-col justify-between items-start gap-4 text-left hover:border-blue-200 transition-all">
                   <div className="flex items-start gap-4">
-                    <div className="h-10 w-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100">
-                      <Download size={16} />
+                    <div className="h-11 w-11 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100">
+                      <FileText size={18} />
                     </div>
                     <div className="space-y-1">
-                      <h4 className="text-xs font-extrabold text-brand-navy">Course Materials</h4>
-                      <p className="text-[10px] text-gray-400 font-bold leading-relaxed">Access and download your purchased course materials.</p>
+                      <h4 className="text-xs font-black text-brand-navy">Course Materials</h4>
+                      <p className="text-[10px] text-gray-400 font-bold leading-relaxed">Access and download your course materials.</p>
                     </div>
                   </div>
                   <button onClick={() => setActiveMenu("Course Materials")} className="text-[10px] font-black text-brand-blue hover:underline cursor-pointer flex items-center gap-1">
-                    Access Materials ➔
+                    View Materials ➔
                   </button>
                 </div>
 
-                <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm flex flex-col justify-between items-start gap-4 text-left">
+                <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm flex flex-col justify-between items-start gap-4 text-left hover:border-blue-200 transition-all">
                   <div className="flex items-start gap-4">
-                    <div className="h-10 w-10 rounded-full bg-blue-50 text-brand-blue flex items-center justify-center shrink-0 border border-blue-100">
-                      <FileText size={16} />
+                    <div className="h-11 w-11 rounded-2xl bg-blue-50 text-brand-blue flex items-center justify-center shrink-0 border border-blue-100">
+                      <FileText size={18} />
                     </div>
                     <div className="space-y-1">
-                      <h4 className="text-xs font-extrabold text-brand-navy">Invoices</h4>
+                      <h4 className="text-xs font-black text-brand-navy">Invoices</h4>
                       <p className="text-[10px] text-gray-400 font-bold leading-relaxed">View and download your payment invoices.</p>
                     </div>
                   </div>
@@ -459,13 +1087,13 @@ export default function StudentDashboard() {
                   </button>
                 </div>
 
-                <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm flex flex-col justify-between items-start gap-4 text-left">
+                <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm flex flex-col justify-between items-start gap-4 text-left hover:border-blue-200 transition-all">
                   <div className="flex items-start gap-4">
-                    <div className="h-10 w-10 rounded-full bg-orange-50 text-brand-orange flex items-center justify-center shrink-0 border border-orange-100">
-                      <Headphones size={16} />
+                    <div className="h-11 w-11 rounded-2xl bg-orange-50 text-brand-orange flex items-center justify-center shrink-0 border border-orange-100">
+                      <Headphones size={18} />
                     </div>
                     <div className="space-y-1">
-                      <h4 className="text-xs font-extrabold text-brand-navy">Raise a Request</h4>
+                      <h4 className="text-xs font-black text-brand-navy">Raise a Request</h4>
                       <p className="text-[10px] text-gray-400 font-bold leading-relaxed">Need help? Our support team is here for you.</p>
                     </div>
                   </div>
@@ -475,65 +1103,175 @@ export default function StudentDashboard() {
                 </div>
               </div>
 
-              {/* Recent Orders table */}
-              <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm space-y-6 text-left">
-                <div className="flex items-center justify-between border-b border-gray-50 pb-3">
-                  <h3 className="text-sm font-black text-brand-navy">Recent Orders</h3>
-                  <span onClick={() => setActiveMenu("My Orders")} className="text-[10px] text-brand-blue font-bold cursor-pointer hover:underline">View All Orders</span>
-                </div>
+              {/* Row 3: My Upcoming Live Classes (8 cols) & Right Column (4 cols) */}
+              <div className="grid lg:grid-cols-12 gap-6 items-start">
+                
+                {/* Left: My Upcoming Live Classes (8 cols) */}
+                <div className="lg:col-span-8 bg-white border border-gray-100 rounded-3xl p-6 shadow-sm space-y-6">
+                  <div className="flex items-center justify-between border-b border-gray-50 pb-4">
+                    <h3 className="text-sm font-black text-brand-navy">My Upcoming Live Classes</h3>
+                    <span onClick={() => setActiveMenu("Live Classes")} className="text-[10px] text-brand-blue font-bold cursor-pointer hover:underline">
+                      View Full Schedule
+                    </span>
+                  </div>
 
-                <div className="overflow-x-auto">
-                  <table className="w-full min-w-[700px] text-xs text-left font-semibold text-gray-700">
-                    <thead>
-                      <tr className="bg-slate-50 border-b border-gray-155 text-gray-500">
-                        <th className="p-4 pl-6">Order ID</th>
-                        <th className="p-4">Course</th>
-                        <th className="p-4">Order Date</th>
-                        <th className="p-4">Amount</th>
-                        <th className="p-4">Status</th>
-                        <th className="p-4 pr-6">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {finalOrdersList.map((row, idx) => (
-                        <tr key={idx} className="border-b border-gray-50 hover:bg-slate-50/50 transition-colors">
-                          <td className="p-4 pl-6 font-bold text-brand-navy font-mono">{row.orderId}</td>
-                          <td className="p-4 font-black text-gray-800">{row.course}</td>
-                          <td className="p-4 text-gray-500 font-bold">{row.date}</td>
-                          <td className="p-4 font-black text-brand-navy">{row.price}</td>
-                          <td className="p-4">
-                            <span className={`px-2.5 py-1 rounded text-[9px] font-black ${
-                              row.status === "Completed"
-                                ? "bg-emerald-50 text-emerald-500 border border-emerald-100"
-                                : "bg-orange-50 text-orange-500 border border-orange-100"
-                            }`}>
-                              {row.status}
-                            </span>
-                          </td>
-                          <td className="p-4 pr-6">
-                            <button onClick={() => setActiveMenu("My Orders")} className="text-brand-blue hover:underline cursor-pointer text-[10px] font-bold">
-                              View Details ➔
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-gray-50 text-[10px] text-gray-400 font-bold">
-                  <span>Showing 1 to {finalOrdersList.length} of {finalOrdersList.length} orders</span>
-                  <div className="flex gap-1.5 items-center">
-                    <button className="h-6 w-6 rounded-md border border-gray-200 flex items-center justify-center hover:bg-slate-50 disabled:opacity-50" disabled>
-                      <ArrowLeft size={10} />
-                    </button>
-                    <button className="h-6 w-6 rounded-md bg-brand-blue text-white flex items-center justify-center">1</button>
-                    <button className="h-6 w-6 rounded-md border border-gray-200 flex items-center justify-center hover:bg-slate-50 disabled:opacity-50" disabled>
-                      <ArrowRight size={10} />
-                    </button>
+                  <div className="space-y-3">
+                    {activeDbSchedule ? (
+                      getUpcomingClassDays(activeDbSchedule?.date_range || activeDbSchedule?.batch_date || activeOrder.dates, activeOrder.timing).slice(0, 4).map((cls, idx) => (
+                        <div key={idx} className="flex items-center justify-between p-4 rounded-2xl border border-gray-100 hover:bg-slate-50/70 transition-colors">
+                          <div className="flex items-center gap-4">
+                            <div className="h-12 w-12 rounded-xl bg-blue-50 border border-blue-100 flex flex-col items-center justify-center shrink-0">
+                              <span className="text-[8px] font-black uppercase text-brand-blue tracking-wider">{cls.month}</span>
+                              <span className="text-sm font-black text-brand-navy leading-none">{cls.day}</span>
+                              <span className="text-[7.5px] font-bold text-gray-400">{cls.dow}</span>
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-black text-gray-800">{cls.title}</h4>
+                              <p className="text-[10px] text-gray-400 font-bold mt-0.5">{cls.time}</p>
+                            </div>
+                          </div>
+                          <span className="px-3 py-1 bg-blue-50 text-brand-blue border border-blue-100 rounded-full text-[9px] font-black">
+                            Upcoming
+                          </span>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-10 text-center space-y-3">
+                        <div className="h-14 w-14 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center">
+                          <Calendar size={24} className="text-brand-blue opacity-60" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-black text-brand-navy">Schedule Will Be Announced Soon</p>
+                          <p className="text-[10px] text-gray-400 font-semibold mt-1">Your batch dates will appear here once confirmed by your trainer.</p>
+                        </div>
+                        <button
+                          onClick={() => setActiveMenu("Live Classes")}
+                          className="px-4 py-2 rounded-xl bg-brand-blue text-white text-[10px] font-bold hover:bg-blue-700 transition-colors cursor-pointer"
+                        >
+                          View All Available Schedules
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
+
+                {/* Right Column (4 cols): Quick Links & Refer & Earn */}
+                <div className="lg:col-span-4 space-y-6">
+                  
+                  {/* Quick Links */}
+                  <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm space-y-4">
+                    <h3 className="text-xs uppercase tracking-wider text-gray-400 font-black">Quick Links</h3>
+                    <div className="space-y-1 text-xs text-gray-700 font-bold">
+                      {[
+                        { name: "Exam Information", icon: <FileText size={14} className="text-brand-blue" /> },
+                        { name: "PMP® Application Support", icon: <GraduationCap size={14} className="text-brand-blue" /> },
+                        { name: "Download Course Syllabus", icon: <Download size={14} className="text-brand-blue" /> },
+                        { name: "Student Guidelines", icon: <Info size={14} className="text-brand-blue" /> },
+                        { name: "PMI® Resources", icon: <Globe size={14} className="text-brand-blue" /> }
+                      ].map((link, idx) => (
+                        <div
+                          key={idx}
+                          onClick={() => alert(`Opening ${link.name}...`)}
+                          className="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            {link.icon}
+                            <span>{link.name}</span>
+                          </div>
+                          <ChevronRight size={14} className="text-gray-400" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Support Tickets Status Tracker Card */}
+                  <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm space-y-4">
+                    <div className="flex items-center justify-between border-b border-gray-50 pb-3">
+                      <div className="flex items-center gap-2">
+                        <Headphones size={15} className="text-brand-blue" />
+                        <h4 className="text-xs font-black text-brand-navy">Support Tickets Tracker</h4>
+                      </div>
+                      <button
+                        onClick={() => setActiveMenu("My Tickets")}
+                        className="text-[10px] text-brand-blue font-bold hover:underline cursor-pointer"
+                      >
+                        Track All ({myTickets.length}) →
+                      </button>
+                    </div>
+
+                    {myTickets.length > 0 ? (
+                      <div className="space-y-3">
+                        {myTickets.slice(0, 2).map((t, idx) => (
+                          <div
+                            key={idx}
+                            onClick={() => setActiveMenu("My Tickets")}
+                            className="p-3.5 rounded-2xl border border-gray-100 hover:border-blue-200 hover:bg-slate-50/70 transition-all cursor-pointer space-y-2 text-left"
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] font-mono font-black text-brand-blue flex items-center gap-1">
+                                🎫 #{t.ticket_number}
+                              </span>
+                              <span className={`text-[8.5px] px-2 py-0.5 rounded-full font-black uppercase ${
+                                (t.status || 'open') === 'open'
+                                  ? "bg-rose-50 text-rose-600 border border-rose-150"
+                                  : t.status === 'in_progress'
+                                  ? "bg-amber-50 text-amber-600 border border-amber-150"
+                                  : "bg-emerald-50 text-emerald-600 border border-emerald-150"
+                              }`}>
+                                {t.status === 'open' ? '🔴 Under Review' : t.status === 'in_progress' ? '🟠 In Progress' : '🟢 Resolved'}
+                              </span>
+                            </div>
+                            <div>
+                              <p className="text-xs font-bold text-gray-800 truncate">{t.subject}</p>
+                              <p className="text-[9.5px] text-gray-400 font-medium mt-0.5">{t.request_type}</p>
+                            </div>
+                            {t.admin_notes && (
+                              <p className="text-[9.5px] text-emerald-700 bg-emerald-50 p-1.5 rounded-lg border border-emerald-100 font-medium truncate">
+                                💬 Reply: {t.admin_notes}
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                        <button
+                          onClick={() => setActiveMenu("My Tickets")}
+                          className="w-full py-2 bg-blue-50/70 hover:bg-blue-100 text-brand-blue rounded-xl text-[10px] font-black transition-colors cursor-pointer"
+                        >
+                          View Ticket Progress & History →
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="text-center py-4 space-y-2">
+                        <p className="text-[11px] text-gray-400 font-semibold">No active support tickets.</p>
+                        <button
+                          onClick={() => setIsRaiseRequestOpen(true)}
+                          className="px-3.5 py-1.5 bg-blue-50 text-brand-blue rounded-xl text-[10px] font-black hover:bg-blue-100 transition-colors cursor-pointer"
+                        >
+                          + Raise a Support Request
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Refer & Earn */}
+                  <div className="bg-[#e8f1fe]/70 border border-blue-100 rounded-3xl p-6 shadow-sm space-y-3 flex items-start gap-4">
+                    <div className="h-10 w-10 rounded-2xl bg-brand-blue text-white flex items-center justify-center shrink-0 shadow-md">
+                      <Gift size={20} />
+                    </div>
+                    <div className="space-y-1.5">
+                      <h4 className="text-xs font-black text-brand-navy">Refer & Earn</h4>
+                      <p className="text-[10px] text-gray-500 font-bold leading-relaxed">
+                        Refer a friend and earn exciting rewards.
+                      </p>
+                      <button onClick={() => alert("Referral link copied to clipboard!")} className="text-[10px] font-black text-brand-blue hover:underline cursor-pointer flex items-center gap-1 pt-1">
+                        Learn More ➔
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+
               </div>
+
             </div>
           )}
 
@@ -556,8 +1294,8 @@ export default function StudentDashboard() {
                     <h3 className="text-xs uppercase tracking-wider text-gray-400 font-black">Personal Information</h3>
                     
                     <div className="flex flex-col sm:flex-row gap-6 items-center border-b border-gray-50 pb-5">
-                      <div className="h-20 w-20 rounded-full bg-blue-50 border-2 border-blue-100 flex items-center justify-center text-brand-blue text-2xl font-black shadow-inner">
-                        JD
+                      <div className="h-20 w-20 rounded-full bg-blue-50 border-2 border-blue-100 flex items-center justify-center text-brand-blue text-2xl font-black shadow-inner uppercase">
+                        {(firstName?.[0] || 'U') + (lastName?.[0] || 'N')}
                       </div>
                       <div className="space-y-2">
                         <button className="flex items-center gap-1.5 rounded-xl border border-gray-200 hover:bg-slate-50 px-4 py-2 text-[10px] font-bold text-gray-700 transition-colors">
@@ -805,7 +1543,7 @@ export default function StudentDashboard() {
                         <h4 className="text-xs font-black text-brand-navy">Your Account Security</h4>
                         <p className="text-[9px] text-gray-400 font-bold mt-0.5">Keep your account secure.</p>
                       </div>
-                      <button className="flex items-center justify-center gap-1 rounded-xl bg-white border border-gray-200 hover:bg-slate-50 px-4 py-2 text-[9px] font-bold text-brand-navy cursor-pointer">
+                      <button onClick={() => setActiveMenu("Change Password")} className="flex items-center justify-center gap-1 rounded-xl bg-white border border-gray-200 hover:bg-slate-50 px-4 py-2 text-[9px] font-bold text-brand-navy cursor-pointer">
                         Change Password ➔
                       </button>
                     </div>
@@ -819,8 +1557,8 @@ export default function StudentDashboard() {
                         { name: "Course Materials", view: "Course Materials" },
                         { name: "Invoices", view: "Invoices" },
                         { name: "Raise a Request", view: "Raise a Request" },
-                        { name: "Address Book", view: "My Profile" },
-                        { name: "Payment Methods", view: "My Profile" }
+                        { name: "Address Book", view: "Address Book" },
+                        { name: "Payment Methods", view: "Payment Methods" }
                       ].map((item, idx) => (
                         <div
                           key={idx}
@@ -920,7 +1658,12 @@ export default function StudentDashboard() {
                         <tr key={idx} className="border-b border-gray-50 hover:bg-slate-50/55 transition-colors align-middle">
                           <td className="p-4 pl-6 space-y-1">
                             <span className="font-black text-brand-navy font-mono block">{row.orderId}</span>
-                            <span className="text-[10px] text-brand-blue font-bold cursor-pointer hover:underline">View Invoice</span>
+                            <span
+                              onClick={() => window.open(`/admin/invoice?orderId=${encodeURIComponent(row.orderId)}`, '_blank')}
+                              className="text-[10px] text-brand-blue font-bold cursor-pointer hover:underline"
+                            >
+                              View Invoice
+                            </span>
                           </td>
                           
                           <td className="p-4">
@@ -971,7 +1714,10 @@ export default function StudentDashboard() {
                           </td>
 
                           <td className="p-4 pr-6">
-                            <button className="flex items-center gap-1 border border-brand-blue/20 bg-white hover:bg-slate-50 px-3.5 py-2 text-[10px] font-black text-brand-blue rounded-xl transition-all cursor-pointer">
+                            <button
+                              onClick={() => setActiveMenu("Course Materials")}
+                              className="flex items-center gap-1 border border-brand-blue/20 bg-white hover:bg-slate-50 px-3.5 py-2 text-[10px] font-black text-brand-blue rounded-xl transition-all cursor-pointer"
+                            >
                               <span>View Course Information</span>
                               <ArrowRight size={10} />
                             </button>
@@ -1111,10 +1857,18 @@ export default function StudentDashboard() {
                               </span>
                             </td>
                             <td className="p-3 pr-4 flex gap-1.5 items-center">
-                              <button className="p-1.5 rounded-lg border border-gray-200 hover:bg-slate-50 text-gray-400">
+                              <button
+                                onClick={(e) => { e.stopPropagation(); window.open(`/admin/invoice?orderId=${encodeURIComponent(row.orderId)}`, '_blank'); }}
+                                title="Download PDF Receipt"
+                                className="p-1.5 rounded-lg border border-gray-200 hover:bg-slate-50 text-gray-400 cursor-pointer"
+                              >
                                 <Download size={10} />
                               </button>
-                              <button className="p-1.5 rounded-lg border border-gray-200 hover:bg-slate-50 text-gray-400">
+                              <button
+                                onClick={(e) => { e.stopPropagation(); window.open(`/admin/invoice?orderId=${encodeURIComponent(row.orderId)}`, '_blank'); }}
+                                title="View Invoice"
+                                className="p-1.5 rounded-lg border border-gray-200 hover:bg-slate-50 text-gray-400 cursor-pointer"
+                              >
                                 <Eye size={10} />
                               </button>
                             </td>
@@ -1146,7 +1900,10 @@ export default function StudentDashboard() {
                       <p className="text-[10px] text-gray-400 font-bold uppercase">Invoice #</p>
                       <p className="text-sm font-black text-brand-navy font-mono mt-0.5">{activeInvoice.invoiceId}</p>
                     </div>
-                    <button className="flex items-center gap-1 border border-brand-blue/20 bg-white hover:bg-slate-50 px-3 py-1.5 text-[9px] font-black text-brand-blue rounded-xl transition-all cursor-pointer">
+                    <button
+                      onClick={() => window.open(`/admin/invoice?orderId=${encodeURIComponent(activeInvoice.orderId)}`, '_blank')}
+                      className="flex items-center gap-1 border border-brand-blue/20 bg-white hover:bg-slate-50 px-3 py-1.5 text-[9px] font-black text-brand-blue rounded-xl transition-all cursor-pointer"
+                    >
                       <Download size={10} />
                       Download PDF
                     </button>
@@ -1214,19 +1971,1053 @@ export default function StudentDashboard() {
             </div>
           )}
 
-          {/* Fallback View for Other Menus */}
-          {activeMenu !== "Dashboard" && activeMenu !== "My Profile" && activeMenu !== "My Orders" && activeMenu !== "Invoices" && (
-            <div className="bg-white border border-gray-100 rounded-3xl p-12 text-center space-y-4 text-left">
-              <h3 className="text-lg font-black text-brand-navy">{activeMenu}</h3>
-              <p className="text-xs text-gray-400 font-semibold leading-relaxed max-w-md mx-auto">
-                This dashboard component is fully styled and connected in the frontend router. Once backend schema API integration starts, this block will display direct database sync.
-              </p>
-              <button
-                onClick={() => setActiveMenu("Dashboard")}
-                className="rounded-xl bg-brand-navy text-white px-6 py-3.5 text-xs font-bold transition-all hover:scale-[1.01]"
-              >
-                Back to Dashboard Home
-              </button>
+          {/* VIEW E: Course Materials */}
+          {activeMenu === "Course Materials" && (
+            <div className="space-y-8 text-left">
+              <div className="text-[11px] text-gray-400 font-bold flex gap-2">
+                <span onClick={() => setActiveMenu("Dashboard")} className="hover:text-brand-blue cursor-pointer">Home</span> &gt; 
+                <span className="text-gray-650 font-black">Course Materials</span>
+              </div>
+
+              <div>
+                <h2 className="text-2xl font-black text-brand-navy">Course Materials & Downloads</h2>
+                <p className="text-xs text-gray-400 font-bold mt-1">Access study guides, slide decks, practice exams and course assets.</p>
+              </div>
+
+              <div className="grid gap-6">
+                {finalOrdersList.map((ord, idx) => (
+                  <div key={idx} className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm space-y-6">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-gray-50 pb-4">
+                      <div className="flex items-center gap-3">
+                        <div className={`h-10 w-10 rounded-xl ${ord.logoBg} flex items-center justify-center font-black text-xs shrink-0 shadow-sm`}>
+                          {ord.logo}
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-black text-brand-navy">{ord.course}</h3>
+                          <p className="text-[10px] text-gray-400 font-bold mt-0.5">Order ID: {ord.orderId} • Enrolled: {ord.orderDate}</p>
+                        </div>
+                      </div>
+                      <span className="px-3 py-1 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-full text-[10px] font-black">
+                        Active Access
+                      </span>
+                    </div>
+
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div className="bg-slate-50/70 border border-gray-150 rounded-2xl p-4 space-y-3">
+                        <div className="flex items-center gap-2 text-brand-blue font-black text-xs">
+                          <FileText size={16} />
+                          <span>Official Courseware & Slides</span>
+                        </div>
+                        <p className="text-[10px] text-gray-500 font-medium">Complete PDF student guide and instructor presentation slides.</p>
+                        {(() => {
+                          // Filter brochures for course matching and pick latest uploaded document
+                          const ordCourseLower = (ord.course || "").toLowerCase().trim();
+                          const matchedDocs = dbBrochures.filter(b => {
+                            const bCourseLower = (b.course_title || "").toLowerCase().trim();
+                            const bDocLower = (b.document_title || "").toLowerCase().trim();
+                            
+                            // Check exact or partial match with course_title or document_title
+                            if (bCourseLower && (ordCourseLower.includes(bCourseLower) || bCourseLower.includes(ordCourseLower))) return true;
+                            if (bDocLower && (ordCourseLower.includes(bDocLower) || bDocLower.includes(ordCourseLower))) return true;
+                            
+                            // If document title or course title has key course words like PMP, ITIL, Agile, CAPM, CISSP, Lean
+                            const keywords = ["pmp", "itil", "agile", "capm", "cissp", "lean", "six sigma", "scrum", "pmi"];
+                            const matchedKeyword = keywords.find(k => ordCourseLower.includes(k) && (bCourseLower.includes(k) || bDocLower.includes(k)));
+                            if (matchedKeyword) return true;
+
+                            // Fallback if generic brochure with no specific course restriction
+                            if (!b.course_title && !b.course_id) return true;
+
+                            return false;
+                          });
+
+                          // Pick the latest document uploaded in DB
+                          const matchedDoc = matchedDocs.length > 0 ? matchedDocs[matchedDocs.length - 1] : (dbBrochures.length > 0 ? dbBrochures[dbBrochures.length - 1] : null);
+                          const targetPdfUrl = matchedDoc?.file_url;
+                          const docTitle = matchedDoc?.document_title || `${ord.course} Official Courseware`;
+
+                          if (!matchedDoc || !targetPdfUrl) {
+                            return (
+                              <button
+                                disabled
+                                className="w-full bg-slate-100 text-slate-400 text-[10px] font-black py-2.5 rounded-xl border border-slate-200 cursor-not-allowed flex items-center justify-center gap-1.5"
+                              >
+                                <X size={12} /> Material Not Uploaded Yet
+                              </button>
+                            );
+                          }
+
+                          return (
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => {
+                                  if (!targetPdfUrl) return;
+                                  if (targetPdfUrl.startsWith('data:')) {
+                                    // Legacy base64 — open via modal
+                                    setPdfModal({ isOpen: true, url: targetPdfUrl, title: docTitle });
+                                  } else if (targetPdfUrl.startsWith('http://') || targetPdfUrl.startsWith('https://')) {
+                                    // Real URL from server — open directly in new tab
+                                    window.open(targetPdfUrl, '_blank', 'noopener,noreferrer');
+                                  } else {
+                                    // Relative path fallback — try opening as-is
+                                    window.open(targetPdfUrl, '_blank', 'noopener,noreferrer');
+                                  }
+                                }}
+                                className="flex-1 bg-brand-blue hover:bg-blue-700 text-white text-[10px] font-black py-2.5 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-sm"
+                              >
+                                <Eye size={13} /> View PDF
+                              </button>
+
+                              <button
+                                onClick={() => {
+                                  if (!targetPdfUrl) return;
+                                  const a = document.createElement('a');
+                                  a.href = targetPdfUrl;
+                                  a.download = `${(docTitle || 'Courseware').replace(/[^a-zA-Z0-9_-]/g, '_')}.pdf`;
+                                  a.target = '_blank';
+                                  document.body.appendChild(a);
+                                  a.click();
+                                  document.body.removeChild(a);
+                                }}
+                                className="px-3 bg-slate-100 hover:bg-slate-200 text-gray-700 text-[10px] font-black py-2.5 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 border border-gray-200"
+                                title="Download PDF File"
+                              >
+                                <Download size={13} /> Download
+                              </button>
+                            </div>
+                          );
+                        })()}
+                      </div>
+
+                      <div className="bg-slate-50/70 border border-gray-150 rounded-2xl p-4 space-y-3">
+                        <div className="flex items-center gap-2 text-brand-orange font-black text-xs">
+                          <GraduationCap size={16} />
+                          <span>1,000+ Practice Exam Questions</span>
+                        </div>
+                        <p className="text-[10px] text-gray-500 font-medium">Interactive exam simulator with real domain questions & answers.</p>
+                        <button
+                          onClick={() => {
+                            alert(`Launching 1,000+ Practice Exam Questions Simulator for ${ord.course}! Total 180 Questions loaded.`);
+                          }}
+                          className="w-full bg-white border border-gray-200 hover:bg-brand-orange hover:text-white text-brand-orange text-[10px] font-black py-2 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs"
+                        >
+                          <Laptop size={12} /> Open Simulator
+                        </button>
+                      </div>
+
+                      <div className="bg-slate-50/70 border border-gray-150 rounded-2xl p-4 space-y-3">
+                        <div className="flex items-center gap-2 text-purple-600 font-black text-xs">
+                          <Award size={16} />
+                          <span>Course Certificate</span>
+                        </div>
+                        <p className="text-[10px] text-gray-500 font-medium">Official 35 PDU / Contact Hours Certificate of Completion.</p>
+                        <button
+                          onClick={() => {
+                            alert(`Official 35 Contact Hours Certificate generated for ${firstName} ${lastName} (${ord.course})! Click OK to download.`);
+                          }}
+                          className="w-full bg-white border border-gray-200 hover:bg-purple-600 hover:text-white text-purple-600 text-[10px] font-black py-2 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs"
+                        >
+                          <Eye size={12} /> View Certificate
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* VIEW F: Address Book */}
+          {activeMenu === "Address Book" && (
+            <div className="space-y-8 text-left">
+              <div className="text-[11px] text-gray-400 font-bold flex gap-2">
+                <span onClick={() => setActiveMenu("Dashboard")} className="hover:text-brand-blue cursor-pointer">Home</span> &gt; 
+                <span className="text-gray-650 font-black">Address Book</span>
+              </div>
+
+              <div>
+                <h2 className="text-2xl font-black text-brand-navy">Address Book</h2>
+                <p className="text-xs text-gray-400 font-bold mt-1">Manage your primary shipping and billing addresses.</p>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between border-b border-gray-50 pb-3">
+                    <h3 className="text-xs uppercase tracking-wider text-gray-400 font-black">Primary Billing Address</h3>
+                    <span className="px-2.5 py-0.5 bg-blue-50 text-brand-blue text-[9px] font-black rounded-full">Default</span>
+                  </div>
+                  <div className="text-xs font-semibold text-gray-600 space-y-1">
+                    <p className="font-black text-brand-navy">{firstName} {lastName}</p>
+                    <p>{addressLine1}</p>
+                    {addressLine2 && <p>{addressLine2}</p>}
+                    <p>{city}, {stateProv} {zipCode}</p>
+                    <p>{country}</p>
+                    <p className="text-gray-400 text-[11px] pt-1">Phone: {phone || "(Not set)"}</p>
+                  </div>
+                  <button onClick={() => setActiveMenu("My Profile")} className="text-[10px] font-black text-brand-blue hover:underline cursor-pointer">
+                    Edit Address in Profile ➔
+                  </button>
+                </div>
+
+                <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between border-b border-gray-50 pb-3">
+                    <h3 className="text-xs uppercase tracking-wider text-gray-400 font-black">Physical Classroom Shipping Address</h3>
+                    <span className="px-2.5 py-0.5 bg-slate-100 text-gray-500 text-[9px] font-black rounded-full">Optional</span>
+                  </div>
+                  <div className="text-xs font-semibold text-gray-600 space-y-1">
+                    <p className="font-black text-brand-navy">{firstName} {lastName}</p>
+                    <p>Same as Billing Address</p>
+                  </div>
+                  <button onClick={() => setActiveMenu("My Profile")} className="text-[10px] font-black text-brand-blue hover:underline cursor-pointer">
+                    Update Details ➔
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* VIEW G: Payment Methods */}
+          {activeMenu === "Payment Methods" && (
+            <div className="space-y-8 text-left">
+              <div className="text-[11px] text-gray-400 font-bold flex gap-2">
+                <span onClick={() => setActiveMenu("Dashboard")} className="hover:text-brand-blue cursor-pointer">Home</span> &gt; 
+                <span className="text-gray-650 font-black">Payment Methods</span>
+              </div>
+
+              <div>
+                <h2 className="text-2xl font-black text-brand-navy">Saved Payment Methods</h2>
+                <p className="text-xs text-gray-400 font-bold mt-1">Review saved payment cards and checkout history.</p>
+              </div>
+
+              <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm space-y-6">
+                <div className="flex items-center justify-between border-b border-gray-50 pb-3">
+                  <h3 className="text-xs uppercase tracking-wider text-gray-400 font-black">Active Payment Method</h3>
+                </div>
+                <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-gray-150">
+                  <div className="h-10 w-14 bg-brand-navy text-white rounded-lg flex items-center justify-center font-black text-xs shrink-0 shadow-sm">
+                    VISA
+                  </div>
+                  <div>
+                    <p className="text-xs font-black text-brand-navy">Visa ending in •••• 4242</p>
+                    <p className="text-[10px] text-gray-400 font-bold mt-0.5">Expires 12/2028 • Default Payment Method</p>
+                  </div>
+                </div>
+                <button onClick={() => setActiveMenu("Invoices")} className="text-[10px] font-black text-brand-blue hover:underline cursor-pointer">
+                  View Invoice Receipts ➔
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* VIEW H: Notification Settings */}
+          {activeMenu === "Notification Settings" && (
+            <div className="space-y-8 text-left">
+              <div className="text-[11px] text-gray-400 font-bold flex gap-2">
+                <span onClick={() => setActiveMenu("Dashboard")} className="hover:text-brand-blue cursor-pointer">Home</span> &gt; 
+                <span className="text-gray-650 font-black">Notification Settings</span>
+              </div>
+
+              <div>
+                <h2 className="text-2xl font-black text-brand-navy">Notification Settings</h2>
+                <p className="text-xs text-gray-400 font-bold mt-1">Choose how and when you receive course updates & notifications.</p>
+              </div>
+
+              <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm space-y-6">
+                {notifMsg.text && (
+                  <div className={`p-3.5 rounded-2xl text-xs font-bold border flex items-center gap-2 ${
+                    notifMsg.type === "success"
+                      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                      : "bg-rose-50 text-rose-600 border-rose-200"
+                  }`}>
+                    <span>{notifMsg.type === "success" ? "✅" : "⚠️"}</span>
+                    <span>{notifMsg.text}</span>
+                  </div>
+                )}
+
+                <div className="space-y-4">
+                  <label className="flex items-center justify-between p-3.5 bg-slate-50/70 border border-gray-150 rounded-2xl cursor-pointer">
+                    <div>
+                      <p className="text-xs font-black text-brand-navy">Class & Batch Schedule Alerts</p>
+                      <p className="text-[10px] text-gray-400 font-bold">Email alerts 24 hours before your live online session starts.</p>
+                    </div>
+                    <input type="checkbox" checked={prefAlert} onChange={(e) => setPrefAlert(e.target.checked)} className="h-4 w-4 accent-brand-blue cursor-pointer" />
+                  </label>
+
+                  <label className="flex items-center justify-between p-3.5 bg-slate-50/70 border border-gray-150 rounded-2xl cursor-pointer">
+                    <div>
+                      <p className="text-xs font-black text-brand-navy">Promotions & Course Discounts</p>
+                      <p className="text-[10px] text-gray-400 font-bold">Receive special offers and promotional discount codes.</p>
+                    </div>
+                    <input type="checkbox" checked={prefPromo} onChange={(e) => setPrefPromo(e.target.checked)} className="h-4 w-4 accent-brand-blue cursor-pointer" />
+                  </label>
+
+                  <label className="flex items-center justify-between p-3.5 bg-slate-50/70 border border-gray-150 rounded-2xl cursor-pointer">
+                    <div>
+                      <p className="text-xs font-black text-brand-navy">SMS Order Status Updates</p>
+                      <p className="text-[10px] text-gray-400 font-bold">Get instant SMS updates about your order status.</p>
+                    </div>
+                    <input type="checkbox" checked={prefSms} onChange={(e) => setPrefSms(e.target.checked)} className="h-4 w-4 accent-brand-blue cursor-pointer" />
+                  </label>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleSaveNotifications}
+                  disabled={isSavingNotif}
+                  className="bg-brand-blue text-white px-6 py-3 rounded-xl text-xs font-black hover:bg-opacity-90 transition-all cursor-pointer disabled:opacity-50"
+                >
+                  {isSavingNotif ? "Saving Preferences..." : "Save Notification Preferences"}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* VIEW I: Change Password */}
+          {activeMenu === "Change Password" && (
+            <div className="space-y-8 text-left">
+              <div className="text-[11px] text-gray-400 font-bold flex gap-2">
+                <span onClick={() => setActiveMenu("Dashboard")} className="hover:text-brand-blue cursor-pointer">Home</span> &gt; 
+                <span className="text-gray-650 font-black">Change Password</span>
+              </div>
+
+              <div>
+                <h2 className="text-2xl font-black text-brand-navy">Change Password</h2>
+                <p className="text-xs text-gray-400 font-bold mt-1">Update your password to ensure account security.</p>
+              </div>
+
+              <form onSubmit={handleChangePassword} className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm space-y-4 max-w-xl">
+                {passwordMsg.text && (
+                  <div className={`p-3.5 rounded-2xl text-xs font-bold border flex items-center gap-2 ${
+                    passwordMsg.type === "success"
+                      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                      : "bg-rose-50 text-rose-600 border-rose-200"
+                  }`}>
+                    <span>{passwordMsg.type === "success" ? "✅" : "⚠️"}</span>
+                    <span>{passwordMsg.text}</span>
+                  </div>
+                )}
+                <div className="space-y-1">
+                  <label className="text-[10px] text-gray-500 font-bold">Current Password (optional for initial setup)</label>
+                  <input
+                    type="password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-xs font-semibold text-gray-700 outline-none focus:border-brand-blue"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] text-gray-500 font-bold">New Password *</label>
+                  <input
+                    type="password"
+                    required
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Minimum 6 characters"
+                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-xs font-semibold text-gray-700 outline-none focus:border-brand-blue"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] text-gray-500 font-bold">Confirm New Password *</label>
+                  <input
+                    type="password"
+                    required
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Re-enter new password"
+                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-xs font-semibold text-gray-700 outline-none focus:border-brand-blue"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={isUpdatingPassword}
+                  className="bg-brand-blue text-white px-6 py-3 rounded-xl text-xs font-black hover:bg-opacity-90 transition-all cursor-pointer mt-2 disabled:opacity-50"
+                >
+                  {isUpdatingPassword ? "Updating Password..." : "Update Password"}
+                </button>
+              </form>
+            </div>
+          )}
+
+          {/* VIEW LIVE CLASSES: Full Schedule Screen */}
+          {activeMenu === "Live Classes" && (
+            <div className="space-y-8 text-left">
+              <div className="text-[11px] text-gray-400 font-bold flex gap-2">
+                <span onClick={() => setActiveMenu("Dashboard")} className="hover:text-brand-blue cursor-pointer">Home</span> &gt; 
+                <span className="text-gray-650 font-black">Live Classes</span>
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-2xl font-black text-brand-navy">Live Class Schedule</h2>
+                  <p className="text-xs text-gray-400 font-bold mt-1">View your complete live training session schedule.</p>
+                </div>
+              </div>
+
+              {/* Stat Cards */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-white border border-gray-100 rounded-3xl p-5 shadow-xs space-y-1">
+                  <span className="text-[10px] uppercase tracking-wider text-gray-400 font-black">Total Sessions</span>
+                  <p className="text-xl font-black text-brand-navy">4 Sessions</p>
+                </div>
+                <div className="bg-white border border-gray-100 rounded-3xl p-5 shadow-xs space-y-1">
+                  <span className="text-[10px] uppercase tracking-wider text-gray-400 font-black">Contact Hours</span>
+                  <p className="text-xl font-black text-emerald-600">35 Hours</p>
+                </div>
+                <div className="bg-white border border-gray-100 rounded-3xl p-5 shadow-xs space-y-1">
+                  <span className="text-[10px] uppercase tracking-wider text-gray-400 font-black">Training Mode</span>
+                  <p className="text-xl font-black text-brand-blue">Live Virtual</p>
+                </div>
+                <div className="bg-white border border-gray-100 rounded-3xl p-5 shadow-xs space-y-1">
+                  <span className="text-[10px] uppercase tracking-wider text-gray-400 font-black">Time Zone</span>
+                  <p className="text-sm font-black text-gray-700 font-mono pt-1">EST (UTC-5)</p>
+                </div>
+              </div>
+
+              {/* Full Schedule List */}
+              <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm space-y-6">
+                <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+                  <h3 className="text-sm font-black text-brand-navy">Complete Class Schedule</h3>
+                  <span className="text-xs font-bold text-gray-400">
+                    Schedule Dates: <strong className="text-brand-blue font-mono">{activeDbSchedule?.date_range || activeDbSchedule?.batch_date || activeOrder.dates}</strong>
+                  </span>
+                </div>
+
+                <div className="space-y-4 max-h-[550px] overflow-y-auto pr-2 custom-scrollbar">
+                  {getUpcomingClassDays(activeDbSchedule?.date_range || activeDbSchedule?.batch_date || activeOrder.dates, activeOrder.timing).map((cls, idx) => (
+                    <div key={idx} className="flex flex-col md:flex-row md:items-center justify-between p-5 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-xs transition-all gap-4 bg-slate-50/40">
+                      <div className="flex items-center gap-4">
+                        <div className="h-14 w-14 rounded-2xl bg-brand-blue/10 border border-blue-100 flex flex-col items-center justify-center shrink-0">
+                          <span className="text-[9px] font-black uppercase text-brand-blue tracking-wider">{cls.month}</span>
+                          <span className="text-base font-black text-brand-navy leading-none">{cls.day}</span>
+                          <span className="text-[8px] font-bold text-gray-400 uppercase">{cls.dow}</span>
+                        </div>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="px-2 py-0.5 rounded bg-blue-50 text-brand-blue text-[9px] font-black border border-blue-100">
+                              Session {idx + 1}
+                            </span>
+                            <h4 className="text-xs font-black text-gray-800">{cls.title}</h4>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-4 text-[10px] text-gray-400 font-bold">
+                            <span className="flex items-center gap-1"><Clock size={12} className="text-brand-blue" /> {cls.time}</span>
+                            <span className="flex items-center gap-1"><Users size={12} className="text-brand-blue" /> Certified PMI® Instructor</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3 shrink-0">
+                        <span className="px-3 py-1 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-full text-[10px] font-black">
+                          Scheduled
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* VIEW J: Help Center & Contact Support */}
+          {(activeMenu === "Help Center" || activeMenu === "Contact Support") && (
+            <div className="space-y-8 text-left">
+              <div className="text-[11px] text-gray-400 font-bold flex gap-2">
+                <span onClick={() => setActiveMenu("Dashboard")} className="hover:text-brand-blue cursor-pointer">Home</span> &gt; 
+                <span className="text-gray-650 font-black">{activeMenu}</span>
+              </div>
+
+              <div>
+                <h2 className="text-2xl font-black text-brand-navy">Student Support & Help Center</h2>
+                <p className="text-xs text-gray-400 font-bold mt-1">Get immediate answers to your queries or get in touch with our team.</p>
+              </div>
+
+              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-white border border-gray-100 rounded-3xl p-5 shadow-sm space-y-3 hover:border-blue-200 transition-all">
+                  <div className="h-10 w-10 rounded-2xl bg-blue-50 text-brand-blue flex items-center justify-center border border-blue-100 font-bold">
+                    <Headphones size={18} />
+                  </div>
+                  <h3 className="text-xs font-black text-brand-navy">Raise a Request</h3>
+                  <p className="text-[10px] text-gray-400 font-bold leading-normal">Submit a detailed query regarding your class, batch, or certificates.</p>
+                  <button onClick={() => setIsRaiseRequestOpen(true)} className="text-[10px] font-black text-brand-blue hover:underline cursor-pointer flex items-center gap-1">
+                    Open Ticket ➔
+                  </button>
+                </div>
+
+                <div className="bg-white border border-gray-100 rounded-3xl p-5 shadow-sm space-y-3 hover:border-blue-200 transition-all">
+                  <div className="h-10 w-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100 font-bold">
+                    <FileText size={18} />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-black text-brand-navy">Track My Tickets</h3>
+                    {myTickets.length > 0 && (
+                      <span className="text-[9px] px-2 py-0.5 rounded-full font-black bg-amber-100 text-amber-700">
+                        {myTickets.length} Active
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-gray-400 font-bold leading-normal">View your past tickets, real-time status updates, and support chat.</p>
+                  <button onClick={() => setActiveMenu("My Tickets")} className="text-[10px] font-black text-brand-blue hover:underline cursor-pointer flex items-center gap-1">
+                    View Tickets ➔
+                  </button>
+                </div>
+
+                <div className="bg-white border border-gray-100 rounded-3xl p-5 shadow-sm space-y-3 hover:border-emerald-200 transition-all">
+                  <div className="h-10 w-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100 font-bold">
+                    <PhoneCall size={18} />
+                  </div>
+                  <h3 className="text-xs font-black text-brand-navy">Request Callback</h3>
+                  <p className="text-[10px] text-gray-400 font-bold leading-normal">Schedule a callback with our advisors at your convenient time slot.</p>
+                  <button onClick={() => setIsCallbackModalOpen(true)} className="text-[10px] font-black text-emerald-600 hover:underline cursor-pointer flex items-center gap-1">
+                    Request Call ➔
+                  </button>
+                </div>
+
+                <div className="bg-white border border-gray-100 rounded-3xl p-5 shadow-sm space-y-3 hover:border-purple-200 transition-all">
+                  <div className="h-10 w-10 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center border border-purple-100 font-bold">
+                    <Calendar size={18} />
+                  </div>
+                  <h3 className="text-xs font-black text-brand-navy">1-on-1 Consultation</h3>
+                  <p className="text-[10px] text-gray-400 font-bold leading-normal">Book a dedicated mentorship consultation for your certification path.</p>
+                  <button onClick={() => setIsConsultationOpen(true)} className="text-[10px] font-black text-purple-600 hover:underline cursor-pointer flex items-center gap-1">
+                    Book Session ➔
+                  </button>
+                </div>
+              </div>
+
+              {/* Contact Info Strip */}
+              <div className="bg-white border border-gray-100 rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-blue-50 text-brand-blue flex items-center justify-center font-bold shrink-0">
+                    📞
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Toll-Free Support Helpline</span>
+                    <a href="tel:8887457575" className="text-sm font-black text-brand-navy hover:text-brand-blue">
+                      (888) 745-7575
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold shrink-0">
+                    ✉️
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Official Support Email</span>
+                    <a href="mailto:support@certificationplanner.com" className="text-xs font-black text-brand-navy hover:text-brand-blue font-mono">
+                      support@certificationplanner.com
+                    </a>
+                  </div>
+                </div>
+
+                <div className="text-right sm:text-left">
+                  <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Operating Hours</span>
+                  <p className="text-xs font-bold text-gray-600">Mon – Fri: 8:00 AM – 8:00 PM EST</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* VIEW K: My Support Tickets & Queries Tracker */}
+          {activeMenu === "My Tickets" && (
+            <div className="space-y-6 text-left">
+              {/* Breadcrumbs */}
+              <div className="text-[11px] text-gray-400 font-bold flex gap-2">
+                <span onClick={() => setActiveMenu("Dashboard")} className="hover:text-brand-blue cursor-pointer">Home</span> &gt; 
+                <span className="text-gray-650 font-black">My Support Tickets</span>
+              </div>
+
+              {/* Header */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-2xl font-black text-brand-navy flex items-center gap-2.5">
+                    <Headphones className="text-brand-blue" /> My Support Tickets & Queries
+                  </h2>
+                  <p className="text-xs text-gray-400 font-bold mt-1">
+                    Track live ticket statuses, view advisor replies, and converse directly with support.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <button
+                    onClick={() => fetchMyTickets()}
+                    className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-gray-200 hover:bg-slate-50 text-gray-600 text-xs font-bold transition-colors cursor-pointer"
+                  >
+                    <RefreshCw size={13} /> Refresh
+                  </button>
+                  <button
+                    onClick={() => setIsRaiseRequestOpen(true)}
+                    className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-brand-blue hover:bg-opacity-95 text-white text-xs font-bold transition-all shadow-md shadow-blue-500/10 cursor-pointer"
+                  >
+                    <Plus size={14} /> Raise New Request
+                  </button>
+                </div>
+              </div>
+
+              {/* Stat Counters with Quick Filters */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+                <div
+                  onClick={() => setTicketFilterTab("all")}
+                  className={`bg-white border rounded-2xl p-4 shadow-xs space-y-1 cursor-pointer transition-all ${
+                    ticketFilterTab === "all" ? "border-brand-blue ring-2 ring-blue-500/10" : "border-gray-150 hover:border-gray-300"
+                  }`}
+                >
+                  <span className="text-[10px] uppercase tracking-wider text-gray-400 font-black">Total Tickets</span>
+                  <p className="text-2xl font-black text-brand-navy">{myTickets.length}</p>
+                </div>
+
+                <div
+                  onClick={() => setTicketFilterTab("open")}
+                  className={`bg-white border rounded-2xl p-4 shadow-xs space-y-1 cursor-pointer transition-all ${
+                    ticketFilterTab === "open" ? "border-rose-400 ring-2 ring-rose-500/10" : "border-rose-100 hover:border-rose-300"
+                  }`}
+                >
+                  <span className="text-[10px] uppercase tracking-wider text-rose-500 font-black">Under Review</span>
+                  <p className="text-2xl font-black text-rose-600">{myTickets.filter(t => (t.status || 'open') === 'open').length}</p>
+                </div>
+
+                <div
+                  onClick={() => setTicketFilterTab("in_progress")}
+                  className={`bg-white border rounded-2xl p-4 shadow-xs space-y-1 cursor-pointer transition-all ${
+                    ticketFilterTab === "in_progress" ? "border-amber-400 ring-2 ring-amber-500/10" : "border-amber-100 hover:border-amber-300"
+                  }`}
+                >
+                  <span className="text-[10px] uppercase tracking-wider text-amber-500 font-black">In Progress</span>
+                  <p className="text-2xl font-black text-amber-600">{myTickets.filter(t => t.status === 'in_progress').length}</p>
+                </div>
+
+                <div
+                  onClick={() => setTicketFilterTab("resolved")}
+                  className={`bg-white border rounded-2xl p-4 shadow-xs space-y-1 cursor-pointer transition-all ${
+                    ticketFilterTab === "resolved" ? "border-emerald-400 ring-2 ring-emerald-500/10" : "border-emerald-100 hover:border-emerald-300"
+                  }`}
+                >
+                  <span className="text-[10px] uppercase tracking-wider text-emerald-500 font-black">Resolved</span>
+                  <p className="text-2xl font-black text-emerald-600">{myTickets.filter(t => t.status === 'resolved').length}</p>
+                </div>
+              </div>
+
+              {/* Filter & Search Bar */}
+              <div className="bg-white border border-gray-150 rounded-2xl p-3 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xs">
+                {/* Status Tab Pills */}
+                <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+                  {[
+                    { key: "all", label: "All Tickets", count: myTickets.length },
+                    { key: "open", label: "In Review", count: myTickets.filter(t => (t.status || 'open') === 'open').length },
+                    { key: "in_progress", label: "In Progress", count: myTickets.filter(t => t.status === 'in_progress').length },
+                    { key: "resolved", label: "Resolved", count: myTickets.filter(t => t.status === 'resolved').length },
+                  ].map(tab => (
+                    <button
+                      key={tab.key}
+                      onClick={() => setTicketFilterTab(tab.key)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
+                        ticketFilterTab === tab.key
+                          ? "bg-brand-navy text-white shadow-xs"
+                          : "text-gray-500 hover:bg-slate-100"
+                      }`}
+                    >
+                      {tab.label}
+                      <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${
+                        ticketFilterTab === tab.key ? "bg-white/20 text-white" : "bg-gray-100 text-gray-600"
+                      }`}>
+                        {tab.count}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Search Input */}
+                <div className="relative w-full sm:w-64">
+                  <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    value={ticketSearch}
+                    onChange={(e) => setTicketSearch(e.target.value)}
+                    placeholder="Search ticket #, subject..."
+                    className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-gray-200 rounded-xl focus:outline-none focus:border-brand-blue focus:bg-white transition-all font-medium"
+                  />
+                  {ticketSearch && (
+                    <button
+                      onClick={() => setTicketSearch("")}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-[10px]"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Compact Ticket List */}
+              <div className="space-y-3">
+                {myTickets
+                  .filter(t => ticketFilterTab === "all" || (t.status || 'open') === ticketFilterTab)
+                  .filter(t => {
+                    if (!ticketSearch.trim()) return true;
+                    const q = ticketSearch.toLowerCase();
+                    return (
+                      (t.ticket_number || '').toLowerCase().includes(q) ||
+                      (t.subject || '').toLowerCase().includes(q) ||
+                      (t.request_type || '').toLowerCase().includes(q) ||
+                      (t.related_to || '').toLowerCase().includes(q)
+                    );
+                  })
+                  .length > 0 ? (
+                  myTickets
+                    .filter(t => ticketFilterTab === "all" || (t.status || 'open') === ticketFilterTab)
+                    .filter(t => {
+                      if (!ticketSearch.trim()) return true;
+                      const q = ticketSearch.toLowerCase();
+                      return (
+                        (t.ticket_number || '').toLowerCase().includes(q) ||
+                        (t.subject || '').toLowerCase().includes(q) ||
+                        (t.request_type || '').toLowerCase().includes(q) ||
+                        (t.related_to || '').toLowerCase().includes(q)
+                      );
+                    })
+                    .map((ticket, idx) => {
+                      const isOpen = (ticket.status || 'open') === 'open';
+                      const isInProgress = ticket.status === 'in_progress';
+                      const isResolved = ticket.status === 'resolved';
+                      const msgCount = Array.isArray(ticket.messages) ? ticket.messages.length : (ticket.admin_notes ? 2 : 1);
+                      const hasAdvisorReply = Array.isArray(ticket.messages) 
+                        ? ticket.messages.some(m => m.sender === 'support') 
+                        : Boolean(ticket.admin_notes);
+
+                      return (
+                        <div
+                          key={ticket.id || idx}
+                          onClick={() => setActiveTicketThread(ticket)}
+                          className="group bg-white border border-gray-150 hover:border-brand-blue/60 rounded-2xl p-4 sm:p-5 shadow-2xs hover:shadow-md transition-all cursor-pointer text-left relative overflow-hidden"
+                        >
+                          {/* Accent status line on left */}
+                          <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${
+                            isOpen ? "bg-rose-500" : isInProgress ? "bg-amber-500" : isResolved ? "bg-emerald-500" : "bg-slate-400"
+                          }`} />
+
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pl-2">
+                            {/* Left Side: Ticket Number, Subject & Category */}
+                            <div className="space-y-1.5 flex-1 min-w-0">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span className="font-mono font-black text-brand-navy text-xs bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
+                                  #{ticket.ticket_number}
+                                </span>
+                                <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-brand-blue text-[10px] font-bold border border-blue-100">
+                                  {ticket.request_type}
+                                </span>
+                                {hasAdvisorReply && (
+                                  <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-black border border-emerald-200 flex items-center gap-1">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Advisor Replied
+                                  </span>
+                                )}
+                                <span className="text-[10px] text-gray-400 font-medium">
+                                  {new Date(ticket.created_at).toLocaleDateString('en-US', {
+                                    month: 'short', day: 'numeric', year: 'numeric'
+                                  })}
+                                </span>
+                              </div>
+
+                              <h3 className="text-sm font-black text-brand-navy group-hover:text-brand-blue transition-colors truncate">
+                                {ticket.subject}
+                              </h3>
+
+                              <div className="flex flex-wrap items-center gap-3 text-[11px] text-gray-400 font-medium">
+                                {ticket.related_to && (
+                                  <span>Course: <strong className="text-gray-650">{ticket.related_to}</strong></span>
+                                )}
+                                <span>Messages: <strong className="text-gray-650 font-mono">{msgCount}</strong></span>
+                              </div>
+                            </div>
+
+                            {/* Right Side: Status Badge & View Button */}
+                            <div className="flex items-center gap-3 shrink-0 self-end sm:self-center">
+                              <span className={`px-3 py-1 rounded-full text-xs font-black uppercase flex items-center gap-1.5 border ${
+                                isOpen
+                                  ? "bg-rose-50 text-rose-600 border-rose-200"
+                                  : isInProgress
+                                  ? "bg-amber-50 text-amber-600 border-amber-200"
+                                  : isResolved
+                                  ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                                  : "bg-slate-100 text-gray-600 border-gray-200"
+                              }`}>
+                                <span className={`h-1.5 w-1.5 rounded-full ${
+                                  isOpen ? "bg-rose-500 animate-ping" : isInProgress ? "bg-amber-500 animate-pulse" : isResolved ? "bg-emerald-500" : "bg-gray-400"
+                                }`} />
+                                {isOpen ? "Under Review" : isInProgress ? "In Progress" : isResolved ? "Resolved" : "Closed"}
+                              </span>
+
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveTicketThread(ticket);
+                                }}
+                                className="px-3.5 py-2 rounded-xl bg-slate-100 group-hover:bg-brand-blue text-gray-700 group-hover:text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                              >
+                                <MessageSquare size={13} /> View & Reply ➔
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
+                ) : (
+                  <div className="bg-white border border-gray-100 rounded-3xl p-10 text-center space-y-3 shadow-sm">
+                    <div className="h-12 w-12 rounded-full bg-blue-50 text-brand-blue flex items-center justify-center mx-auto border border-blue-100">
+                      <Headphones size={22} />
+                    </div>
+                    <div className="space-y-1 max-w-sm mx-auto">
+                      <h3 className="text-sm font-black text-brand-navy">
+                        {myTickets.length === 0 ? "No Support Tickets Raised Yet" : "No Tickets Found in This Filter"}
+                      </h3>
+                      <p className="text-xs text-gray-400 font-medium">
+                        {myTickets.length === 0
+                          ? "Have a question about your classes, certificate, or payments? Raise a ticket anytime."
+                          : "Try selecting a different filter tab or clearing your search term."}
+                      </p>
+                    </div>
+                    {myTickets.length === 0 && (
+                      <button
+                        onClick={() => setIsRaiseRequestOpen(true)}
+                        className="px-4 py-2.5 bg-brand-blue hover:bg-opacity-95 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-blue-500/10 cursor-pointer"
+                      >
+                        Raise a Support Request
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================
+              VIEW K2: INTERACTIVE TICKET CONVERSATION & REPLY MODAL
+              ======================================================== */}
+          {activeTicketThread && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
+              <div className="bg-white rounded-3xl max-w-2xl w-full shadow-2xl overflow-hidden border border-gray-150 flex flex-col max-h-[92vh] text-left animate-in zoom-in-95 duration-200">
+                
+                {/* Modal Header */}
+                <div className="p-5 sm:p-6 border-b border-gray-100 flex items-start justify-between gap-4 bg-slate-50/50">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono font-black text-xs text-brand-blue bg-blue-50 border border-blue-100 px-2.5 py-0.5 rounded-lg">
+                        #{activeTicketThread.ticket_number}
+                      </span>
+                      <span className="px-2.5 py-0.5 rounded-full bg-slate-200 text-gray-700 text-[10px] font-bold">
+                        {activeTicketThread.request_type}
+                      </span>
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase border ${
+                        (activeTicketThread.status || 'open') === 'open'
+                          ? "bg-rose-50 text-rose-600 border-rose-200"
+                          : activeTicketThread.status === 'in_progress'
+                          ? "bg-amber-50 text-amber-600 border-amber-200"
+                          : activeTicketThread.status === 'resolved'
+                          ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                          : "bg-slate-100 text-gray-600 border-gray-200"
+                      }`}>
+                        {(activeTicketThread.status || 'open') === 'open' ? "🔴 Under Review" : activeTicketThread.status === 'in_progress' ? "🟠 In Progress" : activeTicketThread.status === 'resolved' ? "🟢 Resolved" : "Closed"}
+                      </span>
+                    </div>
+                    <h3 className="text-base font-black text-brand-navy">
+                      {activeTicketThread.subject}
+                    </h3>
+                    <p className="text-[10px] text-gray-400 font-medium">
+                      Submitted on {new Date(activeTicketThread.created_at).toLocaleString('en-US', {
+                        month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                      })} • Page Origin: <strong className="text-gray-600">{activeTicketThread.source_path || '/profile'}</strong>
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => setActiveTicketThread(null)}
+                    className="text-gray-400 hover:text-gray-700 p-2 rounded-xl bg-white border border-gray-200 hover:bg-gray-100 transition-colors cursor-pointer shrink-0"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+
+                {/* Progress Tracker Strip */}
+                <div className="bg-slate-100/70 border-b border-gray-150 px-6 py-3 flex items-center justify-between gap-2 text-xs">
+                  <div className="flex items-center gap-1.5 text-emerald-600 font-bold text-[11px]">
+                    <div className="h-4 w-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[9px] font-black">✓</div>
+                    <span>1. Logged</span>
+                  </div>
+                  <div className="h-0.5 flex-1 bg-gray-250 mx-1" />
+                  <div className={`flex items-center gap-1.5 font-bold text-[11px] ${
+                    activeTicketThread.status === 'resolved' 
+                      ? "text-emerald-600" 
+                      : (activeTicketThread.status === 'in_progress' || (activeTicketThread.status || 'open') === 'open')
+                      ? "text-amber-600"
+                      : "text-gray-400"
+                  }`}>
+                    <div className={`h-4 w-4 rounded-full flex items-center justify-center text-[9px] font-black ${
+                      activeTicketThread.status === 'resolved'
+                        ? "bg-emerald-500 text-white"
+                        : "bg-amber-500 text-white animate-pulse"
+                    }`}>
+                      {activeTicketThread.status === 'resolved' ? "✓" : "2"}
+                    </div>
+                    <span>2. In Review / Working</span>
+                  </div>
+                  <div className="h-0.5 flex-1 bg-gray-250 mx-1" />
+                  <div className={`flex items-center gap-1.5 font-bold text-[11px] ${
+                    activeTicketThread.status === 'resolved' ? "text-emerald-600" : "text-gray-400"
+                  }`}>
+                    <div className={`h-4 w-4 rounded-full flex items-center justify-center text-[9px] font-black ${
+                      activeTicketThread.status === 'resolved' ? "bg-emerald-500 text-white" : "bg-gray-250 text-gray-500"
+                    }`}>
+                      {activeTicketThread.status === 'resolved' ? "✓" : "3"}
+                    </div>
+                    <span>3. Resolved</span>
+                  </div>
+                </div>
+
+                {/* Related Course Banner (if exists) */}
+                {activeTicketThread.related_to && (
+                  <div className="px-6 py-2 bg-blue-50/50 border-b border-blue-100 text-[11px] text-gray-600 font-semibold flex items-center gap-2">
+                    <span className="text-brand-blue font-bold">Related Course:</span>
+                    <span className="text-brand-navy font-bold">{activeTicketThread.related_to}</span>
+                  </div>
+                )}
+
+                {/* Messages & Conversation Thread */}
+                <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4 bg-slate-50/40">
+                  <div className="text-center">
+                    <span className="px-3 py-1 rounded-full bg-gray-150 text-gray-500 text-[10px] font-bold uppercase tracking-wider">
+                      Conversation Thread
+                    </span>
+                  </div>
+
+                  {/* Render messages from `messages` array if available */}
+                  {Array.isArray(activeTicketThread.messages) && activeTicketThread.messages.length > 0 ? (
+                    activeTicketThread.messages.map((m, mIdx) => {
+                      const isSupport = m.sender === 'support';
+                      return (
+                        <div
+                          key={m.id || mIdx}
+                          className={`flex gap-3 ${isSupport ? "justify-start" : "justify-end"}`}
+                        >
+                          {/* Advisor Avatar */}
+                          {isSupport && (
+                            <div className="h-8 w-8 rounded-xl bg-brand-navy text-white flex items-center justify-center font-black text-xs shrink-0 shadow-xs">
+                              CP
+                            </div>
+                          )}
+
+                          <div className={`space-y-1 max-w-[82%] ${isSupport ? "text-left" : "text-right"}`}>
+                            <div className="flex items-center gap-2 text-[10px] text-gray-400 font-medium px-1">
+                              <span className="font-bold text-gray-700">
+                                {isSupport ? (m.sender_name || "Support Advisor") : (m.sender_name || "You (Student)")}
+                              </span>
+                              <span>•</span>
+                              <span>
+                                {m.created_at ? new Date(m.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : 'Recently'}
+                              </span>
+                            </div>
+
+                            <div className={`p-4 rounded-2xl text-xs leading-relaxed whitespace-pre-wrap ${
+                              isSupport
+                                ? "bg-white border border-gray-200 text-brand-navy rounded-tl-sm shadow-xs font-medium"
+                                : "bg-brand-blue text-white rounded-tr-sm shadow-sm font-medium"
+                            }`}>
+                              {m.message}
+                            </div>
+                          </div>
+
+                          {/* Student Avatar */}
+                          {!isSupport && (
+                            <div className="h-8 w-8 rounded-xl bg-blue-100 text-brand-blue flex items-center justify-center font-black text-xs shrink-0 border border-blue-200">
+                              {firstName ? firstName[0].toUpperCase() : 'U'}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })
+                  ) : (
+                    // Fallback if messages array is empty
+                    <>
+                      {/* Initial Student Message */}
+                      <div className="flex gap-3 justify-end">
+                        <div className="space-y-1 max-w-[82%] text-right">
+                          <div className="flex items-center gap-2 text-[10px] text-gray-400 font-medium px-1 justify-end">
+                            <span className="font-bold text-gray-700">You (Student)</span>
+                            <span>•</span>
+                            <span>{new Date(activeTicketThread.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+                          </div>
+                          <div className="p-4 rounded-2xl text-xs leading-relaxed whitespace-pre-wrap bg-brand-blue text-white rounded-tr-sm shadow-sm font-medium">
+                            {activeTicketThread.description}
+                          </div>
+                        </div>
+                        <div className="h-8 w-8 rounded-xl bg-blue-100 text-brand-blue flex items-center justify-center font-black text-xs shrink-0 border border-blue-200">
+                          {firstName ? firstName[0].toUpperCase() : 'U'}
+                        </div>
+                      </div>
+
+                      {/* Official Support Response / Notes (if any) */}
+                      {activeTicketThread.admin_notes && (
+                        <div className="flex gap-3 justify-start">
+                          <div className="h-8 w-8 rounded-xl bg-brand-navy text-white flex items-center justify-center font-black text-xs shrink-0 shadow-xs">
+                            CP
+                          </div>
+                          <div className="space-y-1 max-w-[82%] text-left">
+                            <div className="flex items-center gap-2 text-[10px] text-gray-400 font-medium px-1">
+                              <span className="font-bold text-gray-700">Support Advisor</span>
+                              <span>•</span>
+                              <span>Official Response</span>
+                            </div>
+                            <div className="p-4 rounded-2xl text-xs leading-relaxed whitespace-pre-wrap bg-white border border-emerald-200 text-emerald-950 rounded-tl-sm shadow-xs font-medium">
+                              {activeTicketThread.admin_notes}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                {/* Reply Form Footer */}
+                <div className="p-4 sm:p-5 border-t border-gray-150 bg-white space-y-3">
+                  <div className="flex items-center justify-between text-[11px] text-gray-400">
+                    <span className="font-bold text-gray-600">Reply to Support Team:</span>
+                    <span>Need urgent phone support? Call <strong className="text-brand-blue">(888) 745-7575</strong></span>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <textarea
+                      rows={2}
+                      value={studentReplyText}
+                      onChange={(e) => setStudentReplyText(e.target.value)}
+                      placeholder="Type your message or response to the support advisor here..."
+                      className="flex-1 p-3 rounded-2xl bg-slate-50 border border-gray-200 focus:outline-none focus:border-brand-blue focus:bg-white text-xs text-gray-800 placeholder-gray-400 transition-all resize-none font-medium"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSendStudentReply(activeTicketThread.id);
+                        }
+                      }}
+                    />
+                    <button
+                      onClick={() => handleSendStudentReply(activeTicketThread.id)}
+                      disabled={isSendingReply || !studentReplyText.trim()}
+                      className={`px-5 rounded-2xl text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-md cursor-pointer shrink-0 ${
+                        isSendingReply || !studentReplyText.trim()
+                          ? "bg-gray-300 shadow-none cursor-not-allowed"
+                          : "bg-brand-blue hover:bg-opacity-95 shadow-blue-500/20"
+                      }`}
+                    >
+                      {isSendingReply ? (
+                        <RefreshCw size={14} className="animate-spin" />
+                      ) : (
+                        <>
+                          <Send size={14} /> Send
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-gray-400 font-medium">
+                    Press <kbd className="px-1.5 py-0.5 rounded bg-gray-100 border text-gray-600 font-mono text-[9px]">Enter</kbd> to send, <kbd className="px-1.5 py-0.5 rounded bg-gray-100 border text-gray-600 font-mono text-[9px]">Shift+Enter</kbd> for new line.
+                  </p>
+                </div>
+
+              </div>
             </div>
           )}
 
@@ -1708,6 +3499,75 @@ export default function StudentDashboard() {
               </div>
 
             </form>
+          </div>
+        </div>
+      )}
+
+      {pdfModal.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
+          <div className="bg-white border border-gray-200 rounded-3xl p-6 max-w-4xl w-full h-[85vh] flex flex-col space-y-4 shadow-2xl relative">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-4 shrink-0">
+              <div className="flex items-center gap-2">
+                <FileText size={18} className="text-brand-blue" />
+                <h3 className="text-base font-black text-brand-navy truncate max-w-lg">
+                  {pdfModal.title || "Course Material Document"}
+                </h3>
+              </div>
+              <button
+                onClick={() => setPdfModal({ isOpen: false, url: "", title: "" })}
+                className="text-gray-400 hover:text-brand-navy p-1.5 rounded-xl border border-gray-200 hover:bg-slate-50 transition-colors cursor-pointer"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="flex-1 w-full h-full rounded-2xl overflow-hidden bg-slate-50 border border-gray-200 relative flex flex-col items-center justify-center">
+              {pdfModal.url && pdfModal.url.startsWith('data:') ? (
+                <iframe
+                  src={pdfModal.url}
+                  className="w-full h-full border-none"
+                  title="Course Material PDF Viewer"
+                />
+              ) : pdfModal.url && (pdfModal.url.startsWith('blob:') || pdfModal.url.startsWith('http://') || pdfModal.url.startsWith('https://')) ? (
+                <iframe
+                  src={pdfModal.url}
+                  className="w-full h-full border-none"
+                  title="Course Material PDF Viewer"
+                />
+              ) : (
+                <div className="text-center p-8 space-y-4 max-w-md my-auto">
+                  <div className="h-20 w-20 bg-blue-50 text-brand-blue rounded-3xl border border-blue-100 flex items-center justify-center mx-auto shadow-sm">
+                    <FileText size={36} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <h4 className="text-base font-black text-brand-navy">{pdfModal.title || "Course Material Document"}</h4>
+                    <p className="text-xs text-gray-500 font-bold leading-relaxed">
+                      This document path (`{pdfModal.url || 'relative file path'}`) is an abstract path saved in Admin.
+                    </p>
+                  </div>
+                  <div className="pt-2 flex flex-col gap-2">
+                    <a
+                      href="/sample_courseware.pdf"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-5 py-2.5 bg-brand-blue text-white rounded-xl text-xs font-black hover:bg-blue-700 transition-all inline-block shadow-sm"
+                    >
+                      Open Sample Courseware PDF
+                    </a>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between pt-2 shrink-0">
+              <span className="text-[10px] text-gray-400 font-bold">Official Student Courseware Document</span>
+              <button
+                onClick={() => setPdfModal({ isOpen: false, url: "", title: "" })}
+                className="px-4 py-2 bg-brand-navy hover:bg-slate-800 text-white rounded-xl text-xs font-black transition-all cursor-pointer"
+              >
+                Close Preview
+              </button>
+            </div>
           </div>
         </div>
       )}

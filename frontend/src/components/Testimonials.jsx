@@ -9,7 +9,7 @@ const openModal = (title = "Book a Free Consultation") => {
   }
 };
 
-const testimonials = [
+const defaultTestimonials = [
   {
     name: "Rahul S.",
     role: "Project Manager",
@@ -39,80 +39,134 @@ const testimonials = [
   }
 ];
 
-export default function Testimonials() {
+export default function Testimonials({ siteSettings = {} }) {
+  const displayTestimonials = siteSettings.testimonials && siteSettings.testimonials.length > 0
+    ? siteSettings.testimonials
+    : defaultTestimonials;
+
+  const [currentIndex, setCurrentIndex] = React.useState(0);
+  const [isHovered, setIsHovered] = React.useState(false);
+  const isCarousel = displayTestimonials.length > 3;
+
+  React.useEffect(() => {
+    if (!isCarousel || isHovered) return;
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % displayTestimonials.length);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [isCarousel, isHovered, displayTestimonials.length]);
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev + 1) % displayTestimonials.length);
+  };
+
+  const handlePrev = () => {
+    setCurrentIndex((prev) => (prev - 1 + displayTestimonials.length) % displayTestimonials.length);
+  };
+
+  // Get 3 visible items starting from currentIndex
+  const visibleTestimonials = isCarousel
+    ? [
+        displayTestimonials[currentIndex % displayTestimonials.length],
+        displayTestimonials[(currentIndex + 1) % displayTestimonials.length],
+        displayTestimonials[(currentIndex + 2) % displayTestimonials.length]
+      ]
+    : displayTestimonials;
+
   return (
-    <section className="py-16 md:py-24 bg-white border-b border-gray-100">
+    <section className="py-16 md:py-24 bg-white border-b border-gray-100 overflow-hidden">
       <div className="mx-auto max-w-7xl px-4 md:px-6">
         <div className="grid lg:grid-cols-12 gap-12 items-center">
           
           {/* Left Column Text & CTA */}
           <div className="lg:col-span-4 space-y-6 text-left">
             <h2 className="text-3xl md:text-5xl font-black text-brand-navy tracking-tight leading-tight">
-              Real Stories.<br />
-              <span className="text-brand-orange">Real Success.</span>
+              {siteSettings.testimonials_title ? (
+                <span dangerouslySetInnerHTML={{ __html: siteSettings.testimonials_title }} />
+              ) : (
+                <>
+                  Real Stories.<br />
+                  <span className="text-brand-orange">Real Success.</span>
+                </>
+              )}
             </h2>
 
             <p className="text-xs md:text-sm text-gray-500 font-semibold leading-relaxed">
-              Our students achieve their goals and transform their careers.
+              {siteSettings.testimonials_subtitle || "Our students achieve their goals and transform their careers."}
             </p>
 
-            <div className="pt-2">
+            <div className="flex items-center gap-3 pt-2">
               <button
                 onClick={() => openModal("Book a Free Consultation")}
                 className="inline-flex items-center justify-center rounded-2xl bg-brand-blue px-7 py-4 text-xs font-bold text-white shadow-lg shadow-blue-500/20 hover:bg-opacity-90 transition-all hover:scale-[1.01] cursor-pointer"
               >
                 View More Success Stories
               </button>
+
+              {isCarousel && (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handlePrev}
+                    className="h-10 w-10 rounded-xl border border-gray-200 hover:border-brand-blue hover:bg-brand-blue/5 text-gray-600 hover:text-brand-blue flex items-center justify-center transition-all cursor-pointer"
+                    title="Previous Testimonial"
+                  >
+                    <ChevronLeft size={18} />
+                  </button>
+                  <button
+                    onClick={handleNext}
+                    className="h-10 w-10 rounded-xl border border-gray-200 hover:border-brand-blue hover:bg-brand-blue/5 text-gray-600 hover:text-brand-blue flex items-center justify-center transition-all cursor-pointer"
+                    title="Next Testimonial"
+                  >
+                    <ChevronRight size={18} />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Right Column Cards */}
-          <div className="lg:col-span-8 relative">
-            <div className="grid sm:grid-cols-3 gap-6">
-              {testimonials.map((t, idx) => (
-                <div
-                  key={idx}
-                  className="bg-white rounded-3xl border border-gray-200/80 p-6 flex flex-col justify-between shadow-xs hover:shadow-lg transition-all duration-300 text-left space-y-4"
-                >
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-black text-brand-navy">{t.name}</span>
-                      <svg className="h-3.5 w-3.5 fill-brand-blue" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.779-1.75-1.75s.784-1.75 1.75-1.75 1.75.779 1.75 1.75-.784 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+          {/* Right Column Testimonials Cards */}
+          <div
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            className="lg:col-span-8 grid sm:grid-cols-3 gap-6 relative"
+          >
+            {visibleTestimonials.map((item, idx) => (
+              <div
+                key={idx}
+                className="bg-white rounded-3xl border border-gray-200/80 p-6 flex flex-col justify-between hover:shadow-xl transition-all duration-500 hover:translate-y-[-4px] text-left space-y-6 animate-in fade-in zoom-in-95"
+              >
+                <div className="space-y-4">
+                  {/* Badge & Rating */}
+                  <div className="flex items-center justify-between">
+                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${item.badgeColor || 'bg-emerald-50 text-emerald-600 border-emerald-200'}`}>
+                      {item.badge || 'Graduate'}
+                    </span>
+                    <div className="flex text-amber-400">
+                      {[...Array(parseInt(item.rating || 5))].map((_, i) => (
+                        <span key={i} className="text-xs">★</span>
+                      ))}
                     </div>
-
-                    <p className="text-[10px] font-black text-brand-blue uppercase tracking-wider">{t.cert}</p>
-
-                    <p className="text-xs text-gray-600 font-medium italic leading-relaxed">
-                      "{t.quote}"
-                    </p>
                   </div>
 
-                  <div className="pt-3 border-t border-gray-100 space-y-2">
-                    <div>
-                      <p className="text-xs font-black text-brand-navy">{t.role}</p>
-                      <p className="text-[10px] text-gray-400 font-semibold">{t.location}</p>
-                    </div>
+                  {/* Quote */}
+                  <p className="text-xs text-gray-600 font-semibold leading-relaxed italic line-clamp-4">
+                    "{item.quote}"
+                  </p>
+                </div>
 
-                    <div className="flex items-center justify-between pt-1">
-                      <span className={`px-2.5 py-1 rounded-md border text-[9px] font-black ${t.badgeColor}`}>
-                        {t.badge}
-                      </span>
-                    </div>
+                {/* Author Info */}
+                <div className="pt-4 border-t border-gray-100 flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-brand-blue/10 text-brand-blue font-bold flex items-center justify-center text-sm border border-brand-blue/20 shrink-0">
+                    {item.name ? item.name.charAt(0) : "S"}
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-black text-brand-navy">{item.name}</h4>
+                    <p className="text-[10px] text-gray-400 font-bold">{item.role} • {item.location || 'USA'}</p>
+                    <p className="text-[10px] font-bold text-brand-blue">{item.cert}</p>
                   </div>
                 </div>
-              ))}
-            </div>
-
-            {/* Slider Controls */}
-            <div className="hidden lg:flex flex-col gap-2 absolute -right-6 top-1/2 -translate-y-1/2">
-              <button className="h-8 w-8 rounded-full border border-gray-200 bg-white flex items-center justify-center text-gray-500 hover:bg-gray-50 shadow-xs">
-                <ChevronLeft size={16} />
-              </button>
-              <button className="h-8 w-8 rounded-full border border-gray-200 bg-white flex items-center justify-center text-gray-500 hover:bg-gray-50 shadow-xs">
-                <ChevronRight size={16} />
-              </button>
-            </div>
-
+              </div>
+            ))}
           </div>
 
         </div>

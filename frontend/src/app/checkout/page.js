@@ -12,6 +12,7 @@ export default function Checkout() {
   // Form States
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [countryCode, setCountryCode] = useState("+1");
   const [phone, setPhone] = useState("");
   const [company, setCompany] = useState("");
   const [howHear, setHowHear] = useState("");
@@ -60,25 +61,70 @@ export default function Checkout() {
 
   const rewardPoints = Math.floor(cartItem.price / 10);
 
-  const handlePlaceOrder = (e) => {
+  const handlePlaceOrder = async (e) => {
     e.preventDefault();
     const randomId = Math.floor(10000 + Math.random() * 90000);
     const orderId = `CP-ENR-2026-${randomId}`;
+
+    const finalPhone = phone.trim() ? `${countryCode} ${phone.trim()}` : "";
+    const orderPayload = {
+      order_number: orderId,
+      customer_name: fullName.trim() || "Student",
+      customer_email: email.trim() || "student@example.com",
+      customer_phone: finalPhone,
+      total_amount: cartItem.price,
+      subtotal: cartItem.price,
+      discount_amount: 0,
+      payment_status: "completed",
+      payment_method: paymentMethod === "test_gateway" ? "🧪 Sandbox Test Gateway" : (paymentMethod === "card" ? "Credit / Debit Card" : paymentMethod),
+      items: [
+        {
+          course: cartItem.course,
+          course_name: cartItem.course,
+          format: cartItem.format,
+          date: cartItem.date,
+          price: cartItem.price
+        }
+      ]
+    };
     
     if (typeof window !== "undefined") {
-      const orderDetails = {
-        orderId,
-        course: cartItem.course,
-        format: cartItem.format,
-        price: cartItem.price,
-        date: cartItem.date,
-        customerName: fullName || "Valued Client"
-      };
-      localStorage.setItem("cp_latest_order", JSON.stringify(orderDetails));
+      localStorage.setItem("cp_latest_order", JSON.stringify(orderPayload));
+    }
+
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    try {
+      await Promise.all([
+        fetch(`${apiUrl}/orders/checkout`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(orderPayload)
+        }),
+        fetch(`${apiUrl}/admin/orders`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(orderPayload)
+        })
+      ]);
+    } catch (err) {
+      console.error("Order API sync error:", err);
     }
     
     router.push(`/confirmation?orderId=${orderId}&amount=${cartItem.price}`);
   };
+
+  // Dynamic Test Gateway toggle state driven by Admin Panel
+  const [isTestModeEnabled, setIsTestModeEnabled] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const enabled = localStorage.getItem("cp_test_gateway_enabled") === "true";
+      setIsTestModeEnabled(enabled);
+      if (enabled) {
+        setPaymentMethod("test_gateway");
+      }
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-50/20 font-sans antialiased text-gray-800">
@@ -121,8 +167,7 @@ export default function Checkout() {
         {/* 2. SPLIT FORM AND SIDEBAR GRID */}
         <div className="grid lg:grid-cols-12 gap-8 items-start">
           
-          {/* Left Side Forms */}
-          <div className="lg:col-span-8 space-y-8">
+          <form onSubmit={handlePlaceOrder} className="lg:col-span-8 space-y-8">
             
             {/* Step Header */}
             <div>
@@ -161,12 +206,32 @@ export default function Checkout() {
               <div className="space-y-1">
                 <label className="text-[10px] text-gray-500 font-bold">Phone Number *</label>
                 <div className="flex gap-2">
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs">🇺🇸</span>
-                    <select className="rounded-xl border border-gray-200 pl-8 pr-3 py-3.5 text-xs font-bold text-gray-700 outline-none bg-white">
-                      <option>+1</option>
-                      <option>+91</option>
-                      <option>+44</option>
+                  <div className="relative shrink-0">
+                    <select
+                      value={countryCode}
+                      onChange={(e) => setCountryCode(e.target.value)}
+                      className="rounded-xl border border-gray-200 pl-3 pr-8 py-3.5 text-xs font-bold text-gray-700 outline-none bg-white cursor-pointer focus:border-brand-blue"
+                    >
+                      <option value="+1">🇺🇸 United States (+1)</option>
+                      <option value="+1-CA">🇨🇦 Canada (+1)</option>
+                      <option value="+44">🇬🇧 United Kingdom (+44)</option>
+                      <option value="+61">🇦🇺 Australia (+61)</option>
+                      <option value="+49">🇩🇪 Germany (+49)</option>
+                      <option value="+91">🇮🇳 India (+91)</option>
+                      <option value="+65">🇸🇬 Singapore (+65)</option>
+                      <option value="+971">🇦🇪 UAE (+971)</option>
+                      <option value="+966">🇸🇦 Saudi Arabia (+966)</option>
+                      <option value="+27">🇿🇦 South Africa (+27)</option>
+                      <option value="+52">🇲🇽 Mexico (+52)</option>
+                      <option value="+55">🇧🇷 Brazil (+55)</option>
+                      <option value="+81">🇯🇵 Japan (+81)</option>
+                      <option value="+33">🇫🇷 France (+33)</option>
+                      <option value="+39">🇮🇹 Italy (+39)</option>
+                      <option value="+34">🇪🇸 Spain (+34)</option>
+                      <option value="+31">🇳🇱 Netherlands (+31)</option>
+                      <option value="+41">🇨🇭 Switzerland (+41)</option>
+                      <option value="+64">🇳🇿 New Zealand (+64)</option>
+                      <option value="+353">🇮🇪 Ireland (+353)</option>
                     </select>
                   </div>
                   <input
@@ -243,6 +308,7 @@ export default function Checkout() {
                 {/* Method selector options */}
                 <div className="md:col-span-4 space-y-3">
                   {[
+                    ...(isTestModeEnabled ? [{ id: "test_gateway", title: "🧪 Instant Test Gateway (Sandbox)", desc: "Admin Test Mode ON: 1-Click test payment & order sync" }] : []),
                     { id: "card", title: "Credit / Debit Card", desc: "Visa, MasterCard, AMEX, Discover" },
                     { id: "paypal", title: "PayPal", desc: "Pay securely with your PayPal account" },
                     { id: "wire", title: "Wire Transfer / Bank Transfer", desc: "Pay via wire transfer or bank transfer" }
@@ -274,6 +340,23 @@ export default function Checkout() {
 
                 {/* Selected payment form card */}
                 <div className="md:col-span-8 bg-white border border-gray-100 rounded-3xl p-6 shadow-sm space-y-4 text-left">
+                  {paymentMethod === "test_gateway" && (
+                    <div className="space-y-4 py-4 text-center">
+                      <div className="mx-auto h-12 w-12 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center font-black text-lg">
+                        🧪
+                      </div>
+                      <div className="space-y-1">
+                        <h4 className="text-sm font-black text-brand-navy">Simulated Test Mode Active</h4>
+                        <p className="text-xs text-gray-500 font-semibold max-w-sm mx-auto">
+                          Clicking "Complete Payment" will simulate a successful transaction and sync this order live to the Admin Panel in real time.
+                        </p>
+                      </div>
+                      <span className="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold font-mono">
+                        STATUS: READY TO TEST
+                      </span>
+                    </div>
+                  )}
+
                   {paymentMethod === "card" && (
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
@@ -367,14 +450,14 @@ export default function Checkout() {
             {/* Place Order Trigger */}
             <div className="pt-2 text-left">
               <button
-                onClick={handlePlaceOrder}
+                type="submit"
                 className="w-full md:w-auto rounded-xl bg-[#ff5c00] hover:bg-[#e05200] px-12 py-4 font-bold text-white text-xs shadow-lg shadow-orange-500/15 cursor-pointer flex items-center justify-center gap-1.5"
               >
                 Complete Payment ➔
               </button>
             </div>
 
-          </div>
+          </form>
 
           {/* Right Side Sidebar Summary */}
           <div className="lg:col-span-4 space-y-6">

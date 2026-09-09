@@ -8,9 +8,11 @@ const ModalContext = createContext();
 export function ModalProvider({ children }) {
   const [isConsultationOpen, setIsConsultationOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState("Book a Free Consultation");
+  const [modalSource, setModalSource] = useState("");
 
-  const openConsultationModal = (title = "Book a Free Consultation") => {
+  const openConsultationModal = (title = "Book a Free Consultation", source = "") => {
     setModalTitle(title);
+    setModalSource(source);
     setIsConsultationOpen(true);
   };
 
@@ -23,7 +25,8 @@ export function ModalProvider({ children }) {
   useEffect(() => {
     const handler = (e) => {
       const title = e.detail?.title || "Book a Free Consultation";
-      openConsultationModal(title);
+      const source = e.detail?.source || "";
+      openConsultationModal(title, source);
     };
     window.addEventListener("openConsultationModal", handler);
     return () => window.removeEventListener("openConsultationModal", handler);
@@ -36,6 +39,7 @@ export function ModalProvider({ children }) {
         openConsultationModal,
         closeConsultationModal,
         modalTitle,
+        modalSource
       }}
     >
       {children}
@@ -43,6 +47,7 @@ export function ModalProvider({ children }) {
         isOpen={isConsultationOpen}
         onClose={closeConsultationModal}
         title={modalTitle}
+        leadSource={modalSource}
       />
     </ModalContext.Provider>
   );

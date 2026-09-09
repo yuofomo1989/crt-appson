@@ -3,40 +3,40 @@
 import React from "react";
 import { Award, Globe, Users, ShieldCheck, CheckCircle } from "lucide-react";
 
-const badges = [
-  {
-    icon: <Award className="text-brand-blue" size={24} />,
-    title: "98% Success Rate",
-    description: "Exam passing ratio",
-  },
-  {
-    icon: <Globe className="text-brand-blue" size={24} />,
-    title: "100+ Countries",
-    description: "Global delivery presence",
-  },
-  {
-    icon: <Users className="text-brand-blue" size={24} />,
-    title: "Expert Instructors",
-    description: "Industry practitioners",
-  },
-  {
-    icon: <ShieldCheck className="text-brand-blue" size={24} />,
-    title: "Pass Assurance",
-    description: "We've got your back",
-  },
-  {
-    icon: <CheckCircle className="text-brand-blue" size={24} />,
-    title: "50,000+ Trained",
-    description: "Professionals graduated",
-  },
-];
+export default function TrustBadges({ siteSettings = {} }) {
+  const dynamicBadges = [
+    {
+      icon: <Award className="text-brand-blue" size={24} />,
+      title: `${siteSettings.pass_rate || '98.2%'} Success Rate`,
+      description: "Exam passing ratio",
+    },
+    {
+      icon: <Globe className="text-brand-blue" size={24} />,
+      title: "100+ Countries",
+      description: "Global delivery presence",
+    },
+    {
+      icon: <Users className="text-brand-blue" size={24} />,
+      title: "Expert Instructors",
+      description: "Industry practitioners",
+    },
+    {
+      icon: <ShieldCheck className="text-brand-blue" size={24} />,
+      title: `Rating ${siteSettings.trustpilot_rating || '4.9/5'}`,
+      description: "Trustpilot certified",
+    },
+    {
+      icon: <CheckCircle className="text-brand-blue" size={24} />,
+      title: `${siteSettings.total_students_trained || '50,000+'} Trained`,
+      description: "Professionals graduated",
+    },
+  ];
 
-export default function TrustBadges() {
   return (
     <section className="bg-slate-50/60 border-y border-gray-100 py-8">
       <div className="mx-auto max-w-7xl px-4 md:px-6">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 lg:gap-8 items-center text-center lg:text-left">
-          {badges.map((badge, idx) => (
+          {dynamicBadges.map((badge, idx) => (
             <div
               key={idx}
               className="flex flex-col lg:flex-row items-center lg:items-start gap-4 p-3 hover:translate-y-[-2px] transition-transform duration-200"

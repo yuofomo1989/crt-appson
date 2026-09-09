@@ -4,13 +4,14 @@ import React from "react";
 import Link from "next/link";
 import { UserCheck, ShieldCheck, Cloud, Award, ArrowUpRight, TrendingUp } from "lucide-react";
 
-const paths = [
+const defaultPaths = [
   {
     icon: <UserCheck size={28} className="text-brand-blue" />,
     iconBg: "bg-blue-50 text-brand-blue border-blue-100",
     title: "Agile & Project Management",
     courses: "PMP®, CAPM®, PMI-ACP® and more",
     salary: "$115,000",
+    badge: "High Demand",
     btnColor: "border-brand-blue/30 text-brand-blue hover:bg-brand-blue hover:text-white",
     href: "/courses/agile-project-management"
   },
@@ -20,6 +21,7 @@ const paths = [
     title: "Cybersecurity",
     courses: "CISSP®, CEH®, Security+ and more",
     salary: "$120,000",
+    badge: "High Demand",
     btnColor: "border-emerald-500/30 text-emerald-600 hover:bg-emerald-600 hover:text-white",
     href: "/courses?path=Cybersecurity"
   },
@@ -29,6 +31,7 @@ const paths = [
     title: "Salesforce & Cloud",
     courses: "Admin, App Builder, Business Analyst and more",
     salary: "$110,000",
+    badge: "High Demand",
     btnColor: "border-brand-orange/30 text-brand-orange hover:bg-brand-orange hover:text-white",
     href: "/courses?path=Cloud"
   },
@@ -38,12 +41,61 @@ const paths = [
     title: "Lean Six Sigma",
     courses: "Green Belt, Black Belt and more",
     salary: "$95,000",
+    badge: "High Demand",
     btnColor: "border-purple-500/30 text-purple-600 hover:bg-purple-600 hover:text-white",
     href: "/courses?path=Quality"
   }
 ];
 
-export default function CareerPaths() {
+export default function CareerPaths({ categories = [], courses = [] }) {
+  // Filter active featured categories and sort by display_order rank
+  const featuredCategories = categories && categories.length > 0
+    ? categories
+        .filter(c => c.is_featured !== false && c.is_featured !== 0)
+        .sort((a, b) => (a.display_order || 0) - (b.display_order || 0))
+    : [];
+
+  const displayPaths = featuredCategories.length > 0
+    ? featuredCategories.map((cat, idx) => {
+        const catCourses = courses.filter(c => c.category_name === cat.name).map(c => c.title);
+        const coursesString = catCourses.length > 0 
+          ? (catCourses.slice(0, 3).join(", ") + (catCourses.length > 3 ? " and more" : ""))
+          : "Professional certification bootcamps";
+
+        const iconBgs = [
+          "bg-blue-50 text-brand-blue border-blue-100",
+          "bg-emerald-50 text-emerald-600 border-emerald-100",
+          "bg-orange-50 text-brand-orange border-orange-100",
+          "bg-purple-50 text-purple-600 border-purple-100"
+        ];
+
+        const btnColors = [
+          "border-brand-blue/30 text-brand-blue hover:bg-brand-blue hover:text-white",
+          "border-emerald-500/30 text-emerald-600 hover:bg-emerald-600 hover:text-white",
+          "border-brand-orange/30 text-brand-orange hover:bg-brand-orange hover:text-white",
+          "border-purple-500/30 text-purple-600 hover:bg-purple-600 hover:text-white"
+        ];
+
+        const icons = [
+          <UserCheck key={1} size={28} className="text-brand-blue" />,
+          <ShieldCheck key={2} size={28} className="text-emerald-600" />,
+          <Cloud key={3} size={28} className="text-brand-orange" />,
+          <Award key={4} size={28} className="text-purple-600" />
+        ];
+
+        return {
+          icon: icons[idx % icons.length],
+          iconBg: iconBgs[idx % iconBgs.length],
+          title: cat.name,
+          courses: coursesString,
+          salary: cat.avg_salary || "$115,000",
+          badge: cat.badge_text || "High Demand",
+          btnColor: btnColors[idx % btnColors.length],
+          href: `/courses?category=${encodeURIComponent(cat.name)}`
+        };
+      })
+    : defaultPaths;
+
   return (
     <section id="career-paths" className="py-16 md:py-24 bg-white">
       <div className="mx-auto max-w-7xl px-4 md:px-6">
@@ -58,9 +110,9 @@ export default function CareerPaths() {
           </p>
         </div>
 
-        {/* 4 Cards Grid */}
+        {/* Dynamic Cards Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {paths.map((path, idx) => (
+          {displayPaths.map((path, idx) => (
             <div
               key={idx}
               className="bg-white rounded-3xl border border-gray-200/80 p-6 flex flex-col justify-between hover:shadow-xl transition-all duration-300 hover:translate-y-[-4px] text-center space-y-6"
@@ -88,7 +140,7 @@ export default function CareerPaths() {
                 </div>
 
                 <div className="inline-flex items-center justify-center gap-1 text-[11px] font-bold text-emerald-600">
-                  High Demand <TrendingUp size={12} />
+                  {path.badge} <TrendingUp size={12} />
                 </div>
 
                 <Link

@@ -11,7 +11,7 @@ const openModal = (title = "Book a Free Consultation") => {
   }
 };
 
-export default function CorporateBanner() {
+export default function CorporateBanner({ siteSettings = {} }) {
 
   return (
     <section className="max-w-7xl mx-auto px-4 md:px-6 py-16">
@@ -25,11 +25,11 @@ export default function CorporateBanner() {
           {/* Left Text */}
           <div className="lg:col-span-6 space-y-6 text-left">
             <h2 className="text-2xl md:text-4xl font-black tracking-tight leading-tight">
-              Corporate Training Solutions
+              {siteSettings.corporate_title || "Corporate Training Solutions"}
             </h2>
 
             <p className="text-xs md:text-sm text-gray-300 font-semibold leading-relaxed max-w-md">
-              Upskill your teams. Improve performance. Drive results.
+              {siteSettings.corporate_subtitle || "Upskill your teams. Improve performance. Drive results."}
             </p>
 
             <div className="space-y-3 pt-2">

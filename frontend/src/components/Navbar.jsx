@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Search, ChevronDown, Menu, X, Phone } from "lucide-react";
 
@@ -12,6 +12,29 @@ const openModal = (title = "Book a Free Consultation") => {
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [siteSettings, setSiteSettings] = useState({
+    support_phone: '(888) 745-7575',
+    top_bar_badge: 'Guaranteed-to-Run Classes',
+    top_bar_text: 'PMI Authorized Training Partner'
+  });
+
+  useEffect(() => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    fetch(`${apiUrl}/categories`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success' && data.data) setCategories(data.data);
+      })
+      .catch(err => console.error(err));
+
+    fetch(`${apiUrl}/settings`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success' && data.data) setSiteSettings(data.data);
+      })
+      .catch(err => console.error(err));
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white shadow-xs">
@@ -20,10 +43,10 @@ export default function Navbar() {
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1">
             <span className="h-2 w-2 rounded-full bg-brand-green animate-pulse"></span>
-            Guaranteed-to-Run Classes
+            {siteSettings.top_bar_badge || 'Guaranteed-to-Run Classes'}
           </span>
           <span className="text-gray-400">|</span>
-          <span>PMI Authorized Training Partner</span>
+          <span>{siteSettings.top_bar_text || 'PMI Authorized Training Partner'}</span>
         </div>
         <div className="flex items-center gap-4">
           <button
@@ -31,7 +54,7 @@ export default function Navbar() {
             className="flex items-center gap-1 hover:text-brand-orange transition-colors cursor-pointer"
           >
             <Phone size={14} className="text-brand-orange" />
-            (888) 745-7575
+            {siteSettings.support_phone || '(888) 745-7575'}
           </button>
         </div>
       </div>
@@ -47,64 +70,38 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {/* Desktop Navigation Links */}
+        {/* Desktop Navigation Links (WordPress-Style Dynamic Tree) */}
         <nav className="hidden lg:flex items-center gap-8 text-sm font-medium text-gray-700">
-          <div className="group relative cursor-pointer py-2">
-            <Link href="/courses" className="flex items-center gap-1 hover:text-brand-blue transition-colors">
-              Certifications <ChevronDown size={14} className="text-gray-400 group-hover:rotate-180 transition-transform" />
-            </Link>
-            <div className="invisible absolute top-full left-0 w-64 rounded-lg border border-gray-100 bg-white p-2 shadow-lg group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200">
-              <Link href="/courses/agile-project-management" className="block rounded-md p-2 font-semibold hover:bg-gray-50 hover:text-brand-blue">Agile &amp; Project Management</Link>
-              <div className="border-t border-gray-50 my-1"></div>
-              <Link href="/courses/pmp-certification" className="block rounded-md p-2 text-xs hover:bg-gray-50 hover:text-brand-blue">PMP® Certification</Link>
-              <Link href="/courses/cissp-certification" className="block rounded-md p-2 text-xs hover:bg-gray-50 hover:text-brand-blue">CISSP® Security</Link>
-              <Link href="/courses/aws-solutions-architect" className="block rounded-md p-2 text-xs hover:bg-gray-50 hover:text-brand-blue">AWS® Cloud</Link>
-              <div className="border-t border-gray-50 my-1 pt-1"></div>
-              <Link href="/courses" className="block rounded-md p-2 text-brand-blue font-bold text-xs hover:bg-gray-50">View All Certifications →</Link>
-            </div>
-          </div>
-
-          <div className="group relative cursor-pointer py-2">
-            <Link href="/training" className="flex items-center gap-1 hover:text-brand-blue transition-colors">
-              Training Options <ChevronDown size={14} className="text-gray-400 group-hover:rotate-180 transition-transform" />
-            </Link>
-            <div className="invisible absolute top-full left-0 w-52 rounded-lg border border-gray-100 bg-white p-2 shadow-lg group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200">
-              <Link href="/training#live" className="block rounded-md p-2 text-xs hover:bg-gray-50 hover:text-brand-blue">Live Online Classroom</Link>
-              <Link href="/training#in-person" className="block rounded-md p-2 text-xs hover:bg-gray-50 hover:text-brand-blue">In-Person Classroom</Link>
-              <Link href="/training#self-paced" className="block rounded-md p-2 text-xs hover:bg-gray-50 hover:text-brand-blue">Self-Paced E-Learning</Link>
-              <Link href="/corporate-training" className="block rounded-md p-2 text-xs font-bold hover:bg-gray-50 text-brand-blue">Corporate Group Training</Link>
-            </div>
-          </div>
-
-          <div className="group relative cursor-pointer py-2">
-            <Link href="/resources" className="flex items-center gap-1 hover:text-brand-blue transition-colors">
-              Resources <ChevronDown size={14} className="text-gray-400 group-hover:rotate-180 transition-transform" />
-            </Link>
-            <div className="invisible absolute top-full left-0 w-56 rounded-lg border border-gray-100 bg-white p-2 shadow-lg group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200">
-              <Link href="/resources" className="block rounded-md p-2 hover:bg-gray-50 hover:text-brand-blue text-sm">All Articles</Link>
-              <div className="border-t border-gray-50 my-1" />
-              <Link href="/resources/agile-project-management" className="block rounded-md p-2 hover:bg-gray-50 hover:text-brand-blue text-sm">Agile &amp; Project Management</Link>
-              <Link href="/resources" className="block rounded-md p-2 hover:bg-gray-50 hover:text-brand-blue text-sm">DevOps &amp; Salesforce</Link>
-              <Link href="/resources" className="block rounded-md p-2 hover:bg-gray-50 hover:text-brand-blue text-sm">Information Security</Link>
-              <Link href="/resources" className="block rounded-md p-2 hover:bg-gray-50 hover:text-brand-blue text-sm">IT Service &amp; Architecture</Link>
-              <Link href="/resources" className="block rounded-md p-2 hover:bg-gray-50 hover:text-brand-blue text-sm">Lean &amp; Six Sigma</Link>
-            </div>
-          </div>
-
-          <Link href="/corporate-training" className="hover:text-brand-blue transition-colors py-2">
-            Corporate Training
-          </Link>
-          <div className="group relative cursor-pointer py-2">
-            <Link href="/about" className="flex items-center gap-1 hover:text-brand-blue transition-colors">
-              About Us <ChevronDown size={14} className="text-gray-400 group-hover:rotate-180 transition-transform" />
-            </Link>
-            <div className="invisible absolute top-full left-0 w-48 rounded-lg border border-gray-100 bg-white p-2 shadow-lg group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200">
-              <Link href="/about" className="block rounded-md p-2 text-sm hover:bg-gray-50 hover:text-brand-blue">About Us</Link>
-              <Link href="/contact" className="block rounded-md p-2 text-sm hover:bg-gray-50 hover:text-brand-blue">Contact Us</Link>
-              <div className="border-t border-gray-50 my-1" />
-              <Link href="/policies" className="block rounded-md p-2 text-sm hover:bg-gray-50 hover:text-brand-blue">Our Policies</Link>
-            </div>
-          </div>
+          {(siteSettings.header_menu_items || [
+            { title: "Certifications", url: "/courses" },
+            { title: "Training Options", url: "/training" },
+            { title: "Resources", url: "/resources" },
+            { title: "Corporate Training", url: "/corporate-training" },
+            { title: "About Us", url: "/about" }
+          ]).map((item, idx) => (
+            item.children && item.children.length > 0 ? (
+              <div key={idx} className="group relative cursor-pointer py-2">
+                <Link href={item.url || '#'} className="flex items-center gap-1 hover:text-brand-blue transition-colors font-bold">
+                  {item.title} <ChevronDown size={14} className="text-gray-400 group-hover:rotate-180 transition-transform" />
+                </Link>
+                <div className="invisible absolute top-full left-0 w-64 rounded-xl border border-gray-100 bg-white p-2 shadow-xl group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 z-50 space-y-1">
+                  {item.children.map((child, cIdx) => (
+                    <Link
+                      key={cIdx}
+                      href={child.url || '#'}
+                      className="block rounded-lg p-2 text-xs font-bold text-gray-700 hover:bg-blue-50/70 hover:text-brand-blue transition-colors"
+                    >
+                      {child.title}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <Link key={idx} href={item.url || '#'} className="hover:text-brand-blue transition-colors py-2 font-bold">
+                {item.title}
+              </Link>
+            )
+          ))}
         </nav>
 
         {/* Action Buttons */}
@@ -134,17 +131,31 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Drawer (Dynamic Tree) */}
       {isOpen && (
         <div className="lg:hidden border-t border-gray-100 bg-white px-4 py-6 shadow-lg">
-          <div className="flex flex-col gap-4 text-base font-medium text-gray-800">
-            <Link href="/courses" className="hover:text-brand-blue p-2 rounded-md hover:bg-gray-50">Certifications</Link>
-            <Link href="/training" className="hover:text-brand-blue p-2 rounded-md hover:bg-gray-50">Training Options</Link>
-            <Link href="/resources" className="hover:text-brand-blue p-2 rounded-md hover:bg-gray-50">Resources</Link>
-            <Link href="/corporate-training" className="hover:text-brand-blue p-2 rounded-md hover:bg-gray-50">Corporate Training</Link>
-            <Link href="/about" className="hover:text-brand-blue p-2 rounded-md hover:bg-gray-50">About Us</Link>
-            <Link href="/contact" className="hover:text-brand-blue p-2 rounded-md hover:bg-gray-50">Contact Us</Link>
-            <Link href="/policies" className="hover:text-brand-blue p-2 rounded-md hover:bg-gray-50">Our Policies</Link>
+          <div className="flex flex-col gap-3 text-base font-medium text-gray-800">
+            {(siteSettings.header_menu_items || []).map((item, idx) => (
+              <div key={idx} className="space-y-1">
+                <Link href={item.url || '#'} onClick={() => setIsOpen(false)} className="block hover:text-brand-blue p-2 font-bold rounded-md hover:bg-gray-50">
+                  {item.title}
+                </Link>
+                {item.children && item.children.length > 0 && (
+                  <div className="pl-4 space-y-1 border-l-2 border-gray-100">
+                    {item.children.map((child, cIdx) => (
+                      <Link
+                        key={cIdx}
+                        href={child.url || '#'}
+                        onClick={() => setIsOpen(false)}
+                        className="block text-xs text-gray-600 hover:text-brand-blue p-1.5 rounded-md hover:bg-gray-50 font-medium"
+                      >
+                        ↳ {child.title}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
             <button
               onClick={() => {
                 setIsOpen(false);

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Navbar from "@/components/Navbar";
@@ -16,167 +16,52 @@ import {
   CheckCircle,
 } from "lucide-react";
 
-// ─── Data ────────────────────────────────────────────────────────────────────
-
-const categories = [
-  {
-    label: "Agile and Project\nManagement",
-    count: 48,
-    color: "text-brand-green",
-    bg: "bg-green-50",
-    border: "border-green-100",
-    icon: (
-      <svg viewBox="0 0 24 24" className="h-6 w-6 fill-current text-brand-green">
-        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-      </svg>
-    ),
-  },
-  {
-    label: "DevOps and\nSalesforce",
-    count: 42,
-    color: "text-brand-blue",
-    bg: "bg-blue-50",
-    border: "border-blue-100",
-    icon: (
-      <svg viewBox="0 0 24 24" className="h-6 w-6 fill-current text-brand-blue">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-      </svg>
-    ),
-  },
-  {
-    label: "Information\nSecurity",
-    count: 36,
-    color: "text-brand-orange",
-    bg: "bg-orange-50",
-    border: "border-orange-100",
-    icon: (
-      <svg viewBox="0 0 24 24" className="h-6 w-6 fill-current text-brand-orange">
-        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 4l5 2.18V11c0 3.5-2.33 6.79-5 7.93C9.33 17.79 7 14.5 7 11V7.18L12 5z"/>
-      </svg>
-    ),
-  },
-  {
-    label: "IT Service and\nArchitecture",
-    count: 38,
-    color: "text-purple-600",
-    bg: "bg-purple-50",
-    border: "border-purple-100",
-    icon: (
-      <svg viewBox="0 0 24 24" className="h-6 w-6 fill-current text-purple-600">
-        <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
-      </svg>
-    ),
-  },
-  {
-    label: "Lean and\nSix Sigma",
-    count: 30,
-    color: "text-teal-600",
-    bg: "bg-teal-50",
-    border: "border-teal-100",
-    icon: (
-      <svg viewBox="0 0 24 24" className="h-6 w-6 fill-current text-teal-600">
-        <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/>
-      </svg>
-    ),
-  },
-];
-
-const featuredArticles = [
-  {
-    category: "AGILE AND PROJECT MANAGEMENT",
-    categoryColor: "text-brand-green bg-green-50",
-    title: "10 Agile Best Practices for Successful Project Delivery",
-    excerpt: "Explore proven Agile practices that help teams improve collaboration, efficiency, and project outcomes.",
-    date: "May 10, 2024",
-    readTime: "6 min read",
-    image: "/article_agile.jpg",
-  },
-  {
-    category: "DEVOPS AND SALESFORCE",
-    categoryColor: "text-brand-blue bg-blue-50",
-    title: "DevOps Automation with Jenkins: A Complete Guide",
-    excerpt: "Learn how to build efficient CI/CD pipelines using Jenkins and best automation practices.",
-    date: "May 8, 2024",
-    readTime: "7 min read",
-    image: "/article_devops.jpg",
-  },
-  {
-    category: "INFORMATION SECURITY",
-    categoryColor: "text-brand-orange bg-orange-50",
-    title: "Top 7 Cybersecurity Trends to Watch in 2024",
-    excerpt: "Stay ahead of emerging threats and discover the key cybersecurity trends shaping the future.",
-    date: "May 6, 2024",
-    readTime: "5 min read",
-    image: "/article_security.jpg",
-  },
-  {
-    category: "IT SERVICE AND ARCHITECTURE",
-    categoryColor: "text-purple-600 bg-purple-50",
-    title: "ITIL 4 Best Practices for Modern IT Organizations",
-    excerpt: "Explore how ITIL 4 can help organizations enhance service delivery and drive business value.",
-    date: "May 3, 2024",
-    readTime: "6 min read",
-    image: "/article_it.jpg",
-  },
-  {
-    category: "LEAN AND SIX SIGMA",
-    categoryColor: "text-teal-600 bg-teal-50",
-    title: "Lean Six Sigma vs Six Sigma: What's the Difference?",
-    excerpt: "Understand the key differences and choose the right methodology for your process improvement goals.",
-    date: "Apr 30, 2024",
-    readTime: "5 min read",
-    image: "/article_lean.jpg",
-  },
-];
-
-const popularArticles = [
-  {
-    title: "What is Agile Methodology?",
-    date: "Apr 25, 2024",
-    readTime: "5 min read",
-    image: "/article_agile.jpg",
-  },
-  {
-    title: "Introduction to DevOps",
-    date: "Apr 22, 2024",
-    readTime: "4 min read",
-    image: "/article_devops.jpg",
-  },
-  {
-    title: "Information Security Certifications Worth Your Investment",
-    date: "Apr 18, 2024",
-    readTime: "6 min read",
-    image: "/article_security.jpg",
-  },
-  {
-    title: "ITIL 4 Certification: A Complete Overview",
-    date: "Apr 15, 2024",
-    readTime: "5 min read",
-    image: "/article_it.jpg",
-  },
-  {
-    title: "Six Sigma DMAIC Process Explained",
-    date: "Apr 12, 2024",
-    readTime: "5 min read",
-    image: "/article_lean.jpg",
-  },
-];
-
-// ─── Component ───────────────────────────────────────────────────────────────
-
 export default function ResourcesPage() {
   const [search, setSearch] = useState("");
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const [activeCategory, setActiveCategory] = useState(null);
+  
+  const [dbArticles, setDbArticles] = useState([]);
+  const [dbCategories, setDbCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchResourceData() {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+      try {
+        const [aRes, cRes] = await Promise.all([
+          fetch(`${apiUrl}/articles`),
+          fetch(`${apiUrl}/article-categories`)
+        ]);
+        const aData = await aRes.json();
+        const cData = await cRes.json();
+        if (aData.status === "success" && aData.data) setDbArticles(aData.data);
+        if (cData.status === "success" && cData.data) setDbCategories(cData.data);
+      } catch (err) {
+        console.error("Error fetching resources data:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchResourceData();
+  }, []);
 
   const handleSubscribe = (e) => {
     e.preventDefault();
     if (email) setSubscribed(true);
   };
 
+  const filteredArticles = dbArticles.filter(art => {
+    const matchCat = activeCategory === null || (art.category_name || "").toLowerCase() === activeCategory.toLowerCase();
+    const matchSearch = !search || (art.title || "").toLowerCase().includes(search.toLowerCase()) || (art.description || "").toLowerCase().includes(search.toLowerCase());
+    return matchCat && matchSearch;
+  });
+
+  const popularArticles = [...dbArticles].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 5);
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white text-left">
       <Navbar />
 
       {/* Breadcrumb */}
@@ -193,7 +78,7 @@ export default function ResourcesPage() {
         <div className="mx-auto max-w-7xl px-6 lg:flex lg:items-center lg:gap-16">
           {/* Text + Search */}
           <div className="lg:flex-1 max-w-xl">
-            <p className="text-xs font-bold uppercase tracking-widest text-brand-orange mb-3">Resources</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-brand-orange mb-3">RESOURCES</p>
             <h1 className="text-4xl font-extrabold leading-tight text-brand-navy md:text-5xl">
               Insights. Guidance.<br />Career Growth.
             </h1>
@@ -225,14 +110,12 @@ export default function ResourcesPage() {
                   <div key={i} className="h-1.5 w-1.5 rounded-full bg-brand-blue" />
                 ))}
               </div>
-              <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl ring-1 ring-gray-200">
-                <Image
+              <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl ring-1 ring-gray-200 bg-slate-900">
+                <img
                   src="/resources_hero_laptop.jpg"
                   alt="Resources page on a laptop"
-                  width={640}
-                  height={480}
-                  className="w-full object-cover"
-                  priority
+                  className="w-full h-auto object-cover"
+                  onError={(e) => { e.target.src = "/article_green_project_hero.jpg"; }}
                 />
               </div>
               {/* CP badge */}
@@ -249,25 +132,40 @@ export default function ResourcesPage() {
         <div className="mx-auto max-w-7xl px-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-base font-bold text-brand-navy">Browse by Category</h2>
-            <button className="inline-flex items-center gap-1 text-xs font-semibold text-brand-blue hover:underline">
+            <button
+              onClick={() => setActiveCategory(null)}
+              className="inline-flex items-center gap-1 text-xs font-semibold text-brand-blue hover:underline"
+            >
               View All Categories <ArrowRight size={13} />
             </button>
           </div>
           <div className="flex flex-wrap gap-3">
-            {categories.map((cat, i) => (
-              <button
+            <Link
+              href="/resources"
+              className={`flex items-center gap-3 rounded-xl border px-4 py-3 text-left hover:shadow-sm transition-all ${
+                activeCategory === null ? "ring-2 ring-brand-blue bg-blue-50/80 border-blue-200" : "bg-gray-50 border-gray-100"
+              }`}
+            >
+              <div>
+                <p className="text-xs font-bold text-gray-800 leading-snug">All Resources</p>
+                <p className="text-[11px] text-gray-400 font-medium mt-0.5">Articles <span className="font-bold text-gray-600">{dbArticles.length}</span></p>
+              </div>
+            </Link>
+            {dbCategories.map((cat, i) => (
+              <Link
                 key={i}
-                onClick={() => setActiveCategory(activeCategory === i ? null : i)}
-                className={`flex items-center gap-3 rounded-xl border ${cat.border} ${activeCategory === i ? "ring-2 ring-brand-blue" : ""} ${cat.bg} px-4 py-3 text-left hover:shadow-sm transition-all`}
+                href={`/resources/category/${cat.slug || cat.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
+                className={`flex items-center gap-3 rounded-xl border px-4 py-3 text-left hover:shadow-sm transition-all ${
+                  activeCategory === cat.name ? "ring-2 ring-brand-blue bg-blue-50/80 border-blue-200" : "bg-gray-50 border-gray-100"
+                }`}
               >
-                <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg ${cat.bg} border ${cat.border}`}>
-                  {cat.icon}
-                </div>
                 <div>
-                  <p className="text-xs font-bold text-gray-800 whitespace-pre-line leading-snug">{cat.label}</p>
-                  <p className="text-[11px] text-gray-400 font-medium mt-0.5">Articles <span className="font-bold text-gray-600">{cat.count}</span></p>
+                  <p className="text-xs font-bold text-gray-800 leading-snug">{cat.name}</p>
+                  <p className="text-[11px] text-gray-400 font-medium mt-0.5">
+                    Articles <span className="font-bold text-gray-600">{dbArticles.filter(a => (a.category_name || '').toLowerCase() === cat.name.toLowerCase()).length}</span>
+                  </p>
                 </div>
-              </button>
+              </Link>
             ))}
           </div>
         </div>
@@ -281,41 +179,42 @@ export default function ResourcesPage() {
           <div className="lg:col-span-2">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-base font-bold text-brand-navy">Featured Articles</h2>
-              <button className="inline-flex items-center gap-1 text-xs font-semibold text-brand-blue hover:underline">
+              <button onClick={() => { setActiveCategory(null); setSearch(""); }} className="inline-flex items-center gap-1 text-xs font-semibold text-brand-blue hover:underline">
                 View All Articles <ArrowRight size={13} />
               </button>
             </div>
 
             <div className="grid gap-5 sm:grid-cols-2 md:grid-cols-3">
-              {featuredArticles.map((art, i) => (
+              {filteredArticles.map((art, i) => (
                 <Link
                   key={i}
-                  href={i === 0 ? "/resources/agile-project-management" : "/resources"}
-                  className="group rounded-2xl bg-white shadow-sm ring-1 ring-gray-100 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex flex-col">
-                  {/* Real image */}
-                  <div className="relative h-36 overflow-hidden">
-                    <Image
-                      src={art.image}
+                  href={`/blog/${art.slug}`}
+                  className="group rounded-2xl bg-white shadow-sm ring-1 ring-gray-100 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex flex-col"
+                >
+                  {/* Image */}
+                  <div className="relative h-36 overflow-hidden bg-slate-900">
+                    <img
+                      src={art.image || "/article_green_project_hero.jpg"}
                       alt={art.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      onError={(e) => { e.target.src = "/article_green_project_hero.jpg"; }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                     <div className="absolute top-3 left-3">
-                      <span className={`rounded-full px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider backdrop-blur-sm bg-white/90 ${art.categoryColor}`}>
-                        {art.category}
+                      <span className="rounded-full px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider backdrop-blur-sm bg-white/90 text-brand-blue">
+                        {art.category_name || "INSIGHT"}
                       </span>
                     </div>
                   </div>
                   {/* Content */}
                   <div className="flex flex-col flex-1 p-4">
-                    <h3 className="text-xs font-bold text-brand-navy leading-snug group-hover:text-brand-blue transition-colors">
+                    <h3 className="text-xs font-bold text-brand-navy leading-snug group-hover:text-brand-blue transition-colors line-clamp-2">
                       {art.title}
                     </h3>
-                    <p className="mt-2 text-[11px] text-gray-500 leading-relaxed flex-1">{art.excerpt}</p>
+                    <p className="mt-2 text-[11px] text-gray-500 leading-relaxed flex-1 line-clamp-2">{art.description}</p>
                     <div className="mt-3 flex items-center gap-3 text-[10px] text-gray-400 font-medium">
-                      <span className="flex items-center gap-1"><Calendar size={10} />{art.date}</span>
-                      <span className="flex items-center gap-1"><Clock size={10} />{art.readTime}</span>
+                      <span className="flex items-center gap-1"><Calendar size={10} />{new Date(art.created_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                      <span className="flex items-center gap-1"><Clock size={10} />{art.views || 120} views</span>
                     </div>
                   </div>
                 </Link>
@@ -351,7 +250,7 @@ export default function ResourcesPage() {
               {popularArticles.map((art, i) => (
                 <Link
                   key={i}
-                  href={i === 0 ? "/resources/agile-project-management" : "/resources"}
+                  href={`/blog/${art.slug}`}
                   className="group flex items-start gap-3 cursor-pointer hover:bg-white rounded-xl p-2 -mx-2 transition-all"
                 >
                   {/* Number */}
@@ -359,12 +258,12 @@ export default function ResourcesPage() {
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   {/* Real thumbnail */}
-                  <div className="relative flex-shrink-0 h-14 w-14 rounded-xl overflow-hidden shadow-sm">
-                    <Image
-                      src={art.image}
+                  <div className="relative flex-shrink-0 h-14 w-14 rounded-xl overflow-hidden shadow-sm bg-slate-900">
+                    <img
+                      src={art.image || "/article_green_project_hero.jpg"}
                       alt={art.title}
-                      fill
-                      className="object-cover"
+                      className="w-full h-full object-cover"
+                      onError={(e) => { e.target.src = "/article_green_project_hero.jpg"; }}
                     />
                   </div>
                   {/* Text */}
@@ -373,26 +272,33 @@ export default function ResourcesPage() {
                       {art.title}
                     </p>
                     <div className="mt-1.5 flex items-center gap-2 text-[10px] text-gray-400 font-medium">
-                      <span className="flex items-center gap-1"><Calendar size={9} />{art.date}</span>
-                      <span className="flex items-center gap-1"><Clock size={9} />{art.readTime}</span>
+                      <span className="flex items-center gap-1"><Calendar size={9} />{new Date(art.created_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                      <span className="flex items-center gap-1"><Clock size={9} />{art.views || 120} views</span>
                     </div>
                   </div>
                 </Link>
               ))}
             </div>
 
-            <button className="mt-6 inline-flex items-center gap-1.5 text-xs font-bold text-brand-blue hover:underline">
+            <button onClick={() => { setActiveCategory(null); setSearch(""); }} className="mt-6 inline-flex items-center gap-1.5 text-xs font-bold text-brand-blue hover:underline">
               View All Popular Articles <ArrowRight size={13} />
             </button>
 
             {/* Ad / Promo sidebar card */}
             <div className="mt-8 rounded-2xl bg-gradient-to-br from-brand-navy to-[#003f70] p-5 text-white">
               <p className="text-[10px] font-bold uppercase tracking-widest text-brand-orange mb-2">Free Resource</p>
-              <h3 className="text-sm font-bold leading-snug">2024 Certification Salary Guide</h3>
+              <h3 className="text-sm font-bold leading-snug">2026 Certification Salary Guide</h3>
               <p className="mt-2 text-[11px] text-white/60 leading-relaxed">
                 See how much certified professionals earn across 20+ specializations.
               </p>
-              <button className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-brand-orange px-4 py-2 text-[11px] font-bold text-white hover:bg-opacity-90 transition-all">
+              <button
+                onClick={() => {
+                  if (typeof window !== "undefined") {
+                    window.dispatchEvent(new CustomEvent("openConsultationModal", { detail: { title: "Download Free Salary Guide" } }));
+                  }
+                }}
+                className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-brand-orange px-4 py-2 text-[11px] font-bold text-white hover:bg-opacity-90 transition-all cursor-pointer"
+              >
                 Download Free <ArrowRight size={11} />
               </button>
             </div>

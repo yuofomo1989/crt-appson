@@ -9,7 +9,7 @@ const openModal = (title = "Book a Free Consultation") => {
   }
 };
 
-export default function PreFooter() {
+export default function PreFooter({ siteSettings = {} }) {
 
   return (
     <section className="relative overflow-hidden bg-brand-navy py-12 border-t border-white/5">
@@ -19,10 +19,10 @@ export default function PreFooter() {
           {/* Copy */}
           <div className="space-y-2">
             <h3 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
-              Ready to Advance Your Career?
+              {siteSettings.prefooter_title || "Ready to Advance Your Career?"}
             </h3>
             <p className="text-xs md:text-sm text-blue-100/80 font-medium">
-              Talk to our training experts and find the right certification path for your objectives.
+              {siteSettings.prefooter_subtitle || "Talk to our training experts and find the right certification path for your objectives."}
             </p>
           </div>
 

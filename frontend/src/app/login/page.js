@@ -10,14 +10,63 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [loginError, setLoginError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (email && password) {
-      // Dynamic static-site redirect (works for both domain root & GitHub subpaths)
-      const isSubpath = window.location.pathname.includes('/crt-appson');
-      const basePath = isSubpath ? '/crt-appson' : '';
-      window.location.href = `${basePath}/profile/`;
+    setLoginError("");
+    setIsLoading(true);
+
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+    const cleanEmail = email.trim().toLowerCase();
+
+    try {
+      const res = await fetch(`${apiUrl}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          email: cleanEmail,
+          password: password
+        })
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.status === "success") {
+        const userObj = data.data?.user || {};
+        const userRole = (userObj.role || "student").toString().toLowerCase();
+
+        if (typeof window !== "undefined") {
+          localStorage.setItem("cp_user_email", cleanEmail);
+          if (userObj.name) {
+            localStorage.setItem("cp_user_name", userObj.name);
+          }
+          localStorage.setItem("cp_user_role", userObj.role || "student");
+          if (data.data?.access_token) {
+            localStorage.setItem("cp_auth_token", data.data.access_token);
+          }
+        }
+
+        const adminRoles = ["super admin", "admin", "content manager", "seo manager", "schedule manager"];
+        if (adminRoles.includes(userRole)) {
+          // Staff members & Admins enter Admin Portal
+          window.location.href = "/admin";
+        } else {
+          // All students ONLY get access to the Student Portal
+          window.location.href = "/profile";
+        }
+      } else {
+        setLoginError(data.message || "Invalid email or password. Please try again.");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setLoginError("Failed to connect to authentication server. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -128,6 +177,13 @@ export default function Login() {
             {/* Secure login form */}
             <form onSubmit={handleLogin} className="space-y-4">
               
+              {loginError && (
+                <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl text-xs font-bold text-rose-600 flex items-center gap-2 animate-in fade-in duration-200">
+                  <span>⚠️</span>
+                  <span>{loginError}</span>
+                </div>
+              )}
+
               <div className="space-y-1">
                 <label className="text-[10px] text-gray-500 font-bold">Email Address</label>
                 <div className="relative">
@@ -158,7 +214,7 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
                   >
                     {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                   </button>
@@ -181,9 +237,12 @@ export default function Login() {
 
               <button
                 type="submit"
-                className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-brand-blue py-3.5 text-xs font-bold text-white transition-all hover:bg-opacity-95 cursor-pointer shadow-md"
+                disabled={isLoading}
+                className={`w-full flex items-center justify-center gap-1.5 rounded-xl py-3.5 text-xs font-bold text-white transition-all shadow-md ${
+                  isLoading ? "bg-gray-400 cursor-not-allowed" : "bg-brand-blue hover:bg-opacity-95 cursor-pointer"
+                }`}
               >
-                Log In
+                {isLoading ? "Signing in..." : "Log In"}
               </button>
             </form>
 
@@ -205,9 +264,7 @@ export default function Login() {
                   key={prov.name}
                   type="button"
                   onClick={() => {
-                    const isSubpath = window.location.pathname.includes('/crt-appson');
-                    const basePath = isSubpath ? '/crt-appson' : '';
-                    window.location.href = `${basePath}/profile/`;
+                    setLoginError(`${prov.name} sign-in is currently unavailable. Please sign in with your email and password.`);
                   }}
                   className="flex h-11 items-center justify-center gap-2 rounded-xl border border-gray-200 text-xs font-bold text-gray-600 hover:bg-gray-50 transition-all cursor-pointer bg-white"
                 >

@@ -176,12 +176,20 @@ function ConfirmationContent() {
             {/* Buttons Row */}
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <Link
-                href="/profile"
-                className="w-full sm:w-auto text-center rounded-xl border border-brand-blue bg-white text-brand-blue hover:bg-slate-50 px-6 py-3.5 text-xs font-bold transition-colors"
+                href="/courses"
+                className="w-full sm:w-auto text-center rounded-xl border border-brand-blue bg-white text-brand-blue hover:bg-slate-50 px-6 py-3.5 text-xs font-bold transition-colors cursor-pointer"
               >
                 Go to My Dashboard
               </Link>
-              <button className="w-full sm:w-auto rounded-xl bg-slate-100 hover:bg-slate-200 text-gray-600 px-6 py-3.5 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer">
+              <button
+                type="button"
+                onClick={() => {
+                  if (typeof window !== "undefined") {
+                    window.open(`/admin/invoice?orderId=${encodeURIComponent(order.orderId)}`, '_blank');
+                  }
+                }}
+                className="w-full sm:w-auto rounded-xl bg-slate-100 hover:bg-slate-200 text-gray-600 px-6 py-3.5 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+              >
                 <Download size={14} /> Download Receipt
               </button>
             </div>

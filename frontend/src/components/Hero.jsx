@@ -11,7 +11,7 @@ const openModal = (title = "Book a Free Consultation") => {
   }
 };
 
-export default function Hero() {
+export default function Hero({ siteSettings = {} }) {
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-blue-50/40 via-white to-white pt-8 pb-16 lg:pt-12 lg:pb-20">
@@ -25,13 +25,19 @@ export default function Hero() {
           {/* Left Column: Copy & Actions */}
           <div className="lg:col-span-6 space-y-6 text-left">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-brand-navy tracking-tight leading-tight">
-              Get Certified.<br />
-              Get Promoted.<br />
-              <span className="text-brand-orange">Get Ahead.</span>
+              {siteSettings.hero_title ? (
+                <span dangerouslySetInnerHTML={{ __html: siteSettings.hero_title }} />
+              ) : (
+                <>
+                  Get Certified.<br />
+                  Get Promoted.<br />
+                  <span className="text-brand-orange">{siteSettings.hero_highlight_text || "Get Ahead."}</span>
+                </>
+              )}
             </h1>
 
             <p className="max-w-xl text-sm md:text-base text-gray-600 font-semibold leading-relaxed">
-              Live instructor-led certification training trusted by professionals in the USA, Canada, UK, Australia &amp; beyond.
+              {siteSettings.hero_subtitle || "Live instructor-led certification training trusted by professionals in the USA, Canada, UK, Australia & beyond."}
             </p>
 
             {/* Action Buttons */}
@@ -77,7 +83,7 @@ export default function Hero() {
               {/* Main Photo Card */}
               <div className="relative overflow-hidden rounded-3xl border-4 border-white bg-white shadow-2xl">
                 <Image
-                  src="./images/agile_hero_professional.jpg"
+                  src={siteSettings.hero_image_url || "./images/agile_hero_professional.jpg"}
                   alt="Certified Professionals Training"
                   width={500}
                   height={420}
@@ -92,7 +98,7 @@ export default function Hero() {
                   <div className="h-7 w-7 rounded-full bg-brand-blue text-white text-[10px] font-bold flex items-center justify-center border-2 border-white">JD</div>
                   <div className="h-7 w-7 rounded-full bg-brand-orange text-white text-[10px] font-bold flex items-center justify-center border-2 border-white">SK</div>
                 </div>
-                <span className="text-[10px] font-bold text-brand-navy pr-1">Live Online</span>
+                <span className="text-[10px] font-bold text-brand-navy pr-1">{siteSettings.hero_floating_tag || "Live Online"}</span>
               </div>
 
               {/* Bottom-Right Floating Stats Badge */}
@@ -101,8 +107,8 @@ export default function Hero() {
                   <Users size={20} />
                 </div>
                 <div className="text-left">
-                  <p className="text-base font-black leading-tight">50,000+</p>
-                  <p className="text-[10px] text-blue-100 font-semibold">Professionals Trained Worldwide</p>
+                  <p className="text-base font-black leading-tight">{siteSettings.hero_badge_count || siteSettings.total_students_trained || "50,000+"}</p>
+                  <p className="text-[10px] text-blue-100 font-semibold">{siteSettings.hero_badge_subtitle || "Professionals Trained Worldwide"}</p>
                 </div>
               </div>
 

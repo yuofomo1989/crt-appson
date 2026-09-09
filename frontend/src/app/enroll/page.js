@@ -1,17 +1,104 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PreFooter from "@/components/PreFooter";
 import { Star, Shield, BookOpen, Clock, Calendar, CheckCircle2, ChevronDown, Download, Phone, Play, ShieldAlert, Award, FileText, Check, HelpCircle, GraduationCap, Users, Globe, MapPin, RefreshCw, ShoppingCart, Lock, Headphones } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-export default function Enroll() {
+import { useSearchParams } from "next/navigation";
+
+function EnrollContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [selectedCountry, setSelectedCountry] = useState("United States");
   const [selectedCity, setSelectedCity] = useState("New York, NY");
   const [selectedCourse, setSelectedCourse] = useState("PMP® Certification Training");
+  const [coursesList, setCoursesList] = useState([]);
+  const [dbSchedules, setDbSchedules] = useState([]);
+
+  React.useEffect(() => {
+    const urlCourse = searchParams.get("course");
+    if (urlCourse) {
+      setSelectedCourse(urlCourse);
+    }
+  }, [searchParams]);
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+      try {
+        const [sRes, cRes] = await Promise.all([
+          fetch(`${apiUrl}/schedules`),
+          fetch(`${apiUrl}/courses`)
+        ]);
+        const sJson = await sRes.json();
+        const cJson = await cRes.json();
+
+        if (sJson.status === 'success' && sJson.data) {
+          setDbSchedules(sJson.data);
+        }
+        if (cJson.status === 'success' && cJson.data) {
+          setCoursesList(cJson.data);
+        }
+      } catch (err) {
+        console.error("Error fetching schedules & courses:", err);
+      }
+    };
+    fetchData();
+  }, []);
+
+  // Dynamic schedule filtering
+  const filteredSchedules = React.useMemo(() => {
+    return dbSchedules.filter((s) => {
+      // Course matching (case-insensitive substring or exact title)
+      const matchCourse = !selectedCourse || selectedCourse === "All Courses" ||
+        (s.course_title && (
+          s.course_title.toLowerCase().trim() === selectedCourse.toLowerCase().trim() ||
+          selectedCourse.toLowerCase().includes(s.course_title.toLowerCase().trim()) ||
+          s.course_title.toLowerCase().includes(selectedCourse.toLowerCase().trim())
+        ));
+
+      const isOnlineFormat = !s.format || s.format.toLowerCase().includes("online") || s.format.toLowerCase().includes("virtual");
+
+      // For Live Online / Self-Paced, Country and City are global unless explicitly filtered
+      const matchCountry = !selectedCountry || selectedCountry === "All Countries" || isOnlineFormat ||
+        (s.country && s.country.toLowerCase().trim() === selectedCountry.toLowerCase().trim());
+
+      const matchCity = !selectedCity || selectedCity === "All Cities" || isOnlineFormat ||
+        (s.city && s.city.toLowerCase().trim() === selectedCity.toLowerCase().trim());
+
+      return matchCourse && matchCountry && matchCity;
+    });
+  }, [dbSchedules, selectedCourse, selectedCountry, selectedCity]);
+
+  // Format tab filtered subsets
+  const liveOnlineList = React.useMemo(() => {
+    return filteredSchedules.filter(s => {
+      if (!s.format) return true;
+      const fmt = s.format.toLowerCase();
+      return fmt.includes("online") || fmt.includes("virtual");
+    });
+  }, [filteredSchedules]);
+
+  const inPersonList = React.useMemo(() => {
+    return filteredSchedules.filter(s => {
+      if (!s.format) return false;
+      const fmt = s.format.toLowerCase();
+      // Must include "person" or "in-person", or be exact "classroom" without "online"
+      return (fmt.includes("person") || (fmt.includes("classroom") && !fmt.includes("online")));
+    });
+  }, [filteredSchedules]);
+
+  const selfLearningList = React.useMemo(() => {
+    return filteredSchedules.filter(s => {
+      if (!s.format) return false;
+      const fmt = s.format.toLowerCase();
+      return fmt.includes("self") || fmt.includes("paced");
+    });
+  }, [filteredSchedules]);
 
   const scrollToSection = (id) => {
     const el = document.getElementById(id);
@@ -86,15 +173,22 @@ export default function Enroll() {
           <div className="space-y-1.5 text-left">
             <label className="text-[10px] uppercase tracking-wider text-gray-400 font-black">Country</label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs">🇺🇸</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs">🌐</span>
               <select
                 value={selectedCountry}
                 onChange={(e) => setSelectedCountry(e.target.value)}
-                className="w-full rounded-xl border border-gray-200 bg-white pl-9 pr-4 py-3 text-xs font-semibold text-gray-700 outline-none focus:border-brand-blue"
+                className="w-full rounded-xl border border-gray-200 bg-white pl-9 pr-4 py-3 text-xs font-semibold text-gray-700 outline-none focus:border-brand-blue cursor-pointer"
               >
-                <option>United States</option>
-                <option>Canada</option>
-                <option>Australia</option>
+                <option value="All Countries">All Countries</option>
+                <option value="United States">🇺🇸 United States</option>
+                <option value="Canada">🇨🇦 Canada</option>
+                <option value="United Kingdom">🇬🇧 United Kingdom</option>
+                <option value="Australia">🇦🇺 Australia</option>
+                <option value="Germany">🇩🇪 Germany</option>
+                <option value="India">🇮🇳 India</option>
+                <option value="Singapore">🇸🇬 Singapore</option>
+                <option value="United Arab Emirates">🇦🇪 UAE (Dubai)</option>
+                <option value="Saudi Arabia">🇸🇦 Saudi Arabia</option>
               </select>
             </div>
           </div>
@@ -106,12 +200,21 @@ export default function Enroll() {
               <select
                 value={selectedCity}
                 onChange={(e) => setSelectedCity(e.target.value)}
-                className="w-full rounded-xl border border-gray-200 bg-white pl-9 pr-4 py-3 text-xs font-semibold text-gray-700 outline-none focus:border-brand-blue"
+                className="w-full rounded-xl border border-gray-200 bg-white pl-9 pr-4 py-3 text-xs font-semibold text-gray-700 outline-none focus:border-brand-blue cursor-pointer"
               >
-                <option>New York, NY</option>
-                <option>Houston, TX</option>
-                <option>Toronto, ON</option>
-                <option>Sydney, NSW</option>
+                <option value="All Cities">All Cities</option>
+                <option value="New York, NY">New York, NY</option>
+                <option value="Houston, TX">Houston, TX</option>
+                <option value="Chicago, IL">Chicago, IL</option>
+                <option value="Los Angeles, CA">Los Angeles, CA</option>
+                <option value="Toronto, ON">Toronto, ON</option>
+                <option value="Vancouver, BC">Vancouver, BC</option>
+                <option value="London, UK">London, UK</option>
+                <option value="Sydney, NSW">Sydney, NSW</option>
+                <option value="Melbourne, VIC">Melbourne, VIC</option>
+                <option value="Singapore">Singapore</option>
+                <option value="Dubai">Dubai, UAE</option>
+                <option value="Bangalore">Bangalore, IN</option>
               </select>
             </div>
           </div>
@@ -123,16 +226,35 @@ export default function Enroll() {
               <select
                 value={selectedCourse}
                 onChange={(e) => setSelectedCourse(e.target.value)}
-                className="w-full rounded-xl border border-gray-200 bg-white pl-9 pr-4 py-3 text-xs font-semibold text-gray-700 outline-none focus:border-brand-blue"
+                className="w-full rounded-xl border border-gray-200 bg-white pl-9 pr-4 py-3 text-xs font-semibold text-gray-700 outline-none focus:border-brand-blue cursor-pointer"
               >
-                <option>PMP® Certification Training</option>
-                <option>CISSP® Certification Prep</option>
-                <option>AWS Solutions Architect</option>
+                {coursesList.length > 0 ? (
+                  coursesList.map((c, idx) => (
+                    <option key={idx} value={c.title}>{c.title}</option>
+                  ))
+                ) : (
+                  <>
+                    <option value="PMP® Certification Training">PMP® Certification Training</option>
+                    <option value="CISSP® Certification Prep">CISSP® Certification Prep</option>
+                    <option value="AWS Solutions Architect">AWS Solutions Architect</option>
+                  </>
+                )}
               </select>
             </div>
           </div>
 
-          <button className="flex items-center justify-center gap-1.5 rounded-xl border border-gray-200 hover:bg-gray-50 py-3 text-xs font-bold text-gray-600 transition-colors w-full cursor-pointer h-[42px]">
+          <button
+            onClick={() => {
+              setSelectedCountry("United States");
+              setSelectedCity("New York, NY");
+              if (coursesList.length > 0) {
+                setSelectedCourse(coursesList[0].title);
+              } else {
+                setSelectedCourse("PMP® Certification Training");
+              }
+            }}
+            className="flex items-center justify-center gap-1.5 rounded-xl border border-gray-200 hover:bg-gray-50 py-3 text-xs font-bold text-gray-600 transition-colors w-full cursor-pointer h-[42px]"
+          >
             <RefreshCw size={14} />
             Reset Filters
           </button>
@@ -146,19 +268,19 @@ export default function Enroll() {
             onClick={() => scrollToSection("live-online-section")}
             className="pb-4 px-6 flex items-center gap-2 border-b-2 border-brand-blue text-brand-blue hover:text-brand-blue transition-all cursor-pointer"
           >
-            <Clock size={16} /> Live Online Class (12)
+            <Clock size={16} /> Live Online Class ({liveOnlineList.length})
           </button>
           <button
             onClick={() => scrollToSection("in-person-section")}
             className="pb-4 px-6 flex items-center gap-2 border-b-2 border-transparent hover:text-gray-800 transition-all cursor-pointer"
           >
-            <Users size={16} /> In-Person Classroom (6)
+            <Users size={16} /> In-Person Classroom ({inPersonList.length})
           </button>
           <button
             onClick={() => scrollToSection("self-learning-section")}
-            className="pb-4 px-6 flex items-center gap-2 border-b-2 border-transparent hover:text-gray-800 transition-all cursor-pointer"
+            className="pb-[#16px] pb-4 px-6 flex items-center gap-2 border-b-2 border-transparent hover:text-gray-800 transition-all cursor-pointer"
           >
-            <BookOpen size={16} /> Self Learning (4)
+            <BookOpen size={16} /> Self Learning ({selfLearningList.length})
           </button>
         </div>
 
@@ -197,60 +319,62 @@ export default function Enroll() {
                   </tr>
                 </thead>
                 <tbody>
-                  {[
-                    { date: "May 27", day: "Mon", range: "May 27 – May 30, 2024", label: "Mon - Thu", days: ["M", "T", "W", "T"], time: "9:00 AM – 5:00 PM", duration: "4 Days", hours: "35", price: "$1,095 USD", seats: "8 Seats Left", status: "Open", alert: false, numericPrice: 1095 },
-                    { date: "Jun 10", day: "Mon", range: "Jun 10 – Jun 13, 2024", label: "Mon - Thu", days: ["M", "T", "W", "T"], time: "9:00 AM – 5:00 PM", duration: "4 Days", hours: "35", price: "$1,095 USD", seats: "3 Seats Left", status: "Limited Seats", alert: true, numericPrice: 1095 },
-                    { date: "Jun 24", day: "Mon", range: "Jun 24 – Jun 27, 2024", label: "Mon - Thu", days: ["M", "T", "W", "T"], time: "6:00 PM – 10:00 PM", duration: "4 Days", hours: "35", price: "$1,095 USD", seats: "5 Seats Left", status: "Open", alert: false, numericPrice: 1095 },
-                  ].map((row, idx) => (
-                    <tr key={idx} className="border-b border-gray-50 hover:bg-slate-50/50 transition-colors">
-                      <td className="p-4 pl-6 font-black text-brand-navy">
-                        <p className="text-sm font-black uppercase text-brand-navy">{row.date}</p>
-                        <p className="text-[10px] text-gray-400 font-semibold">{row.day}</p>
-                      </td>
-                      <td className="p-4">
-                        <p className="text-gray-800 font-bold">{row.range}</p>
-                        <p className="text-[10px] text-gray-400 font-semibold">{row.label}</p>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex gap-1">
-                          {["M", "T", "W", "T", "F", "S", "S"].map((d, didx) => (
-                            <span
-                              key={didx}
-                              className={`h-5 w-5 rounded-full flex items-center justify-center text-[9px] font-bold border ${
-                                row.days.includes(d)
-                                  ? "bg-blue-50 text-brand-blue border-blue-200"
-                                  : "bg-gray-50 text-gray-400 border-gray-100"
-                              }`}
-                            >
-                              {d}
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="p-4 font-bold text-gray-800">{row.time}</td>
-                      <td className="p-4 font-bold text-gray-600">{row.duration}</td>
-                      <td className="p-4 font-bold text-gray-600">{row.hours}</td>
-                      <td className="p-4 font-black text-brand-navy">{row.price}</td>
-                      <td className={`p-4 font-bold ${row.alert ? "text-orange-500" : "text-emerald-500"}`}>
-                        {row.seats}
-                      </td>
-                      <td className="p-4">
-                        <span className={`px-2.5 py-1 rounded text-[9px] font-bold ${
-                          row.alert ? "bg-orange-50 text-orange-500 border border-orange-100" : "bg-emerald-50 text-emerald-500 border border-emerald-100"
-                        }`}>
-                          {row.status}
-                        </span>
-                      </td>
-                      <td className="p-4 pr-6 text-center">
-                        <button
-                          onClick={() => handleAddToCart(selectedCourse, "Live Online", row.numericPrice, row.range)}
-                          className="flex items-center justify-center gap-1.5 rounded-lg bg-brand-blue py-2 px-4 text-xs font-bold text-white hover:bg-opacity-90 w-full cursor-pointer"
-                        >
-                          <ShoppingCart size={12} /> Add to Cart
-                        </button>
+                  {liveOnlineList.length > 0 ? (
+                    liveOnlineList.map((row, idx) => (
+                      <tr key={idx} className="border-b border-gray-50 hover:bg-slate-50/50 transition-colors">
+                        <td className="p-4 pl-6 font-black text-brand-navy">
+                          <p className="text-sm font-black uppercase text-brand-navy">{row.batch_date || row.date_range || "Aug 26 - Aug 29, 2026"}</p>
+                          <p className="text-[10px] text-[#ff5c00] font-bold mt-0.5">{row.day_type || row.label || 'Weekday (Mon-Thu)'}</p>
+                        </td>
+                        <td className="p-4">
+                          <p className="text-gray-800 font-bold">{row.batch_date || row.date_range}</p>
+                          <p className="text-[10px] text-gray-400 font-semibold">{row.timezone || 'EST (US Eastern)'}</p>
+                        </td>
+                        <td className="p-4">
+                          <div className="flex gap-1">
+                            {["M", "T", "W", "T", "F", "S", "S"].map((d, didx) => (
+                              <span
+                                key={didx}
+                                className={`h-5 w-5 rounded-full flex items-center justify-center text-[9px] font-bold border ${
+                                  didx < 4 ? "bg-blue-50 text-brand-blue border-blue-200" : "bg-gray-50 text-gray-400 border-gray-100"
+                                }`}
+                              >
+                                {d}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="p-4 font-bold text-gray-800 font-mono text-xs">
+                          🕒 {row.start_time || '09:00 AM'} - {row.end_time || '05:00 PM'}
+                        </td>
+                        <td className="p-4 font-bold text-gray-600">{row.duration || "4 Days"}</td>
+                        <td className="p-4 font-bold text-gray-600">{row.contact_hours || "35 Hrs"}</td>
+                        <td className="p-4 font-black text-brand-navy">${row.price || 1095} USD</td>
+                        <td className="p-4 font-bold text-emerald-600">
+                          {row.seats_left || 8} Seats Left
+                        </td>
+                        <td className="p-4">
+                          <span className="px-2.5 py-1 rounded text-[9px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100">
+                            {row.status || 'Open'}
+                          </span>
+                        </td>
+                        <td className="p-4 pr-6 text-center">
+                          <button
+                            onClick={() => handleAddToCart(selectedCourse, "Live Online Class", row.price || 1095, row.batch_date || row.date_range)}
+                            className="flex items-center justify-center gap-1.5 rounded-lg bg-brand-blue py-2 px-4 text-xs font-bold text-white hover:bg-opacity-90 w-full cursor-pointer shadow-sm"
+                          >
+                            <ShoppingCart size={12} /> Add to Cart
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="10" className="p-8 text-center text-gray-400 font-semibold">
+                        No Live Online Class batches match the selected filters.
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
@@ -298,65 +422,70 @@ export default function Enroll() {
                   </tr>
                 </thead>
                 <tbody>
-                  {[
-                    { date: "May 25", day: "Sat", range: "May 25 – May 28, 2024", label: "Sat - Tue", days: ["S", "M", "T", "W"], time: "9:00 AM – 5:00 PM", duration: "4 Days", hours: "35", location: "New York, NY Training Center", price: "$1,195 USD", seats: "6 Seats Left", status: "Open", alert: false, numericPrice: 1195 },
-                    { date: "Jun 22", day: "Sat", range: "Jun 22 – Jun 25, 2024", label: "Sat - Tue", days: ["S", "M", "T", "W"], time: "9:00 AM – 5:00 PM", duration: "4 Days", hours: "35", location: "New York, NY Training Center", price: "$1,195 USD", seats: "2 Seats Left", status: "Limited Seats", alert: true, numericPrice: 1195 },
-                  ].map((row, idx) => (
-                    <tr key={idx} className="border-b border-gray-50 hover:bg-slate-50/50 transition-colors">
-                      <td className="p-4 pl-6 font-black text-brand-navy">
-                        <p className="text-sm font-black uppercase text-brand-navy">{row.date}</p>
-                        <p className="text-[10px] text-gray-400 font-semibold">{row.day}</p>
-                      </td>
-                      <td className="p-4">
-                        <p className="text-gray-800 font-bold">{row.range}</p>
-                        <p className="text-[10px] text-gray-400 font-semibold">{row.label}</p>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex gap-1">
-                          {["S", "M", "T", "W", "T", "F", "S"].map((d, didx) => (
-                            <span
-                              key={didx}
-                              className={`h-5 w-5 rounded-full flex items-center justify-center text-[9px] font-bold border ${
-                                row.days.includes(d)
-                                  ? "bg-orange-50 text-brand-orange border-orange-200"
-                                  : "bg-gray-50 text-gray-400 border-gray-100"
-                              }`}
-                            >
-                              {d}
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="p-4 font-bold text-gray-800">{row.time}</td>
-                      <td className="p-4 font-bold text-gray-600">{row.duration}</td>
-                      <td className="p-4 font-bold text-gray-600">{row.hours}</td>
-                      <td className="p-4 font-bold text-gray-700">
-                        <div className="flex items-center gap-1">
-                          <MapPin size={12} className="text-brand-blue" />
-                          <span>{row.location}</span>
-                        </div>
-                      </td>
-                      <td className="p-4 font-black text-brand-navy">{row.price}</td>
-                      <td className={`p-4 font-bold ${row.alert ? "text-orange-500" : "text-emerald-500"}`}>
-                        {row.seats}
-                      </td>
-                      <td className="p-4">
-                        <span className={`px-2.5 py-1 rounded text-[9px] font-bold ${
-                          row.alert ? "bg-orange-50 text-orange-500 border border-orange-100" : "bg-emerald-50 text-emerald-500 border border-emerald-100"
-                        }`}>
-                          {row.status}
-                        </span>
-                      </td>
-                      <td className="p-4 pr-6 text-center">
-                        <button
-                          onClick={() => handleAddToCart(selectedCourse, `In-Person (${row.location})`, row.numericPrice, row.range)}
-                          className="flex items-center justify-center gap-1.5 rounded-lg bg-brand-blue py-2 px-4 text-xs font-bold text-white hover:bg-opacity-90 w-full cursor-pointer"
-                        >
-                          <ShoppingCart size={12} /> Add to Cart
-                        </button>
+                  {inPersonList.length > 0 ? (
+                    inPersonList.map((row, idx) => (
+                      <tr key={idx} className="border-b border-gray-50 hover:bg-slate-50/50 transition-colors">
+                        <td className="p-4 pl-6 font-black text-brand-navy">
+                          <p className="text-sm font-black uppercase text-brand-navy">{row.batch_date || row.date}</p>
+                          <p className="text-[10px] text-gray-400 font-semibold">{row.day_type || row.day || "Sat-Tue"}</p>
+                        </td>
+                        <td className="p-4">
+                          <p className="text-gray-800 font-bold">{row.batch_date || row.range}</p>
+                          <p className="text-[10px] text-gray-400 font-semibold">{row.label || "Sat - Tue"}</p>
+                        </td>
+                        <td className="p-4">
+                          <div className="flex gap-1">
+                            {["S", "M", "T", "W", "T", "F", "S"].map((d, didx) => (
+                              <span
+                                key={didx}
+                                className={`h-5 w-5 rounded-full flex items-center justify-center text-[9px] font-bold border ${
+                                  didx < 4
+                                    ? "bg-orange-50 text-brand-orange border-orange-200"
+                                    : "bg-gray-50 text-gray-400 border-gray-100"
+                                }`}
+                              >
+                                {d}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="p-4 font-bold text-gray-800">{row.start_time ? `${row.start_time} - ${row.end_time}` : (row.time || "9:00 AM – 5:00 PM")}</td>
+                        <td className="p-4 font-bold text-gray-600">{row.duration || "4 Days"}</td>
+                        <td className="p-4 font-bold text-gray-600">{row.contact_hours || row.hours || "35"}</td>
+                        <td className="p-4 font-bold text-gray-700">
+                          <div className="flex items-center gap-1">
+                            <MapPin size={12} className="text-brand-blue" />
+                            <span>{row.city || row.location || "New York, NY Training Center"}</span>
+                          </div>
+                        </td>
+                        <td className="p-4 font-black text-brand-navy">${row.price || 1195} USD</td>
+                        <td className={`p-4 font-bold ${row.status === 'Filling Fast' ? "text-orange-500" : "text-emerald-500"}`}>
+                          {row.seats_left ? `${row.seats_left} Seats Left` : (row.seats || "6 Seats Left")}
+                        </td>
+                        <td className="p-4">
+                          <span className={`px-2.5 py-1 rounded text-[9px] font-bold ${
+                            row.status === 'Filling Fast' ? "bg-orange-50 text-orange-500 border border-orange-100" : "bg-emerald-50 text-emerald-500 border border-emerald-100"
+                          }`}>
+                            {row.status || "Open"}
+                          </span>
+                        </td>
+                        <td className="p-4 pr-6 text-center">
+                          <button
+                            onClick={() => handleAddToCart(selectedCourse, `In-Person Classroom (${row.city || row.location || "New York"})`, row.price || 1195, row.batch_date || row.range)}
+                            className="flex items-center justify-center gap-1.5 rounded-lg bg-brand-blue py-2 px-4 text-xs font-bold text-white hover:bg-opacity-90 w-full cursor-pointer"
+                          >
+                            <ShoppingCart size={12} /> Add to Cart
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="11" className="p-8 text-center text-gray-400 font-semibold">
+                        No In-Person Classroom batches match the selected filters.
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
@@ -401,39 +530,44 @@ export default function Enroll() {
                   </tr>
                 </thead>
                 <tbody>
-                  {[
-                    { mode: "Self-Paced", access: "Online LMS Access", duration: "365 Days Access", hours: "35", price: "$795 USD", status: "Open", numericPrice: 795 },
-                    { mode: "Self-Paced", access: "Online LMS Access", duration: "180 Days Access", hours: "35", price: "$595 USD", status: "Open", numericPrice: 595 },
-                  ].map((row, idx) => (
-                    <tr key={idx} className="border-b border-gray-50 hover:bg-slate-50/50 transition-colors">
-                      <td className="p-4 pl-6 font-bold text-brand-navy flex items-center gap-2">
-                        <BookOpen size={16} className="text-brand-blue" />
-                        <span>{row.mode}</span>
-                      </td>
-                      <td className="p-4 text-gray-800">{row.access}</td>
-                      <td className="p-4 font-bold text-gray-600">{row.duration}</td>
-                      <td className="p-4 text-[10px] text-gray-500 font-semibold space-y-1">
-                        <p className="text-brand-green font-bold">✔ 35 Contact Hours Certificate</p>
-                        <p className="text-brand-green font-bold">✔ Mock Exams & Quizzes</p>
-                        <p className="text-brand-green font-bold">✔ Downloadable Resources</p>
-                      </td>
-                      <td className="p-4 font-bold text-gray-600">{row.hours}</td>
-                      <td className="p-4 font-black text-brand-navy">{row.price}</td>
-                      <td className="p-4">
-                        <span className="px-2.5 py-1 rounded text-[9px] font-bold bg-emerald-50 text-emerald-500 border border-emerald-100">
-                          {row.status}
-                        </span>
-                      </td>
-                      <td className="p-4 pr-6 text-center">
-                        <button
-                          onClick={() => handleAddToCart(selectedCourse, `Self-Learning (${row.duration})`, row.numericPrice, "Lifetime Access")}
-                          className="flex items-center justify-center gap-1.5 rounded-lg bg-brand-blue py-2 px-4 text-xs font-bold text-white hover:bg-opacity-90 w-full cursor-pointer"
-                        >
-                          <ShoppingCart size={12} /> Add to Cart
-                        </button>
+                  {selfLearningList.length > 0 ? (
+                    selfLearningList.map((row, idx) => (
+                      <tr key={idx} className="border-b border-gray-50 hover:bg-slate-50/50 transition-colors">
+                        <td className="p-4 pl-6 font-bold text-brand-navy flex items-center gap-2">
+                          <BookOpen size={16} className="text-brand-blue" />
+                          <span>Self-Paced</span>
+                        </td>
+                        <td className="p-4 text-gray-800">Online LMS Access</td>
+                        <td className="p-4 font-bold text-gray-600">{row.batch_date || row.date_range || row.duration || "Aug 15 – Aug 18, 2026"}</td>
+                        <td className="p-4 text-[10px] text-gray-500 font-semibold space-y-1">
+                          <p className="text-brand-green font-bold">✔ 35 Contact Hours Certificate</p>
+                          <p className="text-brand-green font-bold">✔ Mock Exams & Quizzes</p>
+                          <p className="text-brand-green font-bold">✔ Downloadable Resources</p>
+                        </td>
+                        <td className="p-4 font-bold text-gray-600">35</td>
+                        <td className="p-4 font-black text-brand-navy">${row.price || 795} USD</td>
+                        <td className="p-4">
+                          <span className="px-2.5 py-1 rounded text-[9px] font-bold bg-emerald-50 text-emerald-500 border border-emerald-100">
+                            {row.status || "Open"}
+                          </span>
+                        </td>
+                        <td className="p-4 pr-6 text-center">
+                          <button
+                            onClick={() => handleAddToCart(selectedCourse, "Self Learning", row.price || 795, "Lifetime Access")}
+                            className="flex items-center justify-center gap-1.5 rounded-lg bg-brand-blue py-2 px-4 text-xs font-bold text-white hover:bg-opacity-90 w-full cursor-pointer"
+                          >
+                            <ShoppingCart size={12} /> Add to Cart
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="8" className="p-8 text-center text-gray-400 font-semibold">
+                        No Self Learning packages match the selected filters.
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
@@ -517,5 +651,18 @@ export default function Enroll() {
       <PreFooter />
       <Footer />
     </div>
+  );
+}
+
+// Suspense wrapper required by Next.js for useSearchParams()
+export default function Enroll() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="h-6 w-6 rounded-full border-2 border-brand-blue border-t-transparent animate-spin" />
+      </div>
+    }>
+      <EnrollContent />
+    </Suspense>
   );
 }

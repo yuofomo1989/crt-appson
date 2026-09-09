@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { X, Calendar, Phone, Mail, User, CheckCircle2, ShieldCheck, ArrowRight, Sparkles, ChevronDown, BookOpen, Layers } from "lucide-react";
 
-export default function ConsultationModal({ isOpen, onClose, title = "Book a Free Consultation" }) {
+export default function ConsultationModal({ isOpen, onClose, title = "Book a Free Consultation", leadSource = "" }) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -14,13 +14,61 @@ export default function ConsultationModal({ isOpen, onClose, title = "Book a Fre
     message: ""
   });
 
+  const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setSubmitted(false);
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        course: "PMP® Certification",
+        format: "Live Online Classroom",
+        date: "",
+        message: ""
+      });
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
+    setLoading(true);
+
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+
+    try {
+      const res = await fetch(`${apiUrl}/leads`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          course: formData.course,
+          format: formData.format,
+          preferred_date: formData.date,
+          type: "consultation",
+          source: leadSource || title || "Header Talk to Advisor Consultation Modal",
+          message: formData.message
+        })
+      });
+      const data = await res.json();
+      if (data.status === "success") {
+        setSubmitted(true);
+      } else {
+        alert("Notice: " + JSON.stringify(data.errors || data.message));
+        setSubmitted(true);
+      }
+    } catch (err) {
+      console.error("Lead submission error:", err);
+      setSubmitted(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleReset = () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { LogIn } from "lucide-react";
 
@@ -29,6 +29,21 @@ const resources = [
 ];
 
 export default function Footer() {
+  const [siteSettings, setSiteSettings] = useState({
+    footer_text: 'Certification Planner is a leading North American professional training provider offering guaranteed bootcamps.',
+    footer_copyright: '© 2026 Certification Planner LLC. All rights reserved.'
+  });
+
+  useEffect(() => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    fetch(`${apiUrl}/settings`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success' && data.data) setSiteSettings(data.data);
+      })
+      .catch(err => console.error(err));
+  }, []);
+
   return (
     <footer className="bg-[#050E17] text-gray-400 text-xs md:text-sm border-t border-white/5">
       <div className="mx-auto max-w-7xl px-4 py-12 md:py-16 md:px-6">
@@ -45,7 +60,7 @@ export default function Footer() {
               </span>
             </div>
             <p className="text-[11px] leading-relaxed max-w-xs">
-              Vetted training programs designed to help you pass your certifications on the first try. Voted #1 global training partner by enterprise groups.
+              {siteSettings.footer_text || 'Vetted training programs designed to help you pass your certifications on the first try. Voted #1 global training partner by enterprise groups.'}
             </p>
             <div className="flex gap-4 pt-2">
               {/* Custom SVG Social Icons */}
@@ -69,41 +84,59 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Certifications */}
-          <div className="space-y-4">
-            <h4 className="text-white font-bold text-xs uppercase tracking-wider">Certifications</h4>
-            <ul className="space-y-2 text-[11px] font-medium">
-              {popularCerts.map((c, idx) => (
-                <li key={idx}>
-                  <Link href={c.href} className="hover:text-white transition-colors">{c.name}</Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Dynamic Footer Link Columns */}
+          {(siteSettings.footer_columns && siteSettings.footer_columns.length > 0) ? (
+            siteSettings.footer_columns.map((col, idx) => (
+              <div key={idx} className="space-y-4">
+                <h4 className="text-white font-bold text-xs uppercase tracking-wider">{col.title}</h4>
+                <ul className="space-y-2 text-[11px] font-medium">
+                  {(col.links || []).map((l, lIdx) => (
+                    <li key={lIdx}>
+                      <Link href={l.href || '#'} className="hover:text-white transition-colors">{l.name}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))
+          ) : (
+            <>
+              {/* Fallback Certifications */}
+              <div className="space-y-4">
+                <h4 className="text-white font-bold text-xs uppercase tracking-wider">Certifications</h4>
+                <ul className="space-y-2 text-[11px] font-medium">
+                  {popularCerts.map((c, idx) => (
+                    <li key={idx}>
+                      <Link href={c.href} className="hover:text-white transition-colors">{c.name}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
-          {/* Training Formats */}
-          <div className="space-y-4">
-            <h4 className="text-white font-bold text-xs uppercase tracking-wider">Training Options</h4>
-            <ul className="space-y-2 text-[11px] font-medium">
-              {trainingOptions.map((t, idx) => (
-                <li key={idx}>
-                  <Link href={t.href} className="hover:text-white transition-colors">{t.name}</Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+              {/* Fallback Training Options */}
+              <div className="space-y-4">
+                <h4 className="text-white font-bold text-xs uppercase tracking-wider">Training Options</h4>
+                <ul className="space-y-2 text-[11px] font-medium">
+                  {trainingOptions.map((t, idx) => (
+                    <li key={idx}>
+                      <Link href={t.href} className="hover:text-white transition-colors">{t.name}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
-          {/* Resources */}
-          <div className="space-y-4 col-span-2 md:col-span-1">
-            <h4 className="text-white font-bold text-xs uppercase tracking-wider">Support & Legal</h4>
-            <ul className="space-y-2 text-[11px] font-medium">
-              {resources.map((r, idx) => (
-                <li key={idx}>
-                  <Link href={r.href} className="hover:text-white transition-colors">{r.name}</Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+              {/* Fallback Resources */}
+              <div className="space-y-4 col-span-2 md:col-span-1">
+                <h4 className="text-white font-bold text-xs uppercase tracking-wider">Support &amp; Legal</h4>
+                <ul className="space-y-2 text-[11px] font-medium">
+                  {resources.map((r, idx) => (
+                    <li key={idx}>
+                      <Link href={r.href} className="hover:text-white transition-colors">{r.name}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </>
+          )}
 
         </div>
 
@@ -112,7 +145,7 @@ export default function Footer() {
           <p className="max-w-4xl mx-auto leading-relaxed">
             Disclaimer: PMI, PMP, CAPM, and PMI-ACP are registered marks of the Project Management Institute, Inc. ITIL is a registered trademark of AXELOS Limited. AWS is a trademark of Amazon.com, Inc. or its affiliates. All other trademarks are the property of their respective owners.
           </p>
-          <p>© {new Date().getFullYear()} Certification Planner. All rights reserved.</p>
+          <p>{siteSettings.footer_copyright || `© ${new Date().getFullYear()} Certification Planner LLC. All rights reserved.`}</p>
         </div>
       </div>
     </footer>
