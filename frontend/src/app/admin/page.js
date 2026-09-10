@@ -1036,8 +1036,20 @@ export default function AdminDashboard() {
         : `${apiUrl}/admin/categories`;
       const method = editingCategoryId ? 'PUT' : 'POST';
 
+      const metaToSave = {
+        ...(newCategory.metadata || {}),
+        hero_title: newCategory.hero_title || (newCategory.name ? `${newCategory.name} Certifications` : ""),
+        hero_subtitle: newCategory.hero_subtitle || newCategory.description || "",
+        job_growth: newCategory.job_growth || "33% (2024-2030)",
+        avg_salary_label: newCategory.avg_salary_label || (newCategory.avg_salary ? `${newCategory.avg_salary} Average` : "$120,000+ Average Salary"),
+        why_learn_points: newCategory.why_learn_text
+          ? newCategory.why_learn_text.split("\n").map(s => s.trim()).filter(Boolean)
+          : (newCategory.metadata?.why_learn_points || [])
+      };
+
       const payload = {
         ...newCategory,
+        metadata: metaToSave,
         is_featured: newCategory.is_featured ? 1 : 0
       };
 
@@ -1065,6 +1077,7 @@ export default function AdminDashboard() {
 
   const handleOpenEditCategory = (cat) => {
     setEditingCategoryId(cat.id);
+    const meta = cat.metadata || {};
     setNewCategory({
       name: cat.name || "",
       description: cat.description || "",
@@ -1073,7 +1086,13 @@ export default function AdminDashboard() {
       display_order: cat.display_order ?? 0,
       is_featured: cat.is_featured !== false && cat.is_featured !== 0,
       avg_salary: cat.avg_salary || "$115,000",
-      badge_text: cat.badge_text || "High Demand"
+      badge_text: cat.badge_text || "High Demand",
+      metadata: meta,
+      hero_title: meta.hero_title || "",
+      hero_subtitle: meta.hero_subtitle || "",
+      job_growth: meta.job_growth || "33% (2024-2030)",
+      avg_salary_label: meta.avg_salary_label || "",
+      why_learn_text: Array.isArray(meta.why_learn_points) ? meta.why_learn_points.join("\n") : ""
     });
     setIsAddCategoryOpen(true);
   };
@@ -9966,7 +9985,7 @@ export default function AdminDashboard() {
           ========================================== */}
       {isAddCategoryOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full space-y-5 text-left shadow-2xl">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-xl w-full max-h-[90vh] overflow-y-auto space-y-5 text-left shadow-2xl custom-scrollbar">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <h3 className="text-lg font-black text-white">
                 {editingCategoryId ? "Edit Course Category" : "Create New Course Category"}
@@ -10058,6 +10077,60 @@ export default function AdminDashboard() {
                   onChange={(e) => setNewCategory({ ...newCategory, description: e.target.value })}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white outline-none focus:border-brand-blue"
                 ></textarea>
+              </div>
+
+              {/* Category Landing Page Customization Strip */}
+              <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3.5">
+                <div className="flex items-center justify-between border-b border-slate-800/80 pb-2">
+                  <span className="text-[11px] font-black uppercase tracking-wider text-brand-blue flex items-center gap-1.5">
+                    ✨ Category Landing Page Setup (/category/{newCategory.name?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'slug'})
+                  </span>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-slate-400 font-bold">Custom Hero Title</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Agile & Project Management Certifications"
+                    value={newCategory.hero_title || ''}
+                    onChange={(e) => setNewCategory({ ...newCategory, hero_title: e.target.value })}
+                    className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white outline-none focus:border-brand-blue"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-slate-400 font-bold">Job Growth % Tag</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 33% (2019-2030)"
+                      value={newCategory.job_growth || ''}
+                      onChange={(e) => setNewCategory({ ...newCategory, job_growth: e.target.value })}
+                      className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-emerald-400 font-bold outline-none"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-slate-400 font-bold">Salary Highlight Badge</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. $120,000+ Project Manager"
+                      value={newCategory.avg_salary_label || ''}
+                      onChange={(e) => setNewCategory({ ...newCategory, avg_salary_label: e.target.value })}
+                      className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-slate-400 font-bold">Why Learn Benefits (1 per line)</label>
+                  <textarea
+                    rows="3"
+                    placeholder="High demand for certified professionals&#10;Better project outcomes with proven frameworks&#10;Increased salary and career advancement"
+                    value={newCategory.why_learn_text || ''}
+                    onChange={(e) => setNewCategory({ ...newCategory, why_learn_text: e.target.value })}
+                    className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white outline-none focus:border-brand-blue"
+                  ></textarea>
+                </div>
               </div>
 
               <button

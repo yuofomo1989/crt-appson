@@ -1,72 +1,365 @@
 [
     {
-        "id": 1,
-        "name": "Project Management",
-        "slug": "project-management",
-        "description": null,
-        "created_at": "2026-08-06T17:53:17.000000Z",
-        "updated_at": "2026-08-26T18:14:13.000000Z",
-        "display_order": 1,
-        "is_featured": 1,
-        "avg_salary": "$120,000",
-        "badge_text": "Top Choice",
-        "image": null,
-        "bg_image": null
-    },
-    {
-        "id": 2,
-        "name": "Cybersecurity",
-        "slug": "cybersecurity",
-        "description": null,
-        "created_at": "2026-08-06T17:53:17.000000Z",
-        "updated_at": "2026-08-06T17:53:17.000000Z",
-        "display_order": 0,
-        "is_featured": 1,
-        "avg_salary": null,
-        "badge_text": null,
-        "image": null,
-        "bg_image": null
-    },
-    {
         "id": 3,
         "name": "Cloud & IT",
         "slug": "cloud-and-it",
         "description": null,
-        "created_at": "2026-08-06T17:53:17.000000Z",
-        "updated_at": "2026-08-06T17:53:17.000000Z",
         "display_order": 0,
-        "is_featured": 1,
+        "is_featured": true,
         "avg_salary": null,
         "badge_text": null,
         "image": null,
-        "bg_image": null
+        "bg_image": null,
+        "created_at": "2026-08-06T17:53:17.000000Z",
+        "updated_at": "2026-08-06T17:53:17.000000Z",
+        "metadata": null
     },
     {
         "id": 4,
         "name": "CCNA",
         "slug": "ccna",
         "description": "",
-        "created_at": "2026-08-13T15:35:00.000000Z",
-        "updated_at": "2026-08-13T15:35:00.000000Z",
         "display_order": 0,
-        "is_featured": 1,
+        "is_featured": true,
         "avg_salary": null,
         "badge_text": null,
         "image": null,
-        "bg_image": null
+        "bg_image": null,
+        "created_at": "2026-08-13T15:35:00.000000Z",
+        "updated_at": "2026-08-13T15:35:00.000000Z",
+        "metadata": null
     },
     {
         "id": 5,
         "name": "Artificial Intelligence & Data, IT Architecture",
         "slug": "artificial-intelligence-data-it-architecture",
         "description": "",
-        "created_at": "2026-08-16T14:03:22.000000Z",
-        "updated_at": "2026-08-16T14:03:22.000000Z",
         "display_order": 1,
-        "is_featured": 1,
+        "is_featured": true,
         "avg_salary": "$115,000",
         "badge_text": "High Demand",
         "image": "",
-        "bg_image": ""
+        "bg_image": "",
+        "created_at": "2026-08-16T14:03:22.000000Z",
+        "updated_at": "2026-08-16T14:03:22.000000Z",
+        "metadata": null
+    },
+    {
+        "id": 1,
+        "name": "Project Management",
+        "slug": "project-management",
+        "description": null,
+        "display_order": 1,
+        "is_featured": true,
+        "avg_salary": "$120,000",
+        "badge_text": "Top Choice",
+        "image": null,
+        "bg_image": null,
+        "created_at": "2026-08-06T17:53:17.000000Z",
+        "updated_at": "2026-09-10T06:09:27.000000Z",
+        "metadata": {
+            "rating": "4.8/5",
+            "hero_title": "Agile & Project Management Certifications",
+            "job_growth": "33% (2019-2030)",
+            "career_path": [
+                {
+                    "url": "/courses/capm-certification",
+                    "role": "Getting Started",
+                    "level": "Beginner",
+                    "avg_salary": "$75,000",
+                    "course_name": "CAPM\u00ae",
+                    "is_highlight": false
+                },
+                {
+                    "url": "/courses/csm-certification",
+                    "role": "Scrum Master",
+                    "level": "Beginner \u2013 Mid Level",
+                    "avg_salary": "$110,000",
+                    "course_name": "CSM\u00ae",
+                    "is_highlight": false
+                },
+                {
+                    "url": "/courses/pmp-certification",
+                    "role": "Project Manager",
+                    "level": "Mid Level",
+                    "avg_salary": "$120,000+",
+                    "course_name": "PMP\u00ae",
+                    "is_highlight": true
+                },
+                {
+                    "url": "/courses/pmi-acp-certification",
+                    "role": "Agile Practitioner",
+                    "level": "Mid \u2013 Advanced",
+                    "avg_salary": "$130,000+",
+                    "course_name": "PMI-ACP\u00ae",
+                    "is_highlight": false
+                },
+                {
+                    "url": "/courses/safe-agilist-certification",
+                    "role": "Enterprise Agile",
+                    "level": "Advanced",
+                    "avg_salary": "$125,000+",
+                    "course_name": "SAFe\u00ae Agilist",
+                    "is_highlight": false
+                },
+                {
+                    "url": "/courses/agilepm-certification",
+                    "role": "Agile Leader",
+                    "level": "Advanced",
+                    "avg_salary": "$115,000+",
+                    "course_name": "AgilePM\u00ae",
+                    "is_highlight": false
+                }
+            ],
+            "testimonials": [
+                {
+                    "tag": "Promoted",
+                    "name": "Rahul S.",
+                    "role": "Project Manager",
+                    "badge": "PMI\u00ae Certified",
+                    "quote": "Certification Planner's training and support helped me clear PMP\u00ae on my first attempt.",
+                    "location": "Texas, USA"
+                },
+                {
+                    "tag": "Salary Hike 35%",
+                    "name": "Priya M.",
+                    "role": "Agile Coach",
+                    "badge": "PMI-ACP\u00ae Certified",
+                    "quote": "The hands-on approach and experienced instructors made all the difference.",
+                    "location": "Ontario, Canada"
+                },
+                {
+                    "tag": "New Role",
+                    "name": "James T.",
+                    "role": "Scrum Master",
+                    "badge": "CSM\u00ae Certified",
+                    "quote": "Great training, practical examples, and excellent instructor support.",
+                    "location": "Sydney, Australia"
+                },
+                {
+                    "tag": "Career Growth",
+                    "name": "Sneha K.",
+                    "role": "Program Manager",
+                    "badge": "SAFe\u00ae Agilist Certified",
+                    "quote": "I now lead agile transformations in my organization with confidence.",
+                    "location": "Bangalore, India"
+                }
+            ],
+            "hero_subtitle": "Gain the skills, tools, and confidence to lead projects, empower teams, and deliver results that matter.",
+            "countries_count": "100+",
+            "avg_salary_label": "$120,000+ Project Manager",
+            "comparison_table": [
+                {
+                    "name": "PMP\u00ae",
+                    "slug": "pmp-certification",
+                    "level": "Advanced",
+                    "benefits": "Industry recognition, career growth, higher earning potential",
+                    "best_for": "Experienced Project Managers",
+                    "avg_salary": "$120,000+"
+                },
+                {
+                    "name": "CAPM\u00ae",
+                    "slug": "capm-certification",
+                    "level": "Beginner",
+                    "benefits": "Validate your skills, start your project management career",
+                    "best_for": "Aspiring Project Managers",
+                    "avg_salary": "$75,000+"
+                },
+                {
+                    "name": "PMI-ACP\u00ae",
+                    "slug": "pmi-acp-certification",
+                    "level": "Mid \u2013 Advanced",
+                    "benefits": "Prove your agile expertise, better opportunities",
+                    "best_for": "Agile Practitioners",
+                    "avg_salary": "$130,000+"
+                },
+                {
+                    "name": "CSM\u00ae",
+                    "slug": "csm-certification",
+                    "level": "Beginner \u2013 Mid",
+                    "benefits": "Deep understanding of Scrum, improve team performance",
+                    "best_for": "Scrum Team Members & Leaders",
+                    "avg_salary": "$110,000+"
+                },
+                {
+                    "name": "SAFe\u00ae Agilist",
+                    "slug": "safe-agilist-certification",
+                    "level": "Advanced",
+                    "benefits": "Lead enterprise agile transformations at scale",
+                    "best_for": "Agile Leaders & Managers",
+                    "avg_salary": "$125,000+"
+                }
+            ],
+            "experience_years": "20+ Years",
+            "why_learn_points": [
+                "High demand for certified Agile & Project Management professionals",
+                "Better project outcomes with proven frameworks and methodologies",
+                "Increased salary and career advancement opportunities",
+                "Build leadership, communication & problem-solving skills",
+                "Work in any industry \u2013 IT, Healthcare, Finance, Construction & more"
+            ],
+            "why_learn_spokes": [
+                {
+                    "icon": "skills",
+                    "title": "In-Demand Industry Skills"
+                },
+                {
+                    "icon": "leadership",
+                    "title": "Improve Leadership Skills"
+                },
+                {
+                    "icon": "speed",
+                    "title": "Deliver Projects Faster"
+                },
+                {
+                    "icon": "salary",
+                    "title": "Increase Earning Potential"
+                },
+                {
+                    "icon": "global",
+                    "title": "Global Recognition & Opportunities"
+                }
+            ],
+            "professionals_count": "50,000+"
+        }
+    },
+    {
+        "id": 2,
+        "name": "Cybersecurity",
+        "slug": "cybersecurity",
+        "description": null,
+        "display_order": 0,
+        "is_featured": true,
+        "avg_salary": null,
+        "badge_text": null,
+        "image": null,
+        "bg_image": null,
+        "created_at": "2026-08-06T17:53:17.000000Z",
+        "updated_at": "2026-09-10T06:09:28.000000Z",
+        "metadata": {
+            "rating": "4.9/5",
+            "hero_title": "Cybersecurity & Information Security Certifications",
+            "job_growth": "35% (2021-2031)",
+            "career_path": [
+                {
+                    "url": "/courses/security-plus-certification",
+                    "role": "Security Fundamentals",
+                    "level": "Beginner",
+                    "avg_salary": "$85,000",
+                    "course_name": "CompTIA Security+",
+                    "is_highlight": false
+                },
+                {
+                    "url": "/courses/ceh-certification",
+                    "role": "Ethical Hacker",
+                    "level": "Beginner \u2013 Mid Level",
+                    "avg_salary": "$105,000",
+                    "course_name": "CEH v12",
+                    "is_highlight": false
+                },
+                {
+                    "url": "/courses/cissp-certification",
+                    "role": "Security Architect / CISO",
+                    "level": "Advanced",
+                    "avg_salary": "$145,000+",
+                    "course_name": "CISSP\u00ae",
+                    "is_highlight": true
+                },
+                {
+                    "url": "/courses/cisa-certification",
+                    "role": "Security Auditor",
+                    "level": "Mid \u2013 Advanced",
+                    "avg_salary": "$125,000+",
+                    "course_name": "CISA\u00ae",
+                    "is_highlight": false
+                },
+                {
+                    "url": "/courses/cism-certification",
+                    "role": "Security Manager",
+                    "level": "Advanced",
+                    "avg_salary": "$138,000+",
+                    "course_name": "CISM\u00ae",
+                    "is_highlight": false
+                }
+            ],
+            "testimonials": [
+                {
+                    "tag": "Promoted to CISO",
+                    "name": "Marcus V.",
+                    "role": "Cyber Defense Lead",
+                    "badge": "CISSP\u00ae Certified",
+                    "quote": "Certification Planner's intensive 4-day CISSP bootcamp prepared me thoroughly for the 4-hour CAT exam.",
+                    "location": "Virginia, USA"
+                },
+                {
+                    "tag": "Salary Hike 40%",
+                    "name": "Elena R.",
+                    "role": "Information Security Manager",
+                    "badge": "CISM\u00ae Certified",
+                    "quote": "The practice question bank and live mentorship gave me the exact confidence needed.",
+                    "location": "London, UK"
+                }
+            ],
+            "hero_subtitle": "Protect critical infrastructure, defend against modern cyber threats, and accelerate your security career.",
+            "countries_count": "100+",
+            "avg_salary_label": "$135,000+ Security Specialist",
+            "comparison_table": [
+                {
+                    "name": "CISSP\u00ae",
+                    "slug": "cissp-certification",
+                    "level": "Advanced",
+                    "benefits": "Gold standard certification, leadership roles, highest compensation",
+                    "best_for": "Senior Security Managers & Architects",
+                    "avg_salary": "$145,000+"
+                },
+                {
+                    "name": "CompTIA Security+",
+                    "slug": "security-plus-certification",
+                    "level": "Beginner",
+                    "benefits": "DoD 8570 baseline, core security principles, career launchpad",
+                    "best_for": "Security Beginners & IT Pros",
+                    "avg_salary": "$85,000+"
+                },
+                {
+                    "name": "CISM\u00ae",
+                    "slug": "cism-certification",
+                    "level": "Advanced",
+                    "benefits": "Governance, risk management, program development",
+                    "best_for": "Information Security Managers",
+                    "avg_salary": "$138,000+"
+                }
+            ],
+            "experience_years": "20+ Years",
+            "why_learn_points": [
+                "Massive global shortage of qualified cybersecurity professionals",
+                "Top industry salaries with continuous double-digit career growth",
+                "Critical defensive skills recognized by DoD and Fortune 500 enterprises",
+                "Learn real-world incident response, threat analysis & compliance",
+                "100% Pass Guarantee on CISSP, CISM, CEH & CompTIA bootcamps"
+            ],
+            "why_learn_spokes": [
+                {
+                    "icon": "shield",
+                    "title": "Critical Threat Defense"
+                },
+                {
+                    "icon": "zap",
+                    "title": "Zero-Day Response"
+                },
+                {
+                    "icon": "award",
+                    "title": "Top Security Clearance"
+                },
+                {
+                    "icon": "salary",
+                    "title": "Highest Paid Tech Roles"
+                },
+                {
+                    "icon": "global",
+                    "title": "Enterprise Protection"
+                }
+            ],
+            "professionals_count": "40,000+"
+        }
     }
 ]

@@ -59,7 +59,8 @@ class AdminController extends Controller
             'display_order' => $request->display_order ?? 0,
             'is_featured' => $request->has('is_featured') ? (bool)$request->is_featured : true,
             'avg_salary' => $request->avg_salary ?? '$115,000',
-            'badge_text' => $request->badge_text ?? 'High Demand'
+            'badge_text' => $request->badge_text ?? 'High Demand',
+            'metadata' => $request->metadata ?? null
         ]);
 
         return response()->json([
