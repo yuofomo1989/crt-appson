@@ -1,0 +1,233 @@
+{
+    "support_phone": "(888) 745-7575",
+    "support_email": "support@certificationplanner.com",
+    "trustpilot_rating": "4.9/5",
+    "total_students_trained": "50,000+",
+    "hero_title": "#1 Authorized Professional Training & Certification Bootcamps",
+    "hero_subtitle": "Live instructor-led bootcamps designed for first-attempt exam pass guarantee.",
+    "schedule_day_types": [
+        "Weekday (Mon-Thu)",
+        "Weekend (Sat-Sun)",
+        "Bootcamp (4 Days)",
+        "Evening (Mon-Fri)"
+    ],
+    "top_bar_badge": "Guaranteed-to-Run Classes",
+    "top_bar_text": "PMI Authorized Training Partner",
+    "header_menu_items": [
+        {
+            "id": 1,
+            "title": "Certifications",
+            "url": "/courses",
+            "children": [
+                {
+                    "title": "Agile & Project Management",
+                    "url": "/courses/agile-project-management"
+                },
+                {
+                    "title": "PMP\u00ae Certification Training",
+                    "url": "/courses/pmp-certification"
+                },
+                {
+                    "title": "CAPM\u00ae Exam Prep",
+                    "url": "/courses/capm-certification"
+                },
+                {
+                    "title": "PMI-ACP\u00ae Agile Certified",
+                    "url": "/courses/pmi-acp-certification"
+                },
+                {
+                    "title": "CISSP\u00ae Cyber Security",
+                    "url": "/courses/cissp-certification"
+                },
+                {
+                    "title": "AWS\u00ae Solutions Architect",
+                    "url": "/courses/aws-solutions-architect"
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "title": "Training Options",
+            "url": "/courses",
+            "children": [
+                {
+                    "title": "Live Online Classroom",
+                    "url": "/courses"
+                },
+                {
+                    "title": "In-Person Classroom Bootcamps",
+                    "url": "/courses"
+                },
+                {
+                    "title": "Self-Paced Learning",
+                    "url": "/courses"
+                },
+                {
+                    "title": "Corporate Group Training",
+                    "url": "/contact"
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "title": "Resources",
+            "url": "/resources",
+            "children": [
+                {
+                    "title": "All Articles & Guides",
+                    "url": "/resources"
+                },
+                {
+                    "title": "Agile & Project Management",
+                    "url": "/resources/agile-project-management"
+                },
+                {
+                    "title": "PMP Exam Prep Roadmap",
+                    "url": "/resources"
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "title": "Corporate Training",
+            "url": "/contact",
+            "children": []
+        },
+        {
+            "id": 5,
+            "title": "About Us",
+            "url": "/about",
+            "children": [
+                {
+                    "title": "About Certification Planner",
+                    "url": "/about"
+                },
+                {
+                    "title": "Contact Support Team",
+                    "url": "/contact"
+                },
+                {
+                    "title": "Our Guarantee Policies",
+                    "url": "/policies"
+                }
+            ]
+        }
+    ],
+    "footer_text": "Certification Planner is a leading North American professional training provider offering guaranteed bootcamps.",
+    "footer_copyright": "\u00a9 2026 Certification Planner LLC. All rights reserved.",
+    "footer_columns": [
+        {
+            "id": 1,
+            "title": "Certifications",
+            "links": [
+                {
+                    "name": "Agile & Project Management",
+                    "href": "/courses/agile-project-management"
+                },
+                {
+                    "name": "PMP\u00ae Certification",
+                    "href": "/courses/pmp-certification"
+                },
+                {
+                    "name": "CAPM\u00ae Certification",
+                    "href": "/courses/capm-certification"
+                },
+                {
+                    "name": "CISSP\u00ae Exam Prep",
+                    "href": "/courses/cissp-certification"
+                },
+                {
+                    "name": "AWS Solutions Architect",
+                    "href": "/courses/aws-solutions-architect"
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "title": "Training Options",
+            "links": [
+                {
+                    "name": "Live Online Classroom",
+                    "href": "/training#live"
+                },
+                {
+                    "name": "In-Person Classroom",
+                    "href": "/training#in-person"
+                },
+                {
+                    "name": "Self-Paced Learning",
+                    "href": "/training#self-paced"
+                },
+                {
+                    "name": "Corporate Group Training",
+                    "href": "/corporate-training"
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "title": "Support & Legal",
+            "links": [
+                {
+                    "name": "Our Policies",
+                    "href": "/policies"
+                },
+                {
+                    "name": "About Us",
+                    "href": "/about"
+                },
+                {
+                    "name": "Contact Support",
+                    "href": "/contact"
+                },
+                {
+                    "name": "Terms of Service",
+                    "href": "/terms"
+                },
+                {
+                    "name": "Privacy Policy",
+                    "href": "/privacy"
+                },
+                {
+                    "name": "Refund Policy",
+                    "href": "/refunds"
+                }
+            ]
+        }
+    ],
+    "hero_title_size": "48px",
+    "nav_link_size": "14px",
+    "prefooter_title": "Ready to Advance Your Career?",
+    "popular_certs": [
+        {
+            "code": "PMP\u00ae"
+        },
+        {
+            "code": "CISSP\u00ae",
+            "image_url": "https://cloudsecuritypass.com/wp-content/uploads/2021/03/cissp-logo.png"
+        },
+        {
+            "code": "aws"
+        },
+        {
+            "code": "Azure"
+        },
+        {
+            "code": "Security+"
+        },
+        {
+            "code": "ITIL\u00ae"
+        },
+        {
+            "code": "salesforce"
+        },
+        {
+            "code": "CCNA"
+        }
+    ],
+    "popup_enabled": true,
+    "admin_entrance_code": "cp_sec_bdqg2a",
+    "admin_entrance_path": "cp-control-qh4gn7",
+    "admin_entrance_enabled": true,
+    "admin_stealth_mode": true
+}

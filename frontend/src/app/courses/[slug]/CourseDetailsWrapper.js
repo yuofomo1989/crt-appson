@@ -3,10 +3,19 @@
 import React, { useState, useEffect } from "react";
 import CourseDetailsClient from "@/components/CourseDetailsClient";
 
+import initialCourses from "@/data/courses_db.json";
+import initialSchedules from "@/data/schedules_db.json";
+
 export default function CourseDetailsWrapper({ slug }) {
-  const [course, setCourse] = useState(null);
-  const [schedules, setSchedules] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // Find course from pre-exported database immediately
+  const preloadedCourse = (initialCourses || []).find(
+    c => (c.slug || c.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")) === slug ||
+         (slug === "pmp-certification" && (c.slug === "pmp-certification-training" || c.title.includes("PMP")))
+  ) || initialCourses?.[0] || null;
+
+  const [course, setCourse] = useState(preloadedCourse);
+  const [schedules, setSchedules] = useState(initialSchedules || []);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     async function fetchCourseData() {
@@ -20,23 +29,20 @@ export default function CourseDetailsWrapper({ slug }) {
         const sData = await sRes.json();
 
         let allCourses = [];
-        if (cData.status === "success" && cData.data) {
+        if (cData.status === "success" && cData.data && cData.data.length > 0) {
           allCourses = cData.data;
+          const foundCourse = allCourses.find(
+            c => (c.slug || c.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")) === slug ||
+                 (slug === "pmp-certification" && (c.slug === "pmp-certification-training" || c.title.includes("PMP")))
+          ) || allCourses[0];
+          setCourse(foundCourse);
         }
 
-        const foundCourse = allCourses.find(
-          c => (c.slug || c.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")) === slug
-        ) || allCourses[0];
-
-        if (sData.status === "success" && sData.data) {
+        if (sData.status === "success" && sData.data && sData.data.length > 0) {
           setSchedules(sData.data);
         }
-
-        setCourse(foundCourse);
       } catch (err) {
-        console.error("Error fetching dynamic course:", err);
-      } finally {
-        setLoading(false);
+        // Safe fallback already pre-loaded from database JSON!
       }
     }
     fetchCourseData();

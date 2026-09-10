@@ -56,14 +56,18 @@ export default function CourseDetailsClient({ course, schedules = [] }) {
 
   // Fallback defaults if null
   const currentCourse = course || {
-    title: "PMP® Certification Prep",
-    category_name: "Agile & Project Management",
+    title: "PMP® Certification Training",
+    category_name: "Project Management",
     rating: 4.9,
     reviews_count: 1420,
     price: 1095,
     original_price: 1495,
     description: "Master the PMBOK® Guide 7th Edition and pass your PMP exam on the first attempt with 35 hours approved bootcamp.",
     brochure_pdf: "",
+    learning_experience: {
+      title: "Interactive Learning Experience",
+      video_url: "https://www.youtube.com/embed/8fct8mFy2cc"
+    },
     faqs: []
   };
 

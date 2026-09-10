@@ -7,13 +7,16 @@ import PreFooter from "@/components/PreFooter";
 import { Star, Clock, Calendar, Search, ArrowRight, ShieldCheck, Filter, X, Award, ChevronRight, Check } from "lucide-react";
 import Link from "next/link";
 
+import initialCourses from "@/data/courses_db.json";
+import initialCategories from "@/data/categories_db.json";
+
 const allCourses = [];
 const levels = ["All Levels", "Beginner", "Intermediate", "Advanced"];
 
 export default function Certifications() {
-  const [coursesList, setCoursesList] = useState([]);
-  const [categoriesList, setCategoriesList] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [coursesList, setCoursesList] = useState(initialCourses || []);
+  const [categoriesList, setCategoriesList] = useState(initialCategories || []);
+  const [loading, setLoading] = useState(false);
 
   const [selectedPath, setSelectedPath] = useState("All Paths");
   const [selectedProvider, setSelectedProvider] = useState("All Providers");
@@ -32,14 +35,14 @@ export default function Certifications() {
         const cData = await cRes.json();
         const catData = await catRes.json();
 
-        if (cData.status === 'success') {
-          setCoursesList(cData.data || []);
+        if (cData.status === 'success' && cData.data && cData.data.length > 0) {
+          setCoursesList(cData.data);
         }
-        if (catData.status === 'success') {
-          setCategoriesList(catData.data || []);
+        if (catData.status === 'success' && catData.data && catData.data.length > 0) {
+          setCategoriesList(catData.data);
         }
       } catch (err) {
-        console.error("Error fetching courses from API:", err);
+        console.error("Error fetching courses from API, fallback to preloaded db:", err);
       } finally {
         setLoading(false);
       }

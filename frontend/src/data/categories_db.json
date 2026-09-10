@@ -1,0 +1,72 @@
+[
+    {
+        "id": 1,
+        "name": "Project Management",
+        "slug": "project-management",
+        "description": null,
+        "created_at": "2026-08-06T17:53:17.000000Z",
+        "updated_at": "2026-08-26T18:14:13.000000Z",
+        "display_order": 1,
+        "is_featured": 1,
+        "avg_salary": "$120,000",
+        "badge_text": "Top Choice",
+        "image": null,
+        "bg_image": null
+    },
+    {
+        "id": 2,
+        "name": "Cybersecurity",
+        "slug": "cybersecurity",
+        "description": null,
+        "created_at": "2026-08-06T17:53:17.000000Z",
+        "updated_at": "2026-08-06T17:53:17.000000Z",
+        "display_order": 0,
+        "is_featured": 1,
+        "avg_salary": null,
+        "badge_text": null,
+        "image": null,
+        "bg_image": null
+    },
+    {
+        "id": 3,
+        "name": "Cloud & IT",
+        "slug": "cloud-and-it",
+        "description": null,
+        "created_at": "2026-08-06T17:53:17.000000Z",
+        "updated_at": "2026-08-06T17:53:17.000000Z",
+        "display_order": 0,
+        "is_featured": 1,
+        "avg_salary": null,
+        "badge_text": null,
+        "image": null,
+        "bg_image": null
+    },
+    {
+        "id": 4,
+        "name": "CCNA",
+        "slug": "ccna",
+        "description": "",
+        "created_at": "2026-08-13T15:35:00.000000Z",
+        "updated_at": "2026-08-13T15:35:00.000000Z",
+        "display_order": 0,
+        "is_featured": 1,
+        "avg_salary": null,
+        "badge_text": null,
+        "image": null,
+        "bg_image": null
+    },
+    {
+        "id": 5,
+        "name": "Artificial Intelligence & Data, IT Architecture",
+        "slug": "artificial-intelligence-data-it-architecture",
+        "description": "",
+        "created_at": "2026-08-16T14:03:22.000000Z",
+        "updated_at": "2026-08-16T14:03:22.000000Z",
+        "display_order": 1,
+        "is_featured": 1,
+        "avg_salary": "$115,000",
+        "badge_text": "High Demand",
+        "image": "",
+        "bg_image": ""
+    }
+]

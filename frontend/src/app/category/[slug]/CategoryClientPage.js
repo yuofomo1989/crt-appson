@@ -7,11 +7,15 @@ import PreFooter from "@/components/PreFooter";
 import Link from "next/link";
 import { Star, ArrowRight, Check, X, Award, ShieldCheck, Users, Clock, HelpCircle, ChevronDown } from "lucide-react";
 
+import initialCategories from "@/data/categories_db.json";
+import initialCourses from "@/data/courses_db.json";
+
 export default function CategoryClientPage({ slug }) {
-  const [category, setCategory] = useState(null);
-  const [categoriesList, setCategoriesList] = useState([]);
-  const [courses, setCourses] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const preloadedCat = (initialCategories || []).find(c => (c.slug || c.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")) === slug) || { name: slug.replace(/-/g, " ").toUpperCase() };
+  const [category, setCategory] = useState(preloadedCat);
+  const [categoriesList, setCategoriesList] = useState(initialCategories || []);
+  const [courses, setCourses] = useState(initialCourses || []);
+  const [loading, setLoading] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
 
   // Filters State
@@ -28,17 +32,17 @@ export default function CategoryClientPage({ slug }) {
         ]);
         const catData = await catRes.json();
         const cData = await cRes.json();
-        if (catData.status === "success") {
+        if (catData && catData.status === "success" && catData.data && catData.data.length > 0) {
           const list = catData.data || [];
           setCategoriesList(list);
           const found = list.find(c => (c.slug || c.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")) === slug);
-          setCategory(found || { name: slug.replace(/-/g, " ").toUpperCase() });
+          if (found) setCategory(found);
         }
-        if (cData.status === "success") {
-          setCourses(cData.data || []);
+        if (cData && cData.status === "success" && cData.data && cData.data.length > 0) {
+          setCourses(cData.data);
         }
       } catch (err) {
-        console.error(err);
+        // Preloaded state works cleanly
       } finally {
         setLoading(false);
       }

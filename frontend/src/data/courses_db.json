@@ -1,0 +1,258 @@
+[
+    {
+        "id": 1,
+        "category_id": 1,
+        "title": "PMP\u00ae Certification Training",
+        "slug": "pmp-certification-training",
+        "category_name": "Project Management",
+        "level": "Intermediate",
+        "rating": 4.9,
+        "reviews_count": 1420,
+        "duration": "4 Days (35 Contact Hours)",
+        "next_date": "Aug 15 - Aug 18, 2026",
+        "price": 1095,
+        "original_price": 1495,
+        "badge": "Best Seller",
+        "image": "/images/agile_hero_professional.jpg",
+        "brochure_pdf": null,
+        "faqs": [
+            {
+                "q": "asfasfasdfasf",
+                "a": "deepak"
+            }
+        ],
+        "description": "Master the PMBOK\u00ae Guide 7th Edition and pass your PMP exam on the first attempt with 35 contact hours approved bootcamp.",
+        "features": [
+            "35 PDUs / Contact Hours Certificate",
+            "100% Pass Guarantee Support",
+            "4 Mock Exams & 1000+ Practice Questions"
+        ],
+        "created_at": "2026-08-06T17:53:17.000000Z",
+        "updated_at": "2026-09-10T04:43:29.000000Z",
+        "curriculum": [
+            {
+                "title": "Module 1: New Topic",
+                "hours": "3.5 Hours",
+                "count": "4 Lessons",
+                "lessons": [
+                    "Introduction & Key Concepts",
+                    "Practical Implementation",
+                    "Best Practices & Case Study",
+                    "Topic 4"
+                ]
+            }
+        ],
+        "video_url": null,
+        "who_should_take": [],
+        "impact_stats": [],
+        "hiring_companies": [],
+        "roadmap_steps": [],
+        "learning_experience": {
+            "title": "Interactive Learning Experience",
+            "video_url": "https://www.youtube.com/embed/8fct8mFy2cc",
+            "features": []
+        },
+        "section_visibility": {
+            "who_should_take": true,
+            "impact_stats": true,
+            "curriculum": true,
+            "learning_experience": true,
+            "roadmap": true,
+            "success_stories": true,
+            "instructors": true,
+            "pre_footer": true,
+            "faqs": true
+        },
+        "instructors": [],
+        "pre_footer_cta": {
+            "title": "Ready to Advance Your Career?",
+            "subtitle": "Join thousands of professionals who are achieving more with PMP\u00ae certification.",
+            "btn1_text": "Enroll Now",
+            "btn1_action": "open_modal",
+            "btn1_url": null,
+            "btn2_text": "Talk to an Advisor",
+            "btn2_action": "open_consultation_modal",
+            "btn2_url": null,
+            "btn2_phone": "+18887457575",
+            "btn3_text": "Chat on WhatsApp",
+            "btn3_action": "whatsapp",
+            "btn3_whatsapp": "18887457575",
+            "trust_features": [
+                "100% Pass Support",
+                "30-Day Money Back",
+                "Secure Payment",
+                "Lifetime Access"
+            ]
+        },
+        "category": {
+            "id": 1,
+            "name": "Project Management",
+            "slug": "project-management",
+            "description": null,
+            "created_at": "2026-08-06T17:53:17.000000Z",
+            "updated_at": "2026-08-26T18:14:13.000000Z",
+            "display_order": 1,
+            "is_featured": 1,
+            "avg_salary": "$120,000",
+            "badge_text": "Top Choice",
+            "image": null,
+            "bg_image": null
+        }
+    },
+    {
+        "id": 2,
+        "category_id": 2,
+        "title": "CISSP\u00ae Certification Prep",
+        "slug": "cissp-certification-prep",
+        "category_name": "Project Management",
+        "level": "Advanced",
+        "rating": 4.8,
+        "reviews_count": 980,
+        "duration": "5 Days (40 Hours)",
+        "next_date": "Aug 22 - Aug 26, 2026",
+        "price": 1295,
+        "original_price": 1695,
+        "badge": "Popular",
+        "image": "/article_security.jpg",
+        "brochure_pdf": null,
+        "faqs": [
+            {
+                "q": "What are the prerequisites for this bootcamp?",
+                "a": "There are no strict prerequisites, but basic project management experience is recommended."
+            },
+            {
+                "q": "What is included in the course tuition fee?",
+                "a": "Tuition includes live instructor training, exam prep study guide, practice test bank, and completion certificate."
+            }
+        ],
+        "description": "Comprehensive information security leadership training covering all 8 CISSP domains.",
+        "features": [
+            "40 CPE Credits",
+            "Official ISC2 Alignment",
+            "Domain-wise Mock Assessments"
+        ],
+        "created_at": "2026-08-06T17:53:17.000000Z",
+        "updated_at": "2026-09-08T07:59:44.000000Z",
+        "curriculum": null,
+        "video_url": null,
+        "who_should_take": null,
+        "impact_stats": null,
+        "hiring_companies": null,
+        "roadmap_steps": null,
+        "learning_experience": null,
+        "section_visibility": null,
+        "instructors": null,
+        "pre_footer_cta": {
+            "title": "Ready to Advance Your Career?",
+            "subtitle": "Join thousands of professionals who are achieving more with PMP\u00ae certification.",
+            "btn1_text": "Enroll Now",
+            "btn1_action": "open_modal",
+            "btn1_url": "",
+            "btn2_text": "Talk to an Advisor",
+            "btn2_action": "open_consultation_modal",
+            "btn2_url": "",
+            "btn2_phone": "+18887457575",
+            "btn3_text": "Chat on WhatsApp",
+            "btn3_action": "whatsapp",
+            "btn3_whatsapp": "18887457575",
+            "trust_features": [
+                "100% Pass Support",
+                "30-Day Money Back",
+                "Secure Payment",
+                "Lifetime Access"
+            ]
+        },
+        "category": {
+            "id": 2,
+            "name": "Cybersecurity",
+            "slug": "cybersecurity",
+            "description": null,
+            "created_at": "2026-08-06T17:53:17.000000Z",
+            "updated_at": "2026-08-06T17:53:17.000000Z",
+            "display_order": 0,
+            "is_featured": 1,
+            "avg_salary": null,
+            "badge_text": null,
+            "image": null,
+            "bg_image": null
+        }
+    },
+    {
+        "id": 3,
+        "category_id": 3,
+        "title": "AWS Certified Solutions Architect",
+        "slug": "aws-certified-solutions-architect",
+        "category_name": "Cybersecurity",
+        "level": "Intermediate",
+        "rating": 4.9,
+        "reviews_count": 1150,
+        "duration": "3 Days (24 Hours)",
+        "next_date": "Sep 05 - Sep 07, 2026",
+        "price": 995,
+        "original_price": 1395,
+        "badge": "Trending",
+        "image": "/article_it.jpg",
+        "brochure_pdf": null,
+        "faqs": [
+            {
+                "q": "What are the prerequisites for this bootcamp?",
+                "a": "There are no strict prerequisites, but basic project management experience is recommended."
+            },
+            {
+                "q": "What is included in the course tuition fee?",
+                "a": "Tuition includes live instructor training, exam prep study guide, practice test bank, and completion certificate."
+            }
+        ],
+        "description": "Design resilient, high-performing, secure, and cost-optimized architectures on AWS.",
+        "features": [
+            "Hands-on AWS Cloud Labs",
+            "Exam Voucher Guidance",
+            "Architecture Blueprints"
+        ],
+        "created_at": "2026-08-06T17:53:17.000000Z",
+        "updated_at": "2026-09-08T07:59:44.000000Z",
+        "curriculum": null,
+        "video_url": null,
+        "who_should_take": null,
+        "impact_stats": null,
+        "hiring_companies": null,
+        "roadmap_steps": null,
+        "learning_experience": null,
+        "section_visibility": null,
+        "instructors": null,
+        "pre_footer_cta": {
+            "title": "Ready to Advance Your Career?",
+            "subtitle": "Join thousands of professionals who are achieving more with PMP\u00ae certification.",
+            "btn1_text": "Enroll Now",
+            "btn1_action": "open_modal",
+            "btn1_url": "",
+            "btn2_text": "Talk to an Advisor",
+            "btn2_action": "open_consultation_modal",
+            "btn2_url": "",
+            "btn2_phone": "+18887457575",
+            "btn3_text": "Chat on WhatsApp",
+            "btn3_action": "whatsapp",
+            "btn3_whatsapp": "18887457575",
+            "trust_features": [
+                "100% Pass Support",
+                "30-Day Money Back",
+                "Secure Payment",
+                "Lifetime Access"
+            ]
+        },
+        "category": {
+            "id": 3,
+            "name": "Cloud & IT",
+            "slug": "cloud-and-it",
+            "description": null,
+            "created_at": "2026-08-06T17:53:17.000000Z",
+            "updated_at": "2026-08-06T17:53:17.000000Z",
+            "display_order": 0,
+            "is_featured": 1,
+            "avg_salary": null,
+            "badge_text": null,
+            "image": null,
+            "bg_image": null
+        }
+    }
+]

@@ -14,11 +14,16 @@ import FaqSection from "@/components/FaqSection";
 import PreFooter from "@/components/PreFooter";
 import Footer from "@/components/Footer";
 
+import initialCourses from "@/data/courses_db.json";
+import initialCategories from "@/data/categories_db.json";
+import initialSchedules from "@/data/schedules_db.json";
+import initialSiteSettings from "@/data/site_settings_db.json";
+
 export default function Home() {
-  const [siteSettings, setSiteSettings] = useState({});
-  const [categories, setCategories] = useState([]);
-  const [courses, setCourses] = useState([]);
-  const [schedules, setSchedules] = useState([]);
+  const [siteSettings, setSiteSettings] = useState(initialSiteSettings || {});
+  const [categories, setCategories] = useState(initialCategories || []);
+  const [courses, setCourses] = useState(initialCourses || []);
+  const [schedules, setSchedules] = useState(initialSchedules || []);
 
   useEffect(() => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
@@ -29,10 +34,12 @@ export default function Home() {
       fetch(`${apiUrl}/courses`).then(r => r.json()).catch(() => ({})),
       fetch(`${apiUrl}/schedules`).then(r => r.json()).catch(() => ({}))
     ]).then(([stData, catData, cData, sData]) => {
-      if (stData.status === "success" && stData.data) setSiteSettings(stData.data);
-      if (catData.status === "success" && catData.data) setCategories(catData.data);
-      if (cData.status === "success" && cData.data) setCourses(cData.data);
-      if (sData.status === "success" && sData.data) setSchedules(sData.data);
+      if (stData && stData.status === "success" && stData.data) setSiteSettings(stData.data);
+      if (catData && catData.status === "success" && catData.data && catData.data.length > 0) setCategories(catData.data);
+      if (cData && cData.status === "success" && cData.data && cData.data.length > 0) setCourses(cData.data);
+      if (sData && sData.status === "success" && sData.data && sData.data.length > 0) setSchedules(sData.data);
+    }).catch(() => {
+      // Keep initial local database state if network or mixed content blocks fetch
     });
   }, []);
 
