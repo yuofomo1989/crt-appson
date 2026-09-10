@@ -276,6 +276,7 @@ export default function AdminDashboard() {
   // New Category / Edit Category Modal State
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
   const [editingCategoryId, setEditingCategoryId] = useState(null);
+  const [catModalTab, setCatModalTab] = useState('hero');
   const [newCategory, setNewCategory] = useState({
     name: "",
     description: "",
@@ -1040,11 +1041,21 @@ export default function AdminDashboard() {
         ...(newCategory.metadata || {}),
         hero_title: newCategory.hero_title || (newCategory.name ? `${newCategory.name} Certifications` : ""),
         hero_subtitle: newCategory.hero_subtitle || newCategory.description || "",
+        hero_image: newCategory.hero_image || "",
         job_growth: newCategory.job_growth || "33% (2024-2030)",
         avg_salary_label: newCategory.avg_salary_label || (newCategory.avg_salary ? `${newCategory.avg_salary} Average` : "$120,000+ Average Salary"),
+        rating: newCategory.rating || "4.8/5",
+        countries_count: newCategory.countries_count || "100+",
+        professionals_count: newCategory.professionals_count || "50,000+",
+        experience_years: newCategory.experience_years || "20+ Years",
+        career_path: Array.isArray(newCategory.career_path) ? newCategory.career_path : (newCategory.metadata?.career_path || []),
         why_learn_points: newCategory.why_learn_text
           ? newCategory.why_learn_text.split("\n").map(s => s.trim()).filter(Boolean)
-          : (newCategory.metadata?.why_learn_points || [])
+          : (newCategory.metadata?.why_learn_points || []),
+        why_learn_spokes: Array.isArray(newCategory.why_learn_spokes) ? newCategory.why_learn_spokes : (newCategory.metadata?.why_learn_spokes || []),
+        testimonials: Array.isArray(newCategory.testimonials) ? newCategory.testimonials : (newCategory.metadata?.testimonials || []),
+        comparison_table: Array.isArray(newCategory.comparison_table) ? newCategory.comparison_table : (newCategory.metadata?.comparison_table || []),
+        corporate_banner: newCategory.corporate_banner || (newCategory.metadata?.corporate_banner || {})
       };
 
       const payload = {
@@ -1090,10 +1101,25 @@ export default function AdminDashboard() {
       metadata: meta,
       hero_title: meta.hero_title || "",
       hero_subtitle: meta.hero_subtitle || "",
+      hero_image: meta.hero_image || "",
       job_growth: meta.job_growth || "33% (2024-2030)",
       avg_salary_label: meta.avg_salary_label || "",
-      why_learn_text: Array.isArray(meta.why_learn_points) ? meta.why_learn_points.join("\n") : ""
+      rating: meta.rating || "4.8/5",
+      countries_count: meta.countries_count || "100+",
+      professionals_count: meta.professionals_count || "50,000+",
+      experience_years: meta.experience_years || "20+ Years",
+      career_path: Array.isArray(meta.career_path) ? meta.career_path : [],
+      why_learn_text: Array.isArray(meta.why_learn_points) ? meta.why_learn_points.join("\n") : "",
+      why_learn_spokes: Array.isArray(meta.why_learn_spokes) ? meta.why_learn_spokes : [],
+      testimonials: Array.isArray(meta.testimonials) ? meta.testimonials : [],
+      comparison_table: Array.isArray(meta.comparison_table) ? meta.comparison_table : [],
+      corporate_banner: meta.corporate_banner || {
+        title: "Corporate Training Solutions",
+        subtitle: "Empower your teams with customized training that drives real results.",
+        button_text: "Get Corporate Training Quote"
+      }
     });
+    setCatModalTab("hero");
     setIsAddCategoryOpen(true);
   };
 
@@ -9983,170 +10009,660 @@ export default function AdminDashboard() {
       {/* ==========================================
           MODAL: ADD / EDIT CATEGORY
           ========================================== */}
+            {/* ==========================================
+          MODAL: FULL DYNAMIC CATEGORY MANAGER (6 SECTIONS)
+          ========================================== */}
       {isAddCategoryOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-xl w-full max-h-[90vh] overflow-y-auto space-y-5 text-left shadow-2xl custom-scrollbar">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="text-lg font-black text-white">
-                {editingCategoryId ? "Edit Course Category" : "Create New Course Category"}
-              </h3>
-              <button onClick={() => { setIsAddCategoryOpen(false); setEditingCategoryId(null); }} className="text-slate-400 hover:text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 backdrop-blur-md p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-4xl w-full max-h-[92vh] overflow-y-auto space-y-6 text-left shadow-2xl custom-scrollbar text-white">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+              <div>
+                <h3 className="text-xl font-black text-white flex items-center gap-2">
+                  <span>📁</span>
+                  <span>{editingCategoryId ? `Customize Category: ${newCategory.name}` : "Create New Course Category"}</span>
+                </h3>
+                <p className="text-xs text-slate-400 font-medium mt-0.5">
+                  Full dynamic management for all sections of /category/{newCategory.name?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'slug'}
+                </p>
+              </div>
+              <button 
+                onClick={() => { setIsAddCategoryOpen(false); setEditingCategoryId(null); }} 
+                className="h-9 w-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+              >
                 <X size={18} />
               </button>
             </div>
 
-            <form onSubmit={handleSaveCategory} className="space-y-4 text-xs font-semibold text-slate-300">
-              <div className="space-y-1">
-                <label className="text-slate-400 font-bold">Category Name *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Project Management, AWS Cloud"
-                  value={newCategory.name}
-                  onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white outline-none focus:border-brand-blue"
-                />
-              </div>
+            {/* Sub-Tabs Navigation */}
+            <div className="flex flex-wrap items-center gap-2 bg-slate-950 p-1.5 rounded-2xl border border-slate-800 text-xs font-bold">
+              {[
+                { id: "hero", label: "1. Hero & Stats", icon: "✨" },
+                { id: "career", label: "2. Career Path", icon: "🚀" },
+                { id: "why", label: "3. Why Learn", icon: "💡" },
+                { id: "testimonials", label: "4. Testimonials", icon: "💬" },
+                { id: "compare", label: "5. Compare Table", icon: "📊" },
+                { id: "corporate", label: "6. Corporate Banner", icon: "🏢" }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setCatModalTab(tab.id)}
+                  className={`px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${
+                    catModalTab === tab.id
+                      ? "bg-brand-blue text-white shadow-md font-black"
+                      : "text-slate-400 hover:text-slate-200 hover:bg-slate-850"
+                  }`}
+                >
+                  <span>{tab.icon}</span>
+                  <span>{tab.label}</span>
+                </button>
+              ))}
+            </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-slate-400 font-bold">Homepage Rank / Order *</label>
-                  <input
-                    type="number"
-                    placeholder="1, 2, 3, 4..."
-                    value={newCategory.display_order ?? 0}
-                    onChange={(e) => setNewCategory({ ...newCategory, display_order: parseInt(e.target.value || 0) })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white outline-none focus:border-brand-blue font-mono"
-                  />
-                </div>
+            <form onSubmit={handleSaveCategory} className="space-y-6 text-xs font-semibold text-slate-300">
+              
+              {/* TAB 1: HERO & STATS */}
+              {catModalTab === "hero" && (
+                <div className="space-y-4">
+                  <div className="grid sm:grid-cols-3 gap-4">
+                    <div className="sm:col-span-2 space-y-1">
+                      <label className="text-slate-400 font-bold">Category Name *</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Project Management, Cybersecurity, Cloud Computing"
+                        value={newCategory.name || ''}
+                        onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white outline-none focus:border-brand-blue"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-slate-400 font-bold">Catalog Rank / Order</label>
+                      <input
+                        type="number"
+                        value={newCategory.display_order ?? 0}
+                        onChange={(e) => setNewCategory({ ...newCategory, display_order: parseInt(e.target.value || 0) })}
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white outline-none focus:border-brand-blue font-mono"
+                      />
+                    </div>
+                  </div>
 
-                <div className="space-y-1">
-                  <label className="text-slate-400 font-bold">Show on Homepage?</label>
-                  <select
-                    value={newCategory.is_featured !== false && newCategory.is_featured !== 0 ? "true" : "false"}
-                    onChange={(e) => setNewCategory({ ...newCategory, is_featured: e.target.value === "true" })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-white outline-none"
-                  >
-                    <option value="true">✅ Featured (Show Card)</option>
-                    <option value="false">❌ Hidden (Hide Card)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-slate-400 font-bold">Avg. Salary Display Tag</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. $115,000"
-                    value={newCategory.avg_salary || '$115,000'}
-                    onChange={(e) => setNewCategory({ ...newCategory, avg_salary: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-emerald-400 font-mono font-bold outline-none"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-slate-400 font-bold">Badge Tag Text</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. High Demand"
-                    value={newCategory.badge_text || 'High Demand'}
-                    onChange={(e) => setNewCategory({ ...newCategory, badge_text: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-slate-400 font-bold">Category Icon / Logo URL (categoryImage)</label>
-                <input
-                  type="text"
-                  placeholder="e.g. /upload/category/pmp-logo.png or https://..."
-                  value={newCategory.image}
-                  onChange={(e) => setNewCategory({ ...newCategory, image: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white outline-none focus:border-brand-blue"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-slate-400 font-bold">Category Description</label>
-                <textarea
-                  rows="2"
-                  placeholder="Short overview of this certification category..."
-                  value={newCategory.description}
-                  onChange={(e) => setNewCategory({ ...newCategory, description: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white outline-none focus:border-brand-blue"
-                ></textarea>
-              </div>
-
-              {/* Category Landing Page Customization Strip */}
-              <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3.5">
-                <div className="flex items-center justify-between border-b border-slate-800/80 pb-2">
-                  <span className="text-[11px] font-black uppercase tracking-wider text-brand-blue flex items-center gap-1.5">
-                    ✨ Category Landing Page Setup (/category/{newCategory.name?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'slug'})
-                  </span>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-slate-400 font-bold">Custom Hero Title</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Agile & Project Management Certifications"
-                    value={newCategory.hero_title || ''}
-                    onChange={(e) => setNewCategory({ ...newCategory, hero_title: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white outline-none focus:border-brand-blue"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-slate-400 font-bold">Job Growth % Tag</label>
+                    <label className="text-slate-400 font-bold">Custom Hero Title (Main Headline)</label>
                     <input
                       type="text"
-                      placeholder="e.g. 33% (2019-2030)"
-                      value={newCategory.job_growth || ''}
-                      onChange={(e) => setNewCategory({ ...newCategory, job_growth: e.target.value })}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-emerald-400 font-bold outline-none"
+                      placeholder="e.g. Agile & Project Management Certifications"
+                      value={newCategory.hero_title || ''}
+                      onChange={(e) => setNewCategory({ ...newCategory, hero_title: e.target.value })}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white outline-none focus:border-brand-blue"
                     />
                   </div>
+
                   <div className="space-y-1">
-                    <label className="text-slate-400 font-bold">Salary Highlight Badge</label>
+                    <label className="text-slate-400 font-bold">Hero Subtitle / Description</label>
+                    <textarea
+                      rows="2"
+                      placeholder="Gain the skills, tools, and confidence to lead projects, empower teams, and deliver results that matter."
+                      value={newCategory.hero_subtitle || ''}
+                      onChange={(e) => setNewCategory({ ...newCategory, hero_subtitle: e.target.value, description: e.target.value })}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white outline-none focus:border-brand-blue"
+                    ></textarea>
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-slate-400 font-bold">Average Salary Highlight Badge</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. $120,000+ Project Manager"
+                        value={newCategory.avg_salary_label || ''}
+                        onChange={(e) => setNewCategory({ ...newCategory, avg_salary_label: e.target.value })}
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white outline-none focus:border-brand-blue"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-slate-400 font-bold">Job Growth % Tag</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. 33% (2019-2030)"
+                        value={newCategory.job_growth || ''}
+                        onChange={(e) => setNewCategory({ ...newCategory, job_growth: e.target.value })}
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-emerald-400 font-bold outline-none focus:border-brand-blue"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-slate-400 font-bold">Hero Visual Banner Image URL</label>
                     <input
                       type="text"
-                      placeholder="e.g. $120,000+ Project Manager"
-                      value={newCategory.avg_salary_label || ''}
-                      onChange={(e) => setNewCategory({ ...newCategory, avg_salary_label: e.target.value })}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white outline-none"
+                      placeholder="e.g. https://images.unsplash.com/photo-... or /uploads/banner.jpg"
+                      value={newCategory.hero_image || ''}
+                      onChange={(e) => setNewCategory({ ...newCategory, hero_image: e.target.value, image: e.target.value })}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white outline-none focus:border-brand-blue"
+                    />
+                  </div>
+
+                  {/* Trust Stats Strip */}
+                  <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
+                    <div className="text-[11px] font-black uppercase tracking-wider text-slate-400">
+                      🏅 Hero Trust Strip Numbers
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <div>
+                        <label className="text-[10px] text-slate-500 font-bold">Rating</label>
+                        <input
+                          type="text"
+                          value={newCategory.rating || '4.8/5'}
+                          onChange={(e) => setNewCategory({ ...newCategory, rating: e.target.value })}
+                          className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-white outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-slate-500 font-bold">Countries</label>
+                        <input
+                          type="text"
+                          value={newCategory.countries_count || '100+'}
+                          onChange={(e) => setNewCategory({ ...newCategory, countries_count: e.target.value })}
+                          className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-white outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-slate-500 font-bold">Professionals Trained</label>
+                        <input
+                          type="text"
+                          value={newCategory.professionals_count || '50,000+'}
+                          onChange={(e) => setNewCategory({ ...newCategory, professionals_count: e.target.value })}
+                          className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-white outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-slate-500 font-bold">Excellence Years</label>
+                        <input
+                          type="text"
+                          value={newCategory.experience_years || '20+ Years'}
+                          onChange={(e) => setNewCategory({ ...newCategory, experience_years: e.target.value })}
+                          className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-white outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 2: CAREER PATH BUILDER */}
+              {catModalTab === "career" && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-sm font-bold text-white">Career Path Milestones Progression</h4>
+                      <p className="text-xs text-slate-400">Define the roadmap cards from Beginner to Advanced for this domain.</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const current = Array.isArray(newCategory.career_path) ? [...newCategory.career_path] : [];
+                        current.push({ role: "New Role", level: "Mid Level", course_name: "Cert Name", avg_salary: "$100,000+", url: "/courses", is_highlight: false });
+                        setNewCategory({ ...newCategory, career_path: current });
+                      }}
+                      className="px-3 py-1.5 rounded-xl bg-brand-blue hover:bg-blue-600 text-white text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
+                    >
+                      <Plus size={14} /> Add Milestone
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    {(newCategory.career_path || []).map((step, sIdx) => (
+                      <div key={sIdx} className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 grid grid-cols-1 sm:grid-cols-6 gap-2.5 items-center">
+                        <div>
+                          <label className="text-[10px] text-slate-500">Role Name</label>
+                          <input
+                            type="text"
+                            value={step.role || ''}
+                            onChange={(e) => {
+                              const updated = [...newCategory.career_path];
+                              updated[sIdx].role = e.target.value;
+                              setNewCategory({ ...newCategory, career_path: updated });
+                            }}
+                            className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-white text-xs"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] text-slate-500">Level</label>
+                          <input
+                            type="text"
+                            value={step.level || ''}
+                            onChange={(e) => {
+                              const updated = [...newCategory.career_path];
+                              updated[sIdx].level = e.target.value;
+                              setNewCategory({ ...newCategory, career_path: updated });
+                            }}
+                            className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-white text-xs"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] text-slate-500">Course / Cert</label>
+                          <input
+                            type="text"
+                            value={step.course_name || ''}
+                            onChange={(e) => {
+                              const updated = [...newCategory.career_path];
+                              updated[sIdx].course_name = e.target.value;
+                              setNewCategory({ ...newCategory, career_path: updated });
+                            }}
+                            className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-white text-xs font-bold"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] text-slate-500">Avg. Salary</label>
+                          <input
+                            type="text"
+                            value={step.avg_salary || ''}
+                            onChange={(e) => {
+                              const updated = [...newCategory.career_path];
+                              updated[sIdx].avg_salary = e.target.value;
+                              setNewCategory({ ...newCategory, career_path: updated });
+                            }}
+                            className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-emerald-400 text-xs font-mono"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] text-slate-500">Page URL</label>
+                          <input
+                            type="text"
+                            value={step.url || ''}
+                            onChange={(e) => {
+                              const updated = [...newCategory.career_path];
+                              updated[sIdx].url = e.target.value;
+                              setNewCategory({ ...newCategory, career_path: updated });
+                            }}
+                            className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-white text-xs"
+                          />
+                        </div>
+                        <div className="flex items-center justify-between pt-3 sm:pt-0">
+                          <label className="flex items-center gap-1 text-[11px] text-amber-400 font-bold cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={!!step.is_highlight}
+                              onChange={(e) => {
+                                const updated = [...newCategory.career_path];
+                                updated[sIdx].is_highlight = e.target.checked;
+                                setNewCategory({ ...newCategory, career_path: updated });
+                              }}
+                            />
+                            Featured
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = newCategory.career_path.filter((_, i) => i !== sIdx);
+                              setNewCategory({ ...newCategory, career_path: updated });
+                            }}
+                            className="text-rose-400 hover:text-rose-300 p-1.5 rounded-lg hover:bg-rose-500/10 cursor-pointer"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 3: WHY LEARN & INFOGRAPHIC */}
+              {catModalTab === "why" && (
+                <div className="space-y-5">
+                  <div className="space-y-2">
+                    <label className="text-slate-400 font-bold">Why Learn Benefits List (1 per line with checkmark)</label>
+                    <textarea
+                      rows="5"
+                      placeholder="High demand for certified professionals&#10;Better project outcomes with proven frameworks&#10;Increased salary and career advancement opportunities&#10;Build leadership, communication & problem-solving skills"
+                      value={newCategory.why_learn_text || ''}
+                      onChange={(e) => setNewCategory({ ...newCategory, why_learn_text: e.target.value })}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white outline-none focus:border-brand-blue text-xs font-mono"
+                    ></textarea>
+                  </div>
+
+                  <div className="space-y-3 p-4 rounded-2xl bg-slate-950 border border-slate-800">
+                    <div className="text-xs font-black uppercase text-brand-blue tracking-wider">
+                      🌀 Circular Diagram: 5 Orbiting Benefit Spokes
+                    </div>
+                    <div className="grid sm:grid-cols-5 gap-2.5">
+                      {[0, 1, 2, 3, 4].map(idx => {
+                        const spokes = Array.isArray(newCategory.why_learn_spokes) ? [...newCategory.why_learn_spokes] : [];
+                        const val = spokes[idx]?.title || (idx === 0 ? "In-Demand Skills" : idx === 1 ? "Leadership Skills" : idx === 2 ? "Deliver Faster" : idx === 3 ? "High Earnings" : "Global Recognition");
+                        return (
+                          <div key={idx} className="space-y-1">
+                            <label className="text-[10px] text-slate-500">Spoke #{idx + 1}</label>
+                            <input
+                              type="text"
+                              value={val}
+                              onChange={(e) => {
+                                const updated = Array.isArray(newCategory.why_learn_spokes) ? [...newCategory.why_learn_spokes] : [];
+                                if (!updated[idx]) updated[idx] = {};
+                                updated[idx].title = e.target.value;
+                                setNewCategory({ ...newCategory, why_learn_spokes: updated });
+                              }}
+                              className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-white text-xs font-bold"
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 4: TESTIMONIALS */}
+              {catModalTab === "testimonials" && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-sm font-bold text-white">Student Reviews & Success Stories</h4>
+                      <p className="text-xs text-slate-400">Cards shown in "Real Stories. Real Success." section.</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const current = Array.isArray(newCategory.testimonials) ? [...newCategory.testimonials] : [];
+                        current.push({ name: "Student Name", badge: "Certified", role: "Job Title", location: "City, Country", tag: "Promoted", quote: "Training review quote..." });
+                        setNewCategory({ ...newCategory, testimonials: current });
+                      }}
+                      className="px-3 py-1.5 rounded-xl bg-brand-blue hover:bg-blue-600 text-white text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
+                    >
+                      <Plus size={14} /> Add Testimonial
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    {(newCategory.testimonials || []).map((t, tIdx) => (
+                      <div key={tIdx} className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
+                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 items-center">
+                          <div>
+                            <label className="text-[10px] text-slate-500">Name</label>
+                            <input
+                              type="text"
+                              value={t.name || ''}
+                              onChange={(e) => {
+                                const updated = [...newCategory.testimonials];
+                                updated[tIdx].name = e.target.value;
+                                setNewCategory({ ...newCategory, testimonials: updated });
+                              }}
+                              className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-white text-xs font-bold"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] text-slate-500">Badge Credential</label>
+                            <input
+                              type="text"
+                              value={t.badge || ''}
+                              onChange={(e) => {
+                                const updated = [...newCategory.testimonials];
+                                updated[tIdx].badge = e.target.value;
+                                setNewCategory({ ...newCategory, testimonials: updated });
+                              }}
+                              className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-blue-400 text-xs"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] text-slate-500">Job Role</label>
+                            <input
+                              type="text"
+                              value={t.role || ''}
+                              onChange={(e) => {
+                                const updated = [...newCategory.testimonials];
+                                updated[tIdx].role = e.target.value;
+                                setNewCategory({ ...newCategory, testimonials: updated });
+                              }}
+                              className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-white text-xs"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] text-slate-500">Location</label>
+                            <input
+                              type="text"
+                              value={t.location || ''}
+                              onChange={(e) => {
+                                const updated = [...newCategory.testimonials];
+                                updated[tIdx].location = e.target.value;
+                                setNewCategory({ ...newCategory, testimonials: updated });
+                              }}
+                              className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-white text-xs"
+                            />
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <label className="text-[10px] text-slate-500">Result Pill</label>
+                              <input
+                                type="text"
+                                value={t.tag || 'Promoted'}
+                                onChange={(e) => {
+                                  const updated = [...newCategory.testimonials];
+                                  updated[tIdx].tag = e.target.value;
+                                  setNewCategory({ ...newCategory, testimonials: updated });
+                                }}
+                                className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-emerald-400 text-xs font-bold"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updated = newCategory.testimonials.filter((_, i) => i !== tIdx);
+                                setNewCategory({ ...newCategory, testimonials: updated });
+                              }}
+                              className="text-rose-400 hover:text-rose-300 p-2 rounded-lg hover:bg-rose-500/10 cursor-pointer mt-3"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] text-slate-500">Student Quote</label>
+                          <textarea
+                            rows="2"
+                            value={t.quote || ''}
+                            onChange={(e) => {
+                              const updated = [...newCategory.testimonials];
+                              updated[tIdx].quote = e.target.value;
+                              setNewCategory({ ...newCategory, testimonials: updated });
+                            }}
+                            className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-white text-xs italic"
+                          ></textarea>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 5: COMPARISON TABLE */}
+              {catModalTab === "compare" && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-sm font-bold text-white">Compare Top Certifications Table</h4>
+                      <p className="text-xs text-slate-400">Rows in "Compare Top Certifications" section.</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const current = Array.isArray(newCategory.comparison_table) ? [...newCategory.comparison_table] : [];
+                        current.push({ name: "Cert Name", best_for: "Target Audience", level: "Mid Level", benefits: "Key advantages", avg_salary: "$120,000+", slug: "slug" });
+                        setNewCategory({ ...newCategory, comparison_table: current });
+                      }}
+                      className="px-3 py-1.5 rounded-xl bg-brand-blue hover:bg-blue-600 text-white text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
+                    >
+                      <Plus size={14} /> Add Row
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    {(newCategory.comparison_table || []).map((row, rIdx) => (
+                      <div key={rIdx} className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 grid grid-cols-1 sm:grid-cols-6 gap-2.5 items-center">
+                        <div>
+                          <label className="text-[10px] text-slate-500">Cert Name</label>
+                          <input
+                            type="text"
+                            value={row.name || ''}
+                            onChange={(e) => {
+                              const updated = [...newCategory.comparison_table];
+                              updated[rIdx].name = e.target.value;
+                              setNewCategory({ ...newCategory, comparison_table: updated });
+                            }}
+                            className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-white text-xs font-bold"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] text-slate-500">Best For</label>
+                          <input
+                            type="text"
+                            value={row.best_for || ''}
+                            onChange={(e) => {
+                              const updated = [...newCategory.comparison_table];
+                              updated[rIdx].best_for = e.target.value;
+                              setNewCategory({ ...newCategory, comparison_table: updated });
+                            }}
+                            className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-white text-xs"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] text-slate-500">Level</label>
+                          <input
+                            type="text"
+                            value={row.level || ''}
+                            onChange={(e) => {
+                              const updated = [...newCategory.comparison_table];
+                              updated[rIdx].level = e.target.value;
+                              setNewCategory({ ...newCategory, comparison_table: updated });
+                            }}
+                            className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-white text-xs"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] text-slate-500">Key Benefits</label>
+                          <input
+                            type="text"
+                            value={row.benefits || ''}
+                            onChange={(e) => {
+                              const updated = [...newCategory.comparison_table];
+                              updated[rIdx].benefits = e.target.value;
+                              setNewCategory({ ...newCategory, comparison_table: updated });
+                            }}
+                            className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-white text-xs"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] text-slate-500">Avg. Salary</label>
+                          <input
+                            type="text"
+                            value={row.avg_salary || ''}
+                            onChange={(e) => {
+                              const updated = [...newCategory.comparison_table];
+                              updated[rIdx].avg_salary = e.target.value;
+                              setNewCategory({ ...newCategory, comparison_table: updated });
+                            }}
+                            className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-emerald-400 text-xs font-mono"
+                          />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <label className="text-[10px] text-slate-500">Course Slug</label>
+                            <input
+                              type="text"
+                              value={row.slug || ''}
+                              onChange={(e) => {
+                                const updated = [...newCategory.comparison_table];
+                                updated[rIdx].slug = e.target.value;
+                                setNewCategory({ ...newCategory, comparison_table: updated });
+                              }}
+                              className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-white text-xs"
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = newCategory.comparison_table.filter((_, i) => i !== rIdx);
+                              setNewCategory({ ...newCategory, comparison_table: updated });
+                            }}
+                            className="text-rose-400 hover:text-rose-300 p-2 rounded-lg hover:bg-rose-500/10 cursor-pointer mt-3"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 6: CORPORATE SOLUTIONS BANNER */}
+              {catModalTab === "corporate" && (
+                <div className="space-y-4">
+                  <div className="space-y-1">
+                    <label className="text-slate-400 font-bold">Corporate Banner Heading</label>
+                    <input
+                      type="text"
+                      value={newCategory.corporate_banner?.title || 'Corporate Training Solutions'}
+                      onChange={(e) => {
+                        const cb = { ...(newCategory.corporate_banner || {}) };
+                        cb.title = e.target.value;
+                        setNewCategory({ ...newCategory, corporate_banner: cb });
+                      }}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white outline-none focus:border-brand-blue"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-slate-400 font-bold">Corporate Subtitle</label>
+                    <textarea
+                      rows="2"
+                      value={newCategory.corporate_banner?.subtitle || 'Empower your teams with customized training that drives real results.'}
+                      onChange={(e) => {
+                        const cb = { ...(newCategory.corporate_banner || {}) };
+                        cb.subtitle = e.target.value;
+                        setNewCategory({ ...newCategory, corporate_banner: cb });
+                      }}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white outline-none focus:border-brand-blue"
+                    ></textarea>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-slate-400 font-bold">Button CTA Text</label>
+                    <input
+                      type="text"
+                      value={newCategory.corporate_banner?.button_text || 'Get Corporate Training Quote'}
+                      onChange={(e) => {
+                        const cb = { ...(newCategory.corporate_banner || {}) };
+                        cb.button_text = e.target.value;
+                        setNewCategory({ ...newCategory, corporate_banner: cb });
+                      }}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white outline-none focus:border-brand-blue"
                     />
                   </div>
                 </div>
+              )}
 
-                <div className="space-y-1">
-                  <label className="text-slate-400 font-bold">Why Learn Benefits (1 per line)</label>
-                  <textarea
-                    rows="3"
-                    placeholder="High demand for certified professionals&#10;Better project outcomes with proven frameworks&#10;Increased salary and career advancement"
-                    value={newCategory.why_learn_text || ''}
-                    onChange={(e) => setNewCategory({ ...newCategory, why_learn_text: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white outline-none focus:border-brand-blue"
-                  ></textarea>
-                </div>
+              {/* Submit Button Bar */}
+              <div className="pt-4 border-t border-slate-800 flex items-center justify-between gap-4">
+                <span className="text-xs text-slate-400">
+                  Changes sync in real-time with Supabase PostgreSQL Cloud Database.
+                </span>
+                <button
+                  type="submit"
+                  className="px-8 py-3.5 rounded-xl bg-brand-blue hover:bg-blue-600 text-white font-black text-xs transition-all shadow-lg shadow-blue-500/25 cursor-pointer"
+                >
+                  {editingCategoryId ? "Save & Sync Category Settings 🚀" : "Create & Launch Category 🚀"}
+                </button>
               </div>
 
-              <button
-                type="submit"
-                className="w-full py-3.5 rounded-xl bg-brand-blue hover:bg-blue-600 text-white font-bold text-xs transition-colors cursor-pointer shadow-lg shadow-blue-500/20"
-              >
-                {editingCategoryId ? "Update Category Details" : "Save Category"}
-              </button>
             </form>
           </div>
         </div>
       )}
 
-      {/* ==========================================
-          MODAL: INTERNAL ADVISOR LEAD NOTE & REMINDER BUILDER
-          ========================================== */}
       {leadNoteModal.isOpen && (
         <div className="fixed inset-0 z-[9990] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 max-w-lg w-full space-y-5 shadow-2xl relative">
