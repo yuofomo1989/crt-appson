@@ -1,0 +1,9 @@
+<?php
+try {
+    $pdo = new PDO('mysql:host=127.0.0.1;port=3306', 'root', '');
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo->exec('CREATE DATABASE IF NOT EXISTS certification_planner_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
+    echo "DATABASE_CREATED_SUCCESSFULLY\n";
+} catch (PDOException $e) {
+    echo "DB_ERROR: " . $e->getMessage() . "\n";
+}
