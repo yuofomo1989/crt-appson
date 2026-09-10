@@ -15,102 +15,25 @@
     "top_bar_text": "PMI Authorized Training Partner",
     "header_menu_items": [
         {
-            "id": 1,
-            "title": "Certifications",
-            "url": "/courses",
+            "id": 1786637378095,
+            "title": "COURSES",
+            "url": "#",
             "children": [
                 {
-                    "title": "Agile & Project Management",
-                    "url": "/courses/agile-project-management"
+                    "title": "Project Management",
+                    "url": "/category/project-management"
                 },
                 {
-                    "title": "PMP\u00ae Certification Training",
-                    "url": "/courses/pmp-certification"
-                },
-                {
-                    "title": "CAPM\u00ae Exam Prep",
-                    "url": "/courses/capm-certification"
-                },
-                {
-                    "title": "PMI-ACP\u00ae Agile Certified",
-                    "url": "/courses/pmi-acp-certification"
-                },
-                {
-                    "title": "CISSP\u00ae Cyber Security",
-                    "url": "/courses/cissp-certification"
-                },
-                {
-                    "title": "AWS\u00ae Solutions Architect",
-                    "url": "/courses/aws-solutions-architect"
+                    "title": "Cybersecurity",
+                    "url": "/category/cybersecurity"
                 }
             ]
         },
         {
-            "id": 2,
-            "title": "Training Options",
-            "url": "/courses",
-            "children": [
-                {
-                    "title": "Live Online Classroom",
-                    "url": "/courses"
-                },
-                {
-                    "title": "In-Person Classroom Bootcamps",
-                    "url": "/courses"
-                },
-                {
-                    "title": "Self-Paced Learning",
-                    "url": "/courses"
-                },
-                {
-                    "title": "Corporate Group Training",
-                    "url": "/contact"
-                }
-            ]
-        },
-        {
-            "id": 3,
+            "id": 1788363268461,
             "title": "Resources",
             "url": "/resources",
-            "children": [
-                {
-                    "title": "All Articles & Guides",
-                    "url": "/resources"
-                },
-                {
-                    "title": "Agile & Project Management",
-                    "url": "/resources/agile-project-management"
-                },
-                {
-                    "title": "PMP Exam Prep Roadmap",
-                    "url": "/resources"
-                }
-            ]
-        },
-        {
-            "id": 4,
-            "title": "Corporate Training",
-            "url": "/contact",
             "children": []
-        },
-        {
-            "id": 5,
-            "title": "About Us",
-            "url": "/about",
-            "children": [
-                {
-                    "title": "About Certification Planner",
-                    "url": "/about"
-                },
-                {
-                    "title": "Contact Support Team",
-                    "url": "/contact"
-                },
-                {
-                    "title": "Our Guarantee Policies",
-                    "url": "/policies"
-                }
-            ]
         }
     ],
     "footer_text": "Certification Planner is a leading North American professional training provider offering guaranteed bootcamps.",

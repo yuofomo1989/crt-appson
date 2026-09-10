@@ -12,54 +12,19 @@ const openModal = (title = "Book a Free Consultation") => {
 
 const DEFAULT_HEADER_MENU_ITEMS = [
   {
-    id: 1,
-    title: "Certifications",
-    url: "/courses",
+    id: 1786637378095,
+    title: "COURSES",
+    url: "#",
     children: [
-      { title: "Agile & Project Management", url: "/courses/agile-project-management" },
-      { title: "PMP® Certification Training", url: "/courses/pmp-certification" },
-      { title: "CAPM® Exam Prep", url: "/courses/capm-certification" },
-      { title: "PMI-ACP® Agile Certified", url: "/courses/pmi-acp-certification" },
-      { title: "CISSP® Cyber Security", url: "/courses/cissp-certification" },
-      { title: "AWS® Solutions Architect", url: "/courses/aws-solutions-architect" }
+      { title: "Project Management", url: "/category/project-management" },
+      { title: "Cybersecurity", url: "/category/cybersecurity" }
     ]
   },
   {
-    id: 2,
-    title: "Training Options",
-    url: "/courses",
-    children: [
-      { title: "Live Online Classroom", url: "/courses" },
-      { title: "In-Person Classroom Bootcamps", url: "/courses" },
-      { title: "Self-Paced Learning", url: "/courses" },
-      { title: "Corporate Group Training", url: "/contact" }
-    ]
-  },
-  {
-    id: 3,
+    id: 1788363268461,
     title: "Resources",
     url: "/resources",
-    children: [
-      { title: "All Articles & Guides", url: "/resources" },
-      { title: "Agile & Project Management", url: "/resources/agile-project-management" },
-      { title: "PMP Exam Prep Roadmap", url: "/resources" }
-    ]
-  },
-  {
-    id: 4,
-    title: "Corporate Training",
-    url: "/contact",
     children: []
-  },
-  {
-    id: 5,
-    title: "About Us",
-    url: "/about",
-    children: [
-      { title: "About Certification Planner", url: "/about" },
-      { title: "Contact Support Team", url: "/contact" },
-      { title: "Our Guarantee Policies", url: "/policies" }
-    ]
   }
 ];
 
@@ -86,7 +51,7 @@ export default function Navbar() {
       .then(res => res.json())
       .then(data => {
         if (data.status === 'success' && data.data) {
-          const serverItems = Array.isArray(data.data.header_menu_items) && data.data.header_menu_items.length >= 3
+          const serverItems = Array.isArray(data.data.header_menu_items) && data.data.header_menu_items.length > 0
             ? data.data.header_menu_items
             : DEFAULT_HEADER_MENU_ITEMS;
 
@@ -136,7 +101,7 @@ export default function Navbar() {
 
         {/* Desktop Navigation Links (WordPress-Style Dynamic Tree) */}
         <nav className="hidden lg:flex items-center gap-8 text-sm font-medium text-gray-700">
-          {(siteSettings.header_menu_items && siteSettings.header_menu_items.length >= 3 ? siteSettings.header_menu_items : DEFAULT_HEADER_MENU_ITEMS).map((item, idx) => (
+          {(siteSettings.header_menu_items && siteSettings.header_menu_items.length > 0 ? siteSettings.header_menu_items : DEFAULT_HEADER_MENU_ITEMS).map((item, idx) => (
             item.children && item.children.length > 0 ? (
               <div key={idx} className="group relative cursor-pointer py-2">
                 <Link href={item.url || '#'} className="flex items-center gap-1 hover:text-brand-blue transition-colors font-bold">
@@ -193,7 +158,7 @@ export default function Navbar() {
       {isOpen && (
         <div className="lg:hidden border-t border-gray-100 bg-white px-4 py-6 shadow-lg">
           <div className="flex flex-col gap-3 text-base font-medium text-gray-800">
-            {(siteSettings.header_menu_items && siteSettings.header_menu_items.length >= 3 ? siteSettings.header_menu_items : DEFAULT_HEADER_MENU_ITEMS).map((item, idx) => (
+            {(siteSettings.header_menu_items && siteSettings.header_menu_items.length > 0 ? siteSettings.header_menu_items : DEFAULT_HEADER_MENU_ITEMS).map((item, idx) => (
               <div key={idx} className="space-y-1">
                 <Link href={item.url || '#'} onClick={() => setIsOpen(false)} className="block hover:text-brand-blue p-2 font-bold rounded-md hover:bg-gray-50">
                   {item.title}

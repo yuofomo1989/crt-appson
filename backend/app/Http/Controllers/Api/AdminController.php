@@ -177,52 +177,19 @@ class AdminController extends Controller
             ],
             'header_menu_items' => [
                 [
-                    'id' => 1,
-                    'title' => 'Certifications',
-                    'url' => '/courses',
+                    'id' => 1786637378095,
+                    'title' => 'COURSES',
+                    'url' => '#',
                     'children' => [
-                        ['title' => 'Agile & Project Management', 'url' => '/courses/agile-project-management'],
-                        ['title' => 'PMP® Certification', 'url' => '/courses/pmp-certification'],
-                        ['title' => 'CISSP® Security', 'url' => '/courses/cissp-certification'],
-                        ['title' => 'AWS® Cloud', 'url' => '/courses/aws-solutions-architect']
+                        ['title' => 'Project Management', 'url' => '/category/project-management'],
+                        ['title' => 'Cybersecurity', 'url' => '/category/cybersecurity']
                     ]
                 ],
                 [
-                    'id' => 2,
-                    'title' => 'Training Options',
-                    'url' => '/training',
-                    'children' => [
-                        ['title' => 'Live Online Classroom', 'url' => '/training#live'],
-                        ['title' => 'In-Person Classroom', 'url' => '/training#in-person'],
-                        ['title' => 'Self-Paced E-Learning', 'url' => '/training#self-paced'],
-                        ['title' => 'Corporate Group Training', 'url' => '/corporate-training']
-                    ]
-                ],
-                [
-                    'id' => 3,
+                    'id' => 1788363268461,
                     'title' => 'Resources',
                     'url' => '/resources',
-                    'children' => [
-                        ['title' => 'All Articles & Guides', 'url' => '/resources'],
-                        ['title' => 'Agile & Project Management', 'url' => '/resources/agile-project-management'],
-                        ['title' => 'IT Service & Architecture', 'url' => '/resources']
-                    ]
-                ],
-                [
-                    'id' => 4,
-                    'title' => 'Corporate Training',
-                    'url' => '/corporate-training',
                     'children' => []
-                ],
-                [
-                    'id' => 5,
-                    'title' => 'About Us',
-                    'url' => '/about',
-                    'children' => [
-                        ['title' => 'About Certification Planner', 'url' => '/about'],
-                        ['title' => 'Contact Support Team', 'url' => '/contact'],
-                        ['title' => 'Our Guarantee Policies', 'url' => '/policies']
-                    ]
                 ]
             ]
         ];
