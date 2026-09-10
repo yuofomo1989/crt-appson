@@ -10,13 +10,67 @@ const openModal = (title = "Book a Free Consultation") => {
   }
 };
 
+const DEFAULT_HEADER_MENU_ITEMS = [
+  {
+    id: 1,
+    title: "Certifications",
+    url: "/courses",
+    children: [
+      { title: "Agile & Project Management", url: "/courses/agile-project-management" },
+      { title: "PMP® Certification Training", url: "/courses/pmp-certification" },
+      { title: "CAPM® Exam Prep", url: "/courses/capm-certification" },
+      { title: "PMI-ACP® Agile Certified", url: "/courses/pmi-acp-certification" },
+      { title: "CISSP® Cyber Security", url: "/courses/cissp-certification" },
+      { title: "AWS® Solutions Architect", url: "/courses/aws-solutions-architect" }
+    ]
+  },
+  {
+    id: 2,
+    title: "Training Options",
+    url: "/courses",
+    children: [
+      { title: "Live Online Classroom", url: "/courses" },
+      { title: "In-Person Classroom Bootcamps", url: "/courses" },
+      { title: "Self-Paced Learning", url: "/courses" },
+      { title: "Corporate Group Training", url: "/contact" }
+    ]
+  },
+  {
+    id: 3,
+    title: "Resources",
+    url: "/resources",
+    children: [
+      { title: "All Articles & Guides", url: "/resources" },
+      { title: "Agile & Project Management", url: "/resources/agile-project-management" },
+      { title: "PMP Exam Prep Roadmap", url: "/resources" }
+    ]
+  },
+  {
+    id: 4,
+    title: "Corporate Training",
+    url: "/contact",
+    children: []
+  },
+  {
+    id: 5,
+    title: "About Us",
+    url: "/about",
+    children: [
+      { title: "About Certification Planner", url: "/about" },
+      { title: "Contact Support Team", url: "/contact" },
+      { title: "Our Guarantee Policies", url: "/policies" }
+    ]
+  }
+];
+
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [categories, setCategories] = useState([]);
   const [siteSettings, setSiteSettings] = useState({
     support_phone: '(888) 745-7575',
     top_bar_badge: 'Guaranteed-to-Run Classes',
-    top_bar_text: 'PMI Authorized Training Partner'
+    top_bar_text: 'PMI Authorized Training Partner',
+    header_menu_items: DEFAULT_HEADER_MENU_ITEMS
   });
 
   useEffect(() => {
@@ -26,14 +80,24 @@ export default function Navbar() {
       .then(data => {
         if (data.status === 'success' && data.data) setCategories(data.data);
       })
-      .catch(err => console.error(err));
+      .catch(err => console.log('Categories load note:', err));
 
     fetch(`${apiUrl}/settings`)
       .then(res => res.json())
       .then(data => {
-        if (data.status === 'success' && data.data) setSiteSettings(data.data);
+        if (data.status === 'success' && data.data) {
+          const serverItems = Array.isArray(data.data.header_menu_items) && data.data.header_menu_items.length >= 3
+            ? data.data.header_menu_items
+            : DEFAULT_HEADER_MENU_ITEMS;
+
+          setSiteSettings(prev => ({
+            ...prev,
+            ...data.data,
+            header_menu_items: serverItems
+          }));
+        }
       })
-      .catch(err => console.error(err));
+      .catch(err => console.log('Settings load note:', err));
   }, []);
 
   return (
@@ -72,13 +136,7 @@ export default function Navbar() {
 
         {/* Desktop Navigation Links (WordPress-Style Dynamic Tree) */}
         <nav className="hidden lg:flex items-center gap-8 text-sm font-medium text-gray-700">
-          {(siteSettings.header_menu_items || [
-            { title: "Certifications", url: "/courses" },
-            { title: "Training Options", url: "/training" },
-            { title: "Resources", url: "/resources" },
-            { title: "Corporate Training", url: "/corporate-training" },
-            { title: "About Us", url: "/about" }
-          ]).map((item, idx) => (
+          {(siteSettings.header_menu_items && siteSettings.header_menu_items.length >= 3 ? siteSettings.header_menu_items : DEFAULT_HEADER_MENU_ITEMS).map((item, idx) => (
             item.children && item.children.length > 0 ? (
               <div key={idx} className="group relative cursor-pointer py-2">
                 <Link href={item.url || '#'} className="flex items-center gap-1 hover:text-brand-blue transition-colors font-bold">
@@ -135,7 +193,7 @@ export default function Navbar() {
       {isOpen && (
         <div className="lg:hidden border-t border-gray-100 bg-white px-4 py-6 shadow-lg">
           <div className="flex flex-col gap-3 text-base font-medium text-gray-800">
-            {(siteSettings.header_menu_items || []).map((item, idx) => (
+            {(siteSettings.header_menu_items && siteSettings.header_menu_items.length >= 3 ? siteSettings.header_menu_items : DEFAULT_HEADER_MENU_ITEMS).map((item, idx) => (
               <div key={idx} className="space-y-1">
                 <Link href={item.url || '#'} onClick={() => setIsOpen(false)} className="block hover:text-brand-blue p-2 font-bold rounded-md hover:bg-gray-50">
                   {item.title}
