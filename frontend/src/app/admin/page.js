@@ -571,7 +571,7 @@ export default function AdminDashboard() {
   // Fetch Admin Metrics and Data from Local Laravel API
   const fetchAdminData = async () => {
     setLoading(true);
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       // 1. Metrics
       const mRes = await fetch(`${apiUrl}/admin/dashboard`);
@@ -795,7 +795,7 @@ export default function AdminDashboard() {
   const handleSaveSmtp = async (e) => {
     if (e) e.preventDefault();
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
       const payload = {
         mail_driver: 'smtp',
         smtp_host: smtpConfig.mail_host || smtpConfig.smtp_host || 'smtp.gmail.com',
@@ -830,7 +830,7 @@ export default function AdminDashboard() {
 
   const handleSaveTemplates = async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
       const formatted = Object.entries(emailTemplatesList).map(([key, t]) => ({
         id: t.id || key,
         name: t.name || t.title || key,
@@ -873,7 +873,7 @@ export default function AdminDashboard() {
     setIsTestingSmtp(true);
     setTestSmtpResult(null);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
       const res = await fetch(`${apiUrl}/admin/email-test`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -897,7 +897,7 @@ export default function AdminDashboard() {
   const handleResendEmailLog = async (logId) => {
     setIsResendingLogId(logId);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
       const res = await fetch(`${apiUrl}/admin/email-logs/${logId}/resend`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
@@ -1030,7 +1030,7 @@ export default function AdminDashboard() {
   const handleSaveCategory = async (e) => {
     e.preventDefault();
     if (!newCategory.name.trim()) return;
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       const url = editingCategoryId 
         ? `${apiUrl}/admin/categories/${editingCategoryId}` 
@@ -1125,7 +1125,7 @@ export default function AdminDashboard() {
 
   const handleDeleteCategory = async (categoryId) => {
     if (!confirm("Are you sure you want to delete this category?")) return;
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       const res = await fetch(`${apiUrl}/admin/categories/${categoryId}`, {
         method: 'DELETE',
@@ -1142,7 +1142,7 @@ export default function AdminDashboard() {
 
   const handleSaveCourse = async (e) => {
     e.preventDefault();
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       const url = editingCourseId 
         ? `${apiUrl}/admin/courses/${editingCourseId}` 
@@ -1214,7 +1214,7 @@ export default function AdminDashboard() {
 
   const handleDeleteCourse = async (courseId) => {
     if (!confirm("Are you sure you want to delete this course?")) return;
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       const res = await fetch(`${apiUrl}/admin/courses/${courseId}`, {
         method: 'DELETE',
@@ -1234,7 +1234,7 @@ export default function AdminDashboard() {
   // ==========================================
   const handleSaveSchedule = async (e) => {
     e.preventDefault();
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       const url = editingScheduleId
         ? `${apiUrl}/admin/schedules/${editingScheduleId}`
@@ -1390,7 +1390,7 @@ export default function AdminDashboard() {
       return;
     }
     const targetCourseId = excelCourseId || (courses.length > 0 ? courses[0].id : 1);
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
 
     setExcelImportLoading(true);
     let successCount = 0;
@@ -1438,7 +1438,7 @@ export default function AdminDashboard() {
 
   // Handle Lead Status Update
   const handleUpdateLead = async (leadId, newStatus) => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       const res = await fetch(`${apiUrl}/admin/leads/${leadId}/status`, {
         method: 'PATCH',
@@ -1456,7 +1456,7 @@ export default function AdminDashboard() {
 
   // Handle Lead Follow-up Notes Update
   const handleUpdateLeadNotes = async (leadId, notes) => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       const res = await fetch(`${apiUrl}/admin/leads/${leadId}/status`, {
         method: 'PATCH',
@@ -1475,7 +1475,7 @@ export default function AdminDashboard() {
   // Handle Lead Delete
   const handleDeleteLead = async (leadId) => {
     if (!confirm("Are you sure you want to delete this lead inquiry?")) return;
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       const res = await fetch(`${apiUrl}/admin/leads/${leadId}`, {
         method: 'DELETE',
@@ -1494,7 +1494,7 @@ export default function AdminDashboard() {
   // MODULE: SUPPORT & HELPDESK TICKET HANDLERS
   // ==========================================
   const handleUpdateTicketStatus = async (ticketId, newStatus) => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       const res = await fetch(`${apiUrl}/admin/support-tickets/${ticketId}/status`, {
         method: 'PATCH',
@@ -1511,7 +1511,7 @@ export default function AdminDashboard() {
   };
 
   const handleSaveTicketNotes = async (ticketId, notes) => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       const res = await fetch(`${apiUrl}/admin/support-tickets/${ticketId}/notes`, {
         method: 'POST',
@@ -1531,7 +1531,7 @@ export default function AdminDashboard() {
   const handleAdminSendReply = async (ticketId) => {
     if (!adminReplyText.trim()) return;
     setIsAdminSendingReply(true);
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       const res = await fetch(`${apiUrl}/admin/support-tickets/${ticketId}/reply`, {
         method: 'POST',
@@ -1561,7 +1561,7 @@ export default function AdminDashboard() {
 
   const handleDeleteTicket = async (ticketId) => {
     if (!confirm("Are you sure you want to delete this support ticket?")) return;
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       const res = await fetch(`${apiUrl}/admin/support-tickets/${ticketId}`, {
         method: 'DELETE',
@@ -1585,7 +1585,7 @@ export default function AdminDashboard() {
       alert("Customer Name and Email are required");
       return;
     }
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       const res = await fetch(`${apiUrl}/admin/orders`, {
         method: 'POST',
@@ -1616,7 +1616,7 @@ export default function AdminDashboard() {
   };
 
   const handleUpdateOrderStatus = async (orderId, newStatus) => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       await fetch(`${apiUrl}/admin/orders/${orderId}/status`, {
         method: 'PATCH',
@@ -1631,7 +1631,7 @@ export default function AdminDashboard() {
 
   const handleDeleteOrder = async (orderId) => {
     if (!confirm("Are you sure you want to delete this order record?")) return;
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       const res = await fetch(`${apiUrl}/admin/orders/${orderId}`, {
         method: 'DELETE',
@@ -1652,7 +1652,7 @@ export default function AdminDashboard() {
   const handleSaveUser = async (e) => {
     e.preventDefault();
     if (!newUserData.name || !newUserData.email) return;
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       const url = editingUserId ? `${apiUrl}/admin/users/${editingUserId}` : `${apiUrl}/admin/users`;
       const method = editingUserId ? 'PUT' : 'POST';
@@ -1687,7 +1687,7 @@ export default function AdminDashboard() {
   };
 
   const handleToggleUserStatus = async (userId) => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       await fetch(`${apiUrl}/admin/users/${userId}/toggle`, {
         method: 'PATCH',
@@ -1701,7 +1701,7 @@ export default function AdminDashboard() {
 
   const handleDeleteUser = async (userId) => {
     if (!confirm("Are you sure you want to delete this student user account?")) return;
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       const res = await fetch(`${apiUrl}/admin/users/${userId}`, {
         method: 'DELETE',
@@ -1743,7 +1743,7 @@ export default function AdminDashboard() {
     }
 
     setPasswordModal(prev => ({ ...prev, loading: true, error: null }));
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       const res = await fetch(`${apiUrl}/admin/users/change-password`, {
         method: 'POST',
@@ -1794,7 +1794,7 @@ export default function AdminDashboard() {
     }
 
     setIsUpdatingDirectPassword(true);
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       const res = await fetch(`${apiUrl}/admin/users/change-password`, {
         method: 'POST',
@@ -1849,7 +1849,7 @@ export default function AdminDashboard() {
 
   const handleSaveSecuritySettings = async () => {
     setIsSavingSecuritySettings(true);
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       const res = await fetch(`${apiUrl}/admin/settings`, {
         method: 'POST',
@@ -1890,7 +1890,7 @@ export default function AdminDashboard() {
     if (e) e.preventDefault();
     setAdminLoginLoading(true);
     setAdminLoginError("");
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       const res = await fetch(`${apiUrl}/auth/login`, {
         method: "POST",
@@ -1959,7 +1959,7 @@ export default function AdminDashboard() {
   // ==========================================
   const handleSaveSettings = async (e) => {
     e.preventDefault();
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       const res = await fetch(`${apiUrl}/admin/settings`, {
         method: 'POST',
@@ -1981,7 +1981,7 @@ export default function AdminDashboard() {
   const handleCreateCoupon = async (e) => {
     e.preventDefault();
     if (!newCoupon.code.trim()) return;
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       const res = await fetch(`${apiUrl}/admin/coupons`, {
         method: 'POST',
@@ -2000,7 +2000,7 @@ export default function AdminDashboard() {
 
   const handleDeleteCoupon = async (couponId) => {
     if (!confirm("Are you sure you want to delete this coupon?")) return;
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       const res = await fetch(`${apiUrl}/admin/coupons/${couponId}`, {
         method: 'DELETE',
@@ -2020,7 +2020,7 @@ export default function AdminDashboard() {
   // ==========================================
   const handleSaveSeo = async (e) => {
     e.preventDefault();
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       const res = await fetch(`${apiUrl}/admin/seo`, {
         method: 'POST',
@@ -2042,7 +2042,7 @@ export default function AdminDashboard() {
   const handleSaveArticle = async (e) => {
     e.preventDefault();
     if (!newArticle.title.trim()) return;
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       const url = editingArticleId 
         ? `${apiUrl}/admin/articles/${editingArticleId}` 
@@ -2098,7 +2098,7 @@ export default function AdminDashboard() {
 
   const handleDeleteArticle = async (articleId) => {
     if (!confirm("Are you sure you want to delete this article?")) return;
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       const res = await fetch(`${apiUrl}/admin/articles/${articleId}`, {
         method: 'DELETE',
@@ -4155,7 +4155,7 @@ export default function AdminDashboard() {
                     <button
                       type="button"
                       onClick={async () => {
-                        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+                        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
                         const crs = courses.find(c => c.id === selectedBuilderCourseId);
                         if (!crs) return;
                         await fetch(`${apiUrl}/admin/courses/${selectedBuilderCourseId}`, {
@@ -4215,7 +4215,7 @@ export default function AdminDashboard() {
                 <form
                   onSubmit={async (e) => {
                     e.preventDefault();
-                    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+                    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
                     const crs = courses.find(c => c.id === selectedBuilderCourseId);
                     if (!crs) return;
                     await fetch(`${apiUrl}/admin/courses/${selectedBuilderCourseId}`, {
@@ -6952,7 +6952,7 @@ export default function AdminDashboard() {
                     onSubmit={async (e) => {
                       e.preventDefault();
                       if (!newArtCat.name.trim()) return;
-                      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+                      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
                       try {
                         const res = await fetch(`${apiUrl}/admin/article-categories`, {
                           method: 'POST',
@@ -6996,7 +6996,7 @@ export default function AdminDashboard() {
                           type="button"
                           onClick={async () => {
                             if (!confirm(`Delete resource category "${cat.name}"?`)) return;
-                            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+                            const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
                             await fetch(`${apiUrl}/admin/article-categories/${cat.id}`, { method: 'DELETE' });
                             fetchAdminData();
                           }}
@@ -7159,7 +7159,7 @@ export default function AdminDashboard() {
                             <button
                               onClick={async () => {
                                 if (!confirm(`Delete brochure document "${bro.document_title}"?`)) return;
-                                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+                                const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
                                 await fetch(`${apiUrl}/admin/brochures/${bro.id}`, { method: 'DELETE' });
                                 showSaveToast("Brochure Document Deleted 🗑️");
                                 fetchAdminData();
@@ -7297,7 +7297,7 @@ export default function AdminDashboard() {
                             <button
                               onClick={async () => {
                                 if (!confirm(`Delete instructor "${inst.name}"?`)) return;
-                                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+                                const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
                                 await fetch(`${apiUrl}/admin/instructors/${inst.id}`, { method: 'DELETE' });
                                 showSaveToast("Instructor Deleted 🗑️");
                                 fetchAdminData();
@@ -7395,7 +7395,7 @@ export default function AdminDashboard() {
                               type="button"
                               onClick={async () => {
                                 const nextStatus = pop.status === 'active' ? 'inactive' : 'active';
-                                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+                                const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
                                 await fetch(`${apiUrl}/admin/popups/${pop.id}`, {
                                   method: 'PUT',
                                   headers: { 'Content-Type': 'application/json' },
@@ -7448,7 +7448,7 @@ export default function AdminDashboard() {
                             <button
                               onClick={async () => {
                                 if (!confirm(`Delete popup campaign "${pop.name}"?`)) return;
-                                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+                                const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
                                 await fetch(`${apiUrl}/admin/popups/${pop.id}`, { method: 'DELETE' });
                                 showSaveToast("Popup Campaign Deleted 🗑️");
                                 fetchAdminData();
@@ -7569,7 +7569,7 @@ export default function AdminDashboard() {
                             <button
                               onClick={async () => {
                                 if (!confirm(`Delete testimonial from ${t.name}?`)) return;
-                                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+                                const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
                                 await fetch(`${apiUrl}/admin/testimonials/${t.id}`, { method: 'DELETE' });
                                 showSaveToast("Testimonial Deleted 🗑️");
                                 fetchAdminData();
@@ -7676,7 +7676,7 @@ export default function AdminDashboard() {
 
                     <button
                       onClick={async () => {
-                        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+                        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
                         try {
                           const res = await fetch(`${apiUrl}/admin/courses/${selectedBuilderCourseId}`, {
                             method: 'PUT',
@@ -11669,7 +11669,7 @@ export default function AdminDashboard() {
             <form
               onSubmit={async (e) => {
                 e.preventDefault();
-                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
                 
                 try {
                   const res = await fetch(`${apiUrl}/admin/leads/${brochureModal.lead.id}/send-brochure`, {
@@ -11866,7 +11866,7 @@ export default function AdminDashboard() {
               onSubmit={async (e) => {
                 e.preventDefault();
                 if (!newPopupData.name.trim() || !newPopupData.title.trim()) return;
-                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
                 try {
                   const url = editingPopupId 
                     ? `${apiUrl}/admin/popups/${editingPopupId}` 
@@ -12238,7 +12238,7 @@ export default function AdminDashboard() {
             <form
             onSubmit={async (e) => {
                 e.preventDefault();
-                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
                 
                 try {
                   // Use FormData to support actual file upload
@@ -12418,7 +12418,7 @@ export default function AdminDashboard() {
               onSubmit={async (e) => {
                 e.preventDefault();
                 if (!newTestimonialData.name.trim() || !newTestimonialData.quote.trim()) return;
-                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
                 try {
                   const url = editingTestimonialId 
                     ? `${apiUrl}/admin/testimonials/${editingTestimonialId}` 
@@ -12600,7 +12600,7 @@ export default function AdminDashboard() {
             <form
               onSubmit={async (e) => {
                 e.preventDefault();
-                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
                 const url = editingInstructorId
                   ? `${apiUrl}/admin/instructors/${editingInstructorId}`
                   : `${apiUrl}/admin/instructors`;

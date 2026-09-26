@@ -22,7 +22,7 @@ export default function CourseDetailsClient({ course, schedules = [] }) {
   React.useEffect(() => {
     async function fetchCourseData() {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
         const [bRes, tRes, iRes] = await Promise.all([
           fetch(`${apiUrl}/brochures`),
           fetch(`${apiUrl}/testimonials?page=${encodeURIComponent(course?.slug || 'pmp-certification')}`),

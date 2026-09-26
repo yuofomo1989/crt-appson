@@ -38,7 +38,7 @@ export default function ConsultationModal({ isOpen, onClose, title = "Book a Fre
     e.preventDefault();
     setLoading(true);
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
 
     try {
       const res = await fetch(`${apiUrl}/leads`, {

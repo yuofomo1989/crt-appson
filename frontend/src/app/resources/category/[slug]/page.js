@@ -18,7 +18,7 @@ export default function ResourceCategoryPage() {
 
   useEffect(() => {
     async function fetchCategoryData() {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
       try {
         const [cRes, aRes] = await Promise.all([
           fetch(`${apiUrl}/article-categories`),

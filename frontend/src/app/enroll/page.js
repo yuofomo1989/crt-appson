@@ -28,7 +28,7 @@ function EnrollContent() {
 
   React.useEffect(() => {
     const fetchData = async () => {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
       try {
         const [sRes, cRes] = await Promise.all([
           fetch(`${apiUrl}/schedules`),

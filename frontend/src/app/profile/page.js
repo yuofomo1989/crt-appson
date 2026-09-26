@@ -128,7 +128,7 @@ export default function StudentDashboard() {
         }
       }
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
 
       // Fetch real batch schedules
       fetch(`${apiUrl}/schedules`)
@@ -212,7 +212,7 @@ export default function StudentDashboard() {
   }, []);
 
   const fetchMyTickets = async (overrideEmail) => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
     const mail = overrideEmail || email || (typeof window !== 'undefined' ? localStorage.getItem('cp_user_email') : '') || 'info@appsonitell.com';
     try {
       const res = await fetch(`${apiUrl}/support-tickets?email=${encodeURIComponent(mail)}`);
@@ -228,7 +228,7 @@ export default function StudentDashboard() {
   const handleSendStudentReply = async (ticketId) => {
     if (!studentReplyText.trim()) return;
     setIsSendingReply(true);
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
     const studentName = `${firstName} ${lastName}`.trim() || email || "Student";
     try {
       const res = await fetch(`${apiUrl}/support-tickets/${ticketId}/reply`, {
@@ -272,7 +272,7 @@ export default function StudentDashboard() {
     }
 
     setIsUpdatingPassword(true);
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
     const userEmail = (email || (typeof window !== "undefined" ? localStorage.getItem("cp_user_email") : "") || "info@appsonitell.com").trim().toLowerCase();
 
     try {
@@ -310,7 +310,7 @@ export default function StudentDashboard() {
   const handleSaveNotifications = async () => {
     setIsSavingNotif(true);
     setNotifMsg({ type: "", text: "" });
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
     const userEmail = (email || (typeof window !== "undefined" ? localStorage.getItem("cp_user_email") : "") || "info@appsonitell.com").trim().toLowerCase();
 
     try {
@@ -430,7 +430,7 @@ export default function StudentDashboard() {
 
   const handleSubmitRequest = async (e) => {
     e.preventDefault();
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       const studentName = `${firstName || ''} ${lastName || ''}`.trim() || 'Student';
       const studentEmail = email || (typeof window !== 'undefined' ? localStorage.getItem('cp_user_email') : '') || 'student@example.com';
@@ -476,7 +476,7 @@ export default function StudentDashboard() {
 
   const handleCallbackSubmit = async (e) => {
     e.preventDefault();
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       const studentName = `${firstName || ''} ${lastName || ''}`.trim() || 'Student';
       const studentEmail = cbEmail || email || (typeof window !== 'undefined' ? localStorage.getItem('cp_user_email') : '') || 'student@example.com';
@@ -512,7 +512,7 @@ export default function StudentDashboard() {
 
   const handleConsultationSubmit = async (e) => {
     e.preventDefault();
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       const studentName = consultName || `${firstName || ''} ${lastName || ''}`.trim() || 'Student';
       const studentEmail = consultEmail || email || (typeof window !== 'undefined' ? localStorage.getItem('cp_user_email') : '') || 'student@example.com';

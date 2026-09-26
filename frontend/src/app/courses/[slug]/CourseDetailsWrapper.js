@@ -19,7 +19,7 @@ export default function CourseDetailsWrapper({ slug }) {
 
   useEffect(() => {
     async function fetchCourseData() {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
       try {
         const [cRes, sRes] = await Promise.all([
           fetch(`${apiUrl}/courses`),

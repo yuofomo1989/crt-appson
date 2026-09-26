@@ -92,7 +92,7 @@ export default function Checkout() {
       localStorage.setItem("cp_latest_order", JSON.stringify(orderPayload));
     }
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
       await Promise.all([
         fetch(`${apiUrl}/orders/checkout`, {

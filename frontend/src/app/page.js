@@ -26,7 +26,7 @@ export default function Home() {
   const [schedules, setSchedules] = useState(initialSchedules || []);
 
   useEffect(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
     
     Promise.all([
       fetch(`${apiUrl}/admin/settings`).then(r => r.json()).catch(() => ({})),
