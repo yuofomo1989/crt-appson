@@ -68,7 +68,7 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white shadow-xs">
       {/* Top Announcement / Contact Bar (Visible on Desktop) */}
-      <div className="hidden h-10 w-full bg-brand-navy px-6 text-xs text-white md:flex items-center justify-between">
+      <div className="hidden h-10 w-full bg-brand-navy text-xs text-white md:flex items-center justify-between" style={{ paddingLeft: 'clamp(1rem, 3.5vw, 3.5rem)', paddingRight: 'clamp(1rem, 3.5vw, 3.5rem)' }}>
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1">
             <span className="h-2 w-2 rounded-full bg-brand-green animate-pulse"></span>

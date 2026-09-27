@@ -20,6 +20,21 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  width: 100%;
+}
+
+/* =========================================================
+   FULL-WIDTH MODERN ULTRA-WIDE THEME
+   Expands standard boxed containers (max-w-7xl, max-w-6xl, container)
+   to full edge-to-edge width with fluid clamp horizontal padding.
+   ========================================================= */
+.max-w-7xl,
+.max-w-6xl,
+.container {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding-left: clamp(1rem, 3.5vw, 3.5rem) !important;
+  padding-right: clamp(1rem, 3.5vw, 3.5rem) !important;
 }
 
 /* Custom smooth scrollbar */
