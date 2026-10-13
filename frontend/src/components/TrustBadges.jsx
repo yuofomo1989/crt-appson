@@ -1,59 +1,61 @@
 "use client";
 
 import React from "react";
-import { Award, Globe, Users, ShieldCheck, CheckCircle } from "lucide-react";
+import { Award, Globe, Users, ShieldCheck, Briefcase } from "lucide-react";
 
 export default function TrustBadges({ siteSettings = {} }) {
   const dynamicBadges = [
     {
-      icon: <Award className="text-brand-blue" size={24} />,
-      title: `${siteSettings.pass_rate || '98.2%'} Success Rate`,
-      description: "Exam passing ratio",
+      icon: <Award className="text-brand-blue" size={26} />,
+      title: `${siteSettings.pass_rate || "98%"}`,
+      subtitle: "Success Rate",
     },
     {
-      icon: <Globe className="text-brand-blue" size={24} />,
-      title: "100+ Countries",
-      description: "Global delivery presence",
+      icon: <Globe className="text-brand-blue" size={26} />,
+      title: "100+",
+      subtitle: "Countries",
     },
     {
-      icon: <Users className="text-brand-blue" size={24} />,
+      icon: <Users className="text-brand-blue" size={26} />,
       title: "Expert Instructors",
-      description: "Industry practitioners",
+      subtitle: "Industry Practitioners",
     },
     {
-      icon: <ShieldCheck className="text-brand-blue" size={24} />,
-      title: `Rating ${siteSettings.trustpilot_rating || '4.9/5'}`,
-      description: "Trustpilot certified",
+      icon: <ShieldCheck className="text-brand-blue" size={26} />,
+      title: "Pass Assurance",
+      subtitle: "We've Got Your Back",
     },
     {
-      icon: <CheckCircle className="text-brand-blue" size={24} />,
-      title: `${siteSettings.total_students_trained || '50,000+'} Trained`,
-      description: "Professionals graduated",
+      icon: <Briefcase className="text-brand-blue" size={26} />,
+      title: `${siteSettings.total_students_trained || "50,000+"}`,
+      subtitle: "Professionals Trained",
     },
   ];
 
   return (
-    <section className="bg-slate-50/60 border-y border-gray-100 py-8">
-      <div className="mx-auto max-w-7xl px-4 md:px-6">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 lg:gap-8 items-center text-center lg:text-left">
-          {dynamicBadges.map((badge, idx) => (
-            <div
-              key={idx}
-              className="flex flex-col lg:flex-row items-center lg:items-start gap-4 p-3 hover:translate-y-[-2px] transition-transform duration-200"
-            >
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white shadow-xs border border-gray-100">
-                {badge.icon}
+    <section className="relative z-20 -mt-2 pb-12 pt-2 bg-transparent">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white border border-gray-100/90 rounded-2xl shadow-md py-6 px-4 sm:px-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 sm:gap-8 items-center">
+            {dynamicBadges.map((badge, idx) => (
+              <div
+                key={idx}
+                className="flex items-center gap-3.5 group hover:translate-y-[-2px] transition-transform duration-200"
+              >
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50/70 text-brand-blue group-hover:bg-brand-blue group-hover:text-white transition-colors duration-200">
+                  {badge.icon}
+                </div>
+                <div className="text-left space-y-0.5">
+                  <h4 className="font-extrabold text-[#0B1E33] text-sm sm:text-base leading-tight">
+                    {badge.title}
+                  </h4>
+                  <p className="text-xs text-gray-500 font-semibold leading-tight">
+                    {badge.subtitle}
+                  </p>
+                </div>
               </div>
-              <div className="space-y-0.5">
-                <h4 className="font-bold text-brand-navy text-sm md:text-base leading-tight">
-                  {badge.title}
-                </h4>
-                <p className="text-xs text-gray-500 font-medium">
-                  {badge.description}
-                </p>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </section>
