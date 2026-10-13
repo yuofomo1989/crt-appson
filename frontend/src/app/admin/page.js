@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { LayoutGrid, BookOpen, Calendar, Users, ShoppingCart, Headphones, Plus, Search, Edit3, Trash2, CheckCircle2, Clock, Filter, DollarSign, TrendingUp, ChevronDown, Eye, EyeOff, X, ArrowUpRight, ArrowDownRight, RefreshCw, MapPin, Globe, FolderPlus, Tag, Share2, Menu, PanelBottom, Type, Bell, BellRing, Shield, Home as HomeIcon, FileSpreadsheet, Upload, Download, FileText, Sparkles, ArrowRight, Award, MessageSquare, Send, Mail, Smartphone, Monitor, Lock, Key, LogOut, Copy, Check, ExternalLink, ShieldCheck, ShieldAlert } from "lucide-react";
 import * as XLSX from "xlsx";
+import MediaLibraryManager from "@/components/MediaLibraryManager";
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("Dashboard");
@@ -2507,6 +2508,7 @@ export default function AdminDashboard() {
                 { name: "Admin & Roles", label: "Admin Users & Password Security", icon: <Shield size={16} /> },
                 { name: "Page Layout Builder", label: "Page Layout & Visual Sections", icon: <Sparkles size={16} /> },
                 { name: "Homepage Builder", icon: <HomeIcon size={16} /> },
+                { name: "Media Library", label: "Media & Images Library 🖼️", icon: <Upload size={16} /> },
                 { name: "Header Menu", icon: <Menu size={16} /> },
                 { name: "Footer Menu", icon: <PanelBottom size={16} /> },
                 { name: "Typography & Fonts", icon: <Type size={16} /> },
@@ -4490,6 +4492,16 @@ export default function AdminDashboard() {
           {/* ==========================================
               STANDALONE TAB: HOMEPAGE SECTIONS BUILDER
               ========================================== */}
+          {activeTab === "Media Library" && (
+            <MediaLibraryManager
+              currentHeroImage={siteSettings.hero_image_url || "/images/hero_professionals.png"}
+              onHeroImageChange={(newUrl) => {
+                setSiteSettings((prev) => ({ ...prev, hero_image_url: newUrl }));
+              }}
+              showToast={showSaveToast}
+            />
+          )}
+
           {activeTab === "Homepage Builder" && (
             <div className="space-y-6 max-w-5xl">
               <div className="flex items-center justify-between">
@@ -4558,6 +4570,7 @@ export default function AdminDashboard() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-1">
                         <label className="text-slate-400 font-bold">Hero Professional Image URL / Path *</label>
+                        <div className="flex gap-2">
                         <input
                           type="text"
                           placeholder="/images/agile_hero_professional.jpg or https://..."
@@ -4565,6 +4578,14 @@ export default function AdminDashboard() {
                           onChange={(e) => setSiteSettings({ ...siteSettings, hero_image_url: e.target.value })}
                           className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white outline-none focus:border-brand-blue"
                         />
+                        <button
+                          type="button"
+                          onClick={() => setActiveTab("Media Library")}
+                          className="px-4 py-2 rounded-xl bg-brand-blue hover:bg-blue-600 text-white font-bold text-xs transition-colors cursor-pointer flex items-center gap-1.5 shrink-0 shadow-sm"
+                        >
+                          <Upload size={14} /> Browse Media 🖼️
+                        </button>
+                      </div>
                         <p className="text-[10px] text-slate-500">Image displayed in the main hero frame card</p>
                       </div>
 
