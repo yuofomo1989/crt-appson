@@ -1,8 +1,26 @@
 import { Pool } from 'pg';
+import fs from 'fs';
+import path from 'path';
 import initialCategories from '@/data/categories_db.json';
 import initialCourses from '@/data/courses_db.json';
 import initialSchedules from '@/data/schedules_db.json';
 import initialSiteSettings from '@/data/site_settings_db.json';
+
+function getDbFilePath(filename) {
+  const possibleDirs = [
+    path.join(process.cwd(), 'src', 'data'),
+    path.join(process.cwd(), 'frontend', 'src', 'data'),
+  ];
+  for (const d of possibleDirs) {
+    const full = path.join(d, filename);
+    if (fs.existsSync(full)) return full;
+  }
+  const targetDir = possibleDirs[0];
+  if (!fs.existsSync(targetDir)) {
+    try { fs.mkdirSync(targetDir, { recursive: true }); } catch (e) {}
+  }
+  return path.join(targetDir, filename);
+}
 
 let pool = null;
 
@@ -96,6 +114,9 @@ export async function saveCategory(categoryData, id = null) {
     const idx = memoryCategories.findIndex(c => c.id === parseInt(id));
     if (idx !== -1) {
       memoryCategories[idx] = { ...memoryCategories[idx], ...categoryData, id: parseInt(id) };
+      try {
+        fs.writeFileSync(getDbFilePath('categories_db.json'), JSON.stringify(memoryCategories, null, 2), 'utf-8');
+      } catch (e) {}
       return memoryCategories[idx];
     }
   } else {
@@ -127,6 +148,9 @@ export async function saveCategory(categoryData, id = null) {
       is_featured: categoryData.is_featured ?? 1
     };
     memoryCategories.push(newCat);
+    try {
+      fs.writeFileSync(getDbFilePath('categories_db.json'), JSON.stringify(memoryCategories, null, 2), 'utf-8');
+    } catch (e) {}
     return newCat;
   }
   return categoryData;
@@ -135,6 +159,9 @@ export async function saveCategory(categoryData, id = null) {
 export async function deleteCategory(id) {
   await queryDb('DELETE FROM categories WHERE id=$1', [id]);
   memoryCategories = memoryCategories.filter(c => c.id !== parseInt(id));
+  try {
+    fs.writeFileSync(getDbFilePath('categories_db.json'), JSON.stringify(memoryCategories, null, 2), 'utf-8');
+  } catch (e) {}
   return true;
 }
 
@@ -152,11 +179,17 @@ export async function saveCourse(courseData, id = null) {
     const idx = memoryCourses.findIndex(c => c.id === parseInt(id));
     if (idx !== -1) {
       memoryCourses[idx] = { ...memoryCourses[idx], ...courseData, id: parseInt(id) };
+      try {
+        fs.writeFileSync(getDbFilePath('courses_db.json'), JSON.stringify(memoryCourses, null, 2), 'utf-8');
+      } catch (e) {}
       return memoryCourses[idx];
     }
   } else {
     const newCourse = { ...courseData, id: Date.now() };
     memoryCourses.push(newCourse);
+    try {
+      fs.writeFileSync(getDbFilePath('courses_db.json'), JSON.stringify(memoryCourses, null, 2), 'utf-8');
+    } catch (e) {}
     return newCourse;
   }
   return courseData;
@@ -173,11 +206,28 @@ export async function getSchedules() {
 
 // Site Settings
 export async function getSiteSettings() {
+  try {
+    const filePath = getDbFilePath('site_settings_db.json');
+    if (fs.existsSync(filePath)) {
+      const data = fs.readFileSync(filePath, 'utf-8');
+      const parsed = JSON.parse(data);
+      memorySiteSettings = { ...initialSiteSettings, ...memorySiteSettings, ...parsed };
+    }
+  } catch (err) {
+    console.warn('[getSiteSettings read warning]:', err.message);
+  }
   return memorySiteSettings;
 }
 
 export async function saveSiteSettings(settings) {
   memorySiteSettings = { ...memorySiteSettings, ...settings };
+  try {
+    const filePath = getDbFilePath('site_settings_db.json');
+    fs.writeFileSync(filePath, JSON.stringify(memorySiteSettings, null, 4), 'utf-8');
+    console.log('[saveSiteSettings] Persisted updated site settings to disk:', filePath);
+  } catch (err) {
+    console.warn('[saveSiteSettings write warning]:', err.message);
+  }
   return memorySiteSettings;
 }
 

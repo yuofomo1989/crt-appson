@@ -38,7 +38,7 @@
         }
     ],
     "footer_text": "Certification Planner is a leading North American professional training provider offering guaranteed bootcamps.",
-    "footer_copyright": "\u00a9 2026 Certification Planner LLC. All rights reserved.",
+    "footer_copyright": "© 2026 Certification Planner LLC. All rights reserved.",
     "footer_columns": [
         {
             "id": 1,
@@ -49,15 +49,15 @@
                     "href": "/courses/agile-project-management"
                 },
                 {
-                    "name": "PMP\u00ae Certification",
+                    "name": "PMP® Certification",
                     "href": "/courses/pmp-certification"
                 },
                 {
-                    "name": "CAPM\u00ae Certification",
+                    "name": "CAPM® Certification",
                     "href": "/courses/capm-certification"
                 },
                 {
-                    "name": "CISSP\u00ae Exam Prep",
+                    "name": "CISSP® Exam Prep",
                     "href": "/courses/cissp-certification"
                 },
                 {
@@ -124,10 +124,10 @@
     "prefooter_title": "Ready to Advance Your Career?",
     "popular_certs": [
         {
-            "code": "PMP\u00ae"
+            "code": "PMP®"
         },
         {
-            "code": "CISSP\u00ae",
+            "code": "CISSP®",
             "image_url": "https://cloudsecuritypass.com/wp-content/uploads/2021/03/cissp-logo.png"
         },
         {
@@ -140,7 +140,7 @@
             "code": "Security+"
         },
         {
-            "code": "ITIL\u00ae"
+            "code": "ITIL®"
         },
         {
             "code": "salesforce"

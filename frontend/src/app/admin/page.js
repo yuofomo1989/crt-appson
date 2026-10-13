@@ -1962,7 +1962,7 @@ export default function AdminDashboard() {
     e.preventDefault();
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     try {
-      const res = await fetch(`${apiUrl}/admin/settings`, {
+      const res = await fetch(`${apiUrl}/admin/settings/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify(siteSettings)
@@ -4574,7 +4574,7 @@ export default function AdminDashboard() {
                         <input
                           type="text"
                           placeholder="/images/agile_hero_professional.jpg or https://..."
-                          value={siteSettings.hero_image_url || './images/agile_hero_professional.jpg'}
+                          value={siteSettings.hero_image_url || '/images/hero_professionals.png'}
                           onChange={(e) => setSiteSettings({ ...siteSettings, hero_image_url: e.target.value })}
                           className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white outline-none focus:border-brand-blue"
                         />

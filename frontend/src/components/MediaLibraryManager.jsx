@@ -16,7 +16,7 @@ export default function MediaLibraryManager({ currentHeroImage, onHeroImageChang
   const fetchMedia = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/media");
+      const res = await fetch("/api/admin/media/");
       const data = await res.json();
       if (data.status === "success" && Array.isArray(data.data)) {
         setMediaList(data.data);
@@ -42,7 +42,7 @@ export default function MediaLibraryManager({ currentHeroImage, onHeroImageChang
       formData.append("file", file);
       formData.append("set_as_hero", autoSetHero ? "true" : "false");
 
-      const res = await fetch("/api/admin/media", {
+      const res = await fetch("/api/admin/media/", {
         method: "POST",
         body: formData,
       });
@@ -73,7 +73,7 @@ export default function MediaLibraryManager({ currentHeroImage, onHeroImageChang
       }
 
       // Save to settings API
-      const res = await fetch("/api/admin/settings", {
+      const res = await fetch("/api/admin/settings/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ hero_image_url: mediaItem.url }),
@@ -99,7 +99,7 @@ export default function MediaLibraryManager({ currentHeroImage, onHeroImageChang
   const handleDelete = async (fileName) => {
     if (!confirm(`Are you sure you want to delete "${fileName}"?`)) return;
     try {
-      const res = await fetch(`/api/admin/media?filename=${encodeURIComponent(fileName)}`, {
+      const res = await fetch(`/api/admin/media/?filename=${encodeURIComponent(fileName)}`, {
         method: "DELETE",
       });
       if (res.ok) {

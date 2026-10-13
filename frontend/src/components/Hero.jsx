@@ -12,7 +12,10 @@ const openModal = (title = "Book a Free Consultation") => {
 };
 
 export default function Hero({ siteSettings = {} }) {
-  const heroImage = siteSettings.hero_image_url || "/images/hero_professionals.png";
+  let heroImage = siteSettings.hero_image_url || "/images/hero_professionals.png";
+  if (typeof heroImage === "string" && heroImage.startsWith("./")) {
+    heroImage = heroImage.substring(1);
+  }
 
   return (
     <section className="relative w-full overflow-hidden bg-white pt-6 sm:pt-10 lg:pt-14 pb-0">

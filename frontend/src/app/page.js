@@ -29,10 +29,10 @@ export default function Home() {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
     
     Promise.all([
-      fetch(`${apiUrl}/admin/settings`).then(r => r.json()).catch(() => ({})),
-      fetch(`${apiUrl}/categories`).then(r => r.json()).catch(() => ({})),
-      fetch(`${apiUrl}/courses`).then(r => r.json()).catch(() => ({})),
-      fetch(`${apiUrl}/schedules`).then(r => r.json()).catch(() => ({}))
+      fetch(`${apiUrl}/settings/`).then(r => r.json()).catch(() => fetch(`${apiUrl}/admin/settings/`).then(r => r.json())).catch(() => ({})),
+      fetch(`${apiUrl}/categories/`).then(r => r.json()).catch(() => ({})),
+      fetch(`${apiUrl}/courses/`).then(r => r.json()).catch(() => ({})),
+      fetch(`${apiUrl}/schedules/`).then(r => r.json()).catch(() => ({}))
     ]).then(([stData, catData, cData, sData]) => {
       if (stData && stData.status === "success" && stData.data) setSiteSettings(stData.data);
       if (catData && catData.status === "success" && catData.data && catData.data.length > 0) setCategories(catData.data);
