@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { LayoutGrid, BookOpen, Calendar, Users, ShoppingCart, Headphones, Plus, Search, Edit3, Trash2, CheckCircle2, Clock, Filter, DollarSign, TrendingUp, ChevronDown, Eye, EyeOff, X, ArrowUpRight, ArrowDownRight, RefreshCw, MapPin, Globe, FolderPlus, Tag, Share2, Menu, PanelBottom, Type, Bell, BellRing, Shield, Home as HomeIcon, FileSpreadsheet, Upload, Download, FileText, Sparkles, ArrowRight, Award, MessageSquare, Send, Mail, Smartphone, Monitor, Lock, Key, LogOut, Copy, Check, ExternalLink, ShieldCheck, ShieldAlert } from "lucide-react";
+import { LayoutGrid, BookOpen, Calendar, Users, ShoppingCart, Headphones, Plus, Search, Edit3, Trash2, CheckCircle2, Clock, Filter, DollarSign, TrendingUp, ChevronDown, Eye, EyeOff, X, ArrowUpRight, ArrowDownRight, RefreshCw, MapPin, Globe, FolderPlus, Tag, Share2, Menu, PanelBottom, Type, Bell, BellRing, Shield, Home as HomeIcon, FileSpreadsheet, Upload, Download, FileText, Sparkles, ArrowRight, Award, MessageSquare, Send, Mail, Smartphone, Monitor, Lock, Key, LogOut, Copy, Check, ExternalLink, ShieldCheck, ShieldAlert , Image as ImageIcon } from "lucide-react";
 import * as XLSX from "xlsx";
 import MediaLibraryManager from "@/components/MediaLibraryManager";
+import HeroImageEditor from "@/components/HeroImageEditor";
+import SiteLogoEditor from "@/components/SiteLogoEditor";
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("Dashboard");
@@ -1328,6 +1330,24 @@ export default function AdminDashboard() {
     });
     setIsAddScheduleOpen(true);
   };
+  const handleDeleteSchedule = async (scheduleId) => {
+    if (!confirm("Are you sure you want to delete this batch schedule?")) return;
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
+    try {
+      const res = await fetch(`${apiUrl}/admin/schedules/${scheduleId}`, {
+        method: 'DELETE',
+        headers: { 'Accept': 'application/json' }
+      });
+      if (res.ok) {
+        showSaveToast("Batch Schedule Deleted Successfully! 🗑️");
+        fetchAdminData();
+      } else {
+        alert("Failed to delete schedule batch");
+      }
+    } catch (err) {
+      alert("Error deleting schedule batch");
+    }
+  };
 
   // Download Sample Excel Template
   const handleDownloadSampleExcel = () => {
@@ -2508,6 +2528,7 @@ export default function AdminDashboard() {
                 { name: "Admin & Roles", label: "Admin Users & Password Security", icon: <Shield size={16} /> },
                 { name: "Page Layout Builder", label: "Page Layout & Visual Sections", icon: <Sparkles size={16} /> },
                 { name: "Homepage Builder", icon: <HomeIcon size={16} /> },
+                { name: "Site Logo & Branding", label: "Site Logo & Branding 🎨", icon: <ImageIcon size={16} /> },
                 { name: "Media Library", label: "Media & Images Library 🖼️", icon: <Upload size={16} /> },
                 { name: "Header Menu", icon: <Menu size={16} /> },
                 { name: "Footer Menu", icon: <PanelBottom size={16} /> },
@@ -3474,6 +3495,7 @@ export default function AdminDashboard() {
                 <div className="flex flex-wrap items-center gap-1.5 w-full md:w-auto">
                   {[
                     { key: "all", label: "All Tickets", count: supportTickets.length },
+                    { key: "live_chat", label: "💬 Live Chats", count: supportTickets.filter(t => t.request_type === 'Live Chat Inquiry' || (t.ticket_number && t.ticket_number.startsWith('CHAT-'))).length },
                     { key: "open", label: "Open", count: supportTickets.filter(t => (t.status || 'open') === 'open').length },
                     { key: "in_progress", label: "In Progress", count: supportTickets.filter(t => t.status === 'in_progress').length },
                     { key: "resolved", label: "Resolved", count: supportTickets.filter(t => t.status === 'resolved').length },
@@ -3526,7 +3548,11 @@ export default function AdminDashboard() {
                   </thead>
                   <tbody className="divide-y divide-slate-800">
                     {supportTickets
-                      .filter(t => ticketFilterStatus === 'all' || (t.status || 'open') === ticketFilterStatus)
+                      .filter(t => {
+                        if (ticketFilterStatus === 'all') return true;
+                        if (ticketFilterStatus === 'live_chat') return t.request_type === 'Live Chat Inquiry' || (t.ticket_number && t.ticket_number.startsWith('CHAT-'));
+                        return (t.status || 'open') === ticketFilterStatus;
+                      })
                       .filter(t => {
                         if (!ticketSearchQuery.trim()) return true;
                         const q = ticketSearchQuery.toLowerCase();
@@ -3546,6 +3572,11 @@ export default function AdminDashboard() {
                             <span className="font-mono font-black text-rose-400 text-xs flex items-center gap-1">
                               🎫 {t.ticket_number}
                             </span>
+                            {(t.request_type === 'Live Chat Inquiry' || (t.ticket_number && t.ticket_number.startsWith('CHAT-'))) && (
+                              <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full mt-1">
+                                💬 Live Chat
+                              </span>
+                            )}
                             <p className="text-[10px] text-slate-400 font-mono mt-1">
                               {t.created_at ? new Date(t.created_at).toLocaleString('en-US', {
                                 month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true
@@ -4444,9 +4475,79 @@ export default function AdminDashboard() {
               ========================================== */}
           {activeTab === "Site Global Settings" && (
             <div className="space-y-6 max-w-4xl">
-              <div>
-                <h2 className="text-2xl font-black text-white">Site Global Settings & Banner Config (Module 6)</h2>
-                <p className="text-xs text-slate-400 font-medium">Control global contact numbers, support email, trust badges, hero headline, and banner text across the frontend.</p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-black text-white">Site Global Settings & Banner Config (Module 6)</h2>
+                  <p className="text-xs text-slate-400 font-medium">Control global contact numbers, support email, trust badges, hero headline, and banner text across the frontend.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("Site Logo & Branding")}
+                  className="px-4 py-2.5 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-brand-blue border border-blue-500/20 font-bold text-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+                >
+                  <ImageIcon size={14} /> Logo & Branding Studio 🎨
+                </button>
+              </div>
+
+              {/* Logo Quick Settings Card */}
+              <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 space-y-4 shadow-xl text-xs font-semibold text-slate-300">
+                <div className="border-b border-slate-800 pb-3 flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider text-brand-blue flex items-center gap-2">
+                    <ImageIcon size={16} /> Website Logo & Identity
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("Site Logo & Branding")}
+                    className="text-xs text-brand-blue hover:underline font-bold"
+                  >
+                    Open Full Logo Studio →
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                  <div className="space-y-2">
+                    <label className="text-slate-400 font-bold block">Current Logo Preview</label>
+                    <div className="bg-white rounded-xl p-3 border border-gray-200 flex items-center gap-2 min-h-[50px]">
+                      {siteSettings.logo_url ? (
+                        <img
+                          src={siteSettings.logo_url}
+                          alt="Logo Preview"
+                          style={{ height: `${siteSettings.logo_height || 36}px`, width: 'auto' }}
+                          className="object-contain max-w-[180px]"
+                        />
+                      ) : (
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-tr from-brand-navy to-brand-blue text-white font-bold text-sm shadow-md">
+                          CP
+                        </div>
+                      )}
+                      {(siteSettings.show_logo_text !== false && (!siteSettings.logo_url || siteSettings.show_logo_text === true)) && (
+                        <span className="text-sm font-bold tracking-tight text-brand-navy">
+                          {siteSettings.site_title_prefix || "Certification"}<span className="text-brand-orange">{siteSettings.site_title_suffix || "Planner"}</span>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-slate-400 font-bold block">Logo Image URL</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={siteSettings.logo_url || ""}
+                        onChange={(e) => setSiteSettings({ ...siteSettings, logo_url: e.target.value })}
+                        placeholder="e.g. /uploads/logo.png"
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:border-brand-blue"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab("Site Logo & Branding")}
+                        className="px-3 py-2 bg-brand-blue text-white rounded-xl font-bold shrink-0 hover:bg-blue-600 transition-colors"
+                      >
+                        Upload
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <form onSubmit={handleSaveSettings} className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 space-y-6 shadow-xl text-xs font-semibold text-slate-300">
@@ -4492,6 +4593,15 @@ export default function AdminDashboard() {
           {/* ==========================================
               STANDALONE TAB: HOMEPAGE SECTIONS BUILDER
               ========================================== */}
+          {activeTab === "Site Logo & Branding" && (
+            <SiteLogoEditor
+              siteSettings={siteSettings}
+              setSiteSettings={setSiteSettings}
+              onSave={handleSaveSettings}
+              showToast={showSaveToast}
+            />
+          )}
+
           {activeTab === "Media Library" && (
             <MediaLibraryManager
               currentHeroImage={siteSettings.hero_image_url || "/images/hero_professionals.png"}
@@ -4565,41 +4675,12 @@ export default function AdminDashboard() {
                   </div>
 
                   <div className="border-t border-slate-800 pt-3 space-y-3">
-                    <p className="text-xs font-bold text-amber-400 uppercase tracking-wider">🖼️ Hero Right Graphic & Floating Badges Control (Image Upload/URL)</p>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-1">
-                        <label className="text-slate-400 font-bold">Hero Professional Image URL / Path *</label>
-                        <div className="flex gap-2">
-                        <input
-                          type="text"
-                          placeholder="/images/agile_hero_professional.jpg or https://..."
-                          value={siteSettings.hero_image_url || '/images/hero_professionals.png'}
-                          onChange={(e) => setSiteSettings({ ...siteSettings, hero_image_url: e.target.value })}
-                          className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white outline-none focus:border-brand-blue"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setActiveTab("Media Library")}
-                          className="px-4 py-2 rounded-xl bg-brand-blue hover:bg-blue-600 text-white font-bold text-xs transition-colors cursor-pointer flex items-center gap-1.5 shrink-0 shadow-sm"
-                        >
-                          <Upload size={14} /> Browse Media 🖼️
-                        </button>
-                      </div>
-                        <p className="text-[10px] text-slate-500">Image displayed in the main hero frame card</p>
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="text-slate-400 font-bold">Top-Right Floating Tag Text</label>
-                        <input
-                          type="text"
-                          placeholder="e.g. Live Online"
-                          value={siteSettings.hero_floating_tag || 'Live Online'}
-                          onChange={(e) => setSiteSettings({ ...siteSettings, hero_floating_tag: e.target.value })}
-                          className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white outline-none focus:border-brand-blue"
-                        />
-                      </div>
-                    </div>
+                    <HeroImageEditor
+                      siteSettings={siteSettings}
+                      setSiteSettings={setSiteSettings}
+                      onBrowseMedia={() => setActiveTab("Media Library")}
+                      showToast={showSaveToast}
+                    />
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-1">
@@ -5709,9 +5790,18 @@ export default function AdminDashboard() {
               ========================================== */}
           {activeTab === "Header Menu" && (
             <div className="space-y-6 max-w-4xl">
-              <div>
-                <h2 className="text-2xl font-black text-white">Header Menu & Top Announcement Bar Manager</h2>
-                <p className="text-xs text-slate-400 font-medium">Customize top announcement strip badges, subtext, support contact number, and main header navigation links.</p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-black text-white">Header Menu & Top Announcement Bar Manager</h2>
+                  <p className="text-xs text-slate-400 font-medium">Customize top announcement strip badges, subtext, support contact number, and main header navigation links.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("Site Logo & Branding")}
+                  className="px-4 py-2.5 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-brand-blue border border-blue-500/20 font-bold text-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+                >
+                  <ImageIcon size={14} /> Change Logo 🎨
+                </button>
               </div>
 
               <form onSubmit={handleSaveSettings} className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 space-y-6 shadow-xl text-xs font-semibold text-slate-300">
@@ -12157,51 +12247,46 @@ export default function AdminDashboard() {
           MODAL: INTERACTIVE POPUP PREVIEW OVERLAY
           ========================================== */}
       {previewPopup && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
-          <div className={`bg-gradient-to-b ${
-            {
-              navy: "from-slate-900 via-brand-navy to-slate-900 border-slate-700 text-white",
-              emerald: "from-slate-950 via-emerald-950 to-slate-900 border-emerald-700 text-white",
-              orange: "from-slate-950 via-orange-950 to-slate-900 border-brand-orange/60 text-white",
-              purple: "from-slate-950 via-purple-950 to-slate-900 border-purple-700 text-white",
-              dark: "from-slate-950 via-slate-900 to-black border-slate-800 text-white"
-            }[previewPopup.theme_color || 'navy'] || "from-slate-900 via-brand-navy to-slate-900 border-slate-700 text-white"
-          } border rounded-3xl p-6 sm:p-8 max-w-lg w-full space-y-5 text-left shadow-2xl relative overflow-hidden`}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/70 backdrop-blur-md p-4 sm:p-6 animate-in fade-in duration-200" onClick={() => setPreviewPopup(null)}>
+          <div className="relative w-full max-w-lg rounded-[32px] bg-white p-6 sm:p-8 md:p-9 shadow-2xl border border-slate-100 space-y-6 text-left transform transition-all overflow-hidden" onClick={(e) => e.stopPropagation()}>
             
-            <span className="absolute top-3 left-4 text-[9px] font-mono font-bold bg-white/10 px-2.5 py-0.5 rounded-full text-slate-300">
+            {/* Top Accent Gradient Bar */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-44 h-1.5 bg-gradient-to-r from-brand-blue via-brand-orange to-emerald-400 rounded-b-full"></div>
+
+            {/* Soft Background Radial Glow Accents */}
+            <div className="absolute -top-16 -right-16 w-36 h-36 bg-orange-100/60 rounded-full blur-2xl pointer-events-none"></div>
+            <div className="absolute -bottom-16 -left-16 w-36 h-36 bg-blue-100/60 rounded-full blur-2xl pointer-events-none"></div>
+
+            <span className="absolute top-3 left-6 text-[9px] font-mono font-bold bg-slate-100 px-2.5 py-0.5 rounded-full text-slate-500 border border-slate-200">
               👁️ ADMIN LIVE PREVIEW MODE
             </span>
-
-            {/* Optional Banner Image */}
-            {previewPopup.banner_image && (
-              <div className="w-full h-36 rounded-2xl overflow-hidden mb-3 border border-slate-700/50 shadow-md pt-4">
-                <img src={previewPopup.banner_image} alt="Promo Banner" className="w-full h-full object-cover" />
-              </div>
-            )}
 
             {/* Close Button */}
             <button
               onClick={() => setPreviewPopup(null)}
-              className="absolute top-4 right-4 p-1.5 rounded-full bg-white/10 text-slate-300 hover:text-white hover:bg-white/20 transition-all cursor-pointer z-10"
+              className="absolute top-5 right-5 p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 transition-all cursor-pointer z-10 shadow-xs"
             >
-              <X size={18} />
+              <X size={16} />
             </button>
 
-            {/* Top Badge */}
-            <div className="flex items-center gap-2 pt-2">
-              <span className="px-3.5 py-1 rounded-full bg-brand-orange/20 text-brand-orange text-xs font-bold font-mono border border-brand-orange/30 inline-flex items-center gap-1.5 uppercase">
-                <Sparkles size={13} />
-                {previewPopup.name}
+            {/* Header Tag / Badge */}
+            <div className="flex items-center gap-2 pt-3">
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-orange-50 border border-orange-200/80 text-brand-orange text-[11px] font-black uppercase tracking-wider shadow-xs">
+                <Sparkles size={13} className="text-brand-orange fill-brand-orange/20" />
+                {previewPopup.name || "Special Tuition Offer"}
+              </span>
+              <span className="text-[11px] font-bold text-slate-400">
+                • Limited Time Only
               </span>
             </div>
 
             {/* Title & Subtitle */}
             <div className="space-y-2">
-              <h3 className="text-xl sm:text-2xl font-black leading-tight text-white">
+              <h3 className="text-2xl sm:text-[28px] font-black text-slate-900 leading-tight tracking-tight">
                 {previewPopup.title}
               </h3>
               {previewPopup.subtitle && (
-                <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
                   {previewPopup.subtitle}
                 </p>
               )}
@@ -12209,38 +12294,58 @@ export default function AdminDashboard() {
 
             {/* Coupon Code Display Box */}
             {previewPopup.coupon_code && (
-              <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-amber-400">
-                  <Tag size={16} />
-                  <span className="text-xs font-bold uppercase">Discount Code:</span>
+              <div className="relative bg-gradient-to-br from-orange-50/80 via-amber-50/50 to-orange-50/80 border-2 border-dashed border-orange-300 rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-3 shadow-inner overflow-hidden">
+                <div className="absolute -left-2.5 top-1/2 -translate-y-1/2 w-5 h-5 bg-white rounded-full border-r border-orange-200"></div>
+                <div className="absolute -right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 bg-white rounded-full border-l border-orange-200"></div>
+
+                <div className="space-y-0.5 pl-2">
+                  <span className="text-[10px] uppercase font-black tracking-wider text-orange-600 flex items-center gap-1">
+                    <Tag size={12} /> Special Promo Voucher
+                  </span>
+                  <p className="text-xs font-bold text-slate-700">Use this code at checkout to claim discount:</p>
                 </div>
-                <span className="px-3 py-1 rounded-lg bg-amber-500/20 text-amber-300 font-mono font-black text-sm border border-amber-500/30">
-                  {previewPopup.coupon_code}
-                </span>
+
+                <div className="flex items-center gap-2 pr-1">
+                  <div className="px-3.5 py-2 rounded-xl bg-white border border-orange-200 text-brand-orange font-mono font-black text-sm tracking-wider shadow-xs">
+                    {previewPopup.coupon_code}
+                  </div>
+                </div>
               </div>
             )}
 
             {/* Action Button */}
-            <div className="pt-2">
+            <div className="space-y-3 pt-1">
               <button
                 type="button"
                 onClick={() => {
-                  alert(`[PREVIEW MODE]: Button clicked for "${previewPopup.title}"! In live mode, this opens the Lead Consultation Form.`);
+                  alert(`[PREVIEW MODE]: Button clicked for "${previewPopup.title}"! In live website mode, this opens the Consultation form.`);
                   setPreviewPopup(null);
                 }}
-                className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-brand-blue to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold text-xs sm:text-sm transition-all cursor-pointer shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2"
+                className="w-full py-4 px-6 rounded-xl bg-brand-blue hover:bg-blue-600 text-white font-black text-xs sm:text-sm transition-all cursor-pointer shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 group"
               >
-                {previewPopup.cta_text || "Claim Offer & Free Syllabus"}
-                <ArrowRight size={16} />
+                <span>{previewPopup.cta_text || "Claim Offer & Free Syllabus"}</span>
+                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
               </button>
+            </div>
+
+            {/* Trust Strip */}
+            <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-slate-500">
+              <span className="inline-flex items-center gap-1">
+                <ShieldCheck size={14} className="text-emerald-500" /> 100% Pass Support
+              </span>
+              <span className="text-slate-300">•</span>
+              <span className="inline-flex items-center gap-1">
+                <Award size={14} className="text-brand-blue" /> PMI® Authorized
+              </span>
+              <span className="text-slate-300">•</span>
+              <span className="inline-flex items-center gap-1">
+                <Zap size={14} className="text-amber-500" /> Instant LMS
+              </span>
             </div>
           </div>
         </div>
       )}
 
-      {/* ==========================================
-          MODAL: UPLOAD & SAVE COURSE BROCHURE / DOC
-          ========================================== */}
       {isAddBrochureOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
           <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-lg w-full space-y-6 text-left shadow-2xl relative">

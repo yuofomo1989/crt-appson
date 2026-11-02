@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { saveCourse } from '@/lib/db';
+import { saveCourse, deleteCourse } from '@/lib/db';
 
 export async function PUT(request, { params }) {
   try {
@@ -18,6 +18,11 @@ export async function PUT(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
+    const { id } = await params;
+    const deleted = await deleteCourse(id);
+    if (!deleted) {
+      return NextResponse.json({ status: 'error', message: 'Course not found for deletion' }, { status: 404 });
+    }
     return NextResponse.json({
       status: 'success',
       message: 'Course deleted successfully'

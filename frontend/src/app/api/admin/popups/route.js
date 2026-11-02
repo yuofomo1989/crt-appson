@@ -1,15 +1,32 @@
 import { NextResponse } from 'next/server';
+import { getPopups, savePopup } from '@/lib/db';
 
 export async function GET() {
-  return NextResponse.json({
-    status: 'success',
-    data: [
-      { id: 1, title: 'Summer Executive Flash Sale', subtitle: 'Get $200 off any bootcamp with code EXECUTIVE200', coupon_code: 'EXECUTIVE200', trigger_delay: 15, is_active: true }
-    ]
-  });
+  try {
+    const popups = await getPopups();
+    return NextResponse.json({
+      status: 'success',
+      total: popups.length,
+      data: popups
+    });
+  } catch (err) {
+    return NextResponse.json({ status: 'error', message: err.message }, { status: 500 });
+  }
 }
 
 export async function POST(request) {
-  const body = await request.json();
-  return NextResponse.json({ status: 'success', data: body });
+  try {
+    const body = await request.json();
+    if (!body.name || !body.title) {
+      return NextResponse.json({ status: 'error', message: 'Campaign name and title are required' }, { status: 400 });
+    }
+    const saved = await savePopup(body);
+    return NextResponse.json({
+      status: 'success',
+      message: 'Marketing popup campaign created successfully! 📢',
+      data: saved
+    });
+  } catch (err) {
+    return NextResponse.json({ status: 'error', message: err.message }, { status: 500 });
+  }
 }

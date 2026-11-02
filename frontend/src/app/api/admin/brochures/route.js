@@ -1,15 +1,28 @@
 import { NextResponse } from 'next/server';
-
-const defaultBrochures = [
-  { id: 1, course_id: 1, course_title: 'PMP® Certification', document_title: 'PMP Official Bootcamp Syllabus 2026', file_url: '/brochures/pmp-syllabus.pdf', file_size: '2.4 MB' },
-  { id: 2, course_id: 2, course_title: 'CISSP® Certification', document_title: 'CISSP 8 Domains Curriculum Guide', file_url: '/brochures/cissp-syllabus.pdf', file_size: '3.1 MB' }
-];
+import { getBrochures, saveBrochure } from '@/lib/db';
 
 export async function GET() {
-  return NextResponse.json({ status: 'success', data: defaultBrochures });
+  try {
+    const brochures = await getBrochures();
+    return NextResponse.json({ status: 'success', data: brochures });
+  } catch (err) {
+    return NextResponse.json({ status: 'error', message: err.message }, { status: 500 });
+  }
 }
 
 export async function POST(request) {
-  const body = await request.json();
-  return NextResponse.json({ status: 'success', data: body });
+  try {
+    const body = await request.json();
+    if (!body.document_title) {
+      return NextResponse.json({ status: 'error', message: 'Document title is required' }, { status: 400 });
+    }
+    const saved = await saveBrochure(body);
+    return NextResponse.json({
+      status: 'success',
+      message: 'Course brochure document uploaded and linked successfully! 📄',
+      data: saved
+    });
+  } catch (err) {
+    return NextResponse.json({ status: 'error', message: err.message }, { status: 500 });
+  }
 }

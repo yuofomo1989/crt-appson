@@ -97,11 +97,11 @@ export default function CareerPaths({ categories = [], courses = [] }) {
     : defaultPaths;
 
   return (
-    <section id="career-paths" className="py-16 md:py-24 bg-white">
+    <section id="career-paths" className="py-10 md:py-14 bg-white">
       <div className="mx-auto max-w-7xl px-4 md:px-6">
         
         {/* Header */}
-        <div className="text-center max-w-2xl mx-auto mb-12 md:mb-16 space-y-3">
+        <div className="text-center max-w-2xl mx-auto mb-8 md:mb-10 space-y-3">
           <h2 className="text-3xl md:text-5xl font-black text-brand-navy tracking-tight">
             Choose Your <span className="text-brand-blue">Career Path</span>
           </h2>
@@ -111,7 +111,7 @@ export default function CareerPaths({ categories = [], courses = [] }) {
         </div>
 
         {/* Dynamic Cards Grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid gap-5" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))" }}>
           {displayPaths.map((path, idx) => (
             <div
               key={idx}
@@ -155,7 +155,7 @@ export default function CareerPaths({ categories = [], courses = [] }) {
         </div>
 
         {/* View All CTA Link */}
-        <div className="text-center mt-10">
+        <div className="text-center mt-8">
           <Link
             href="/courses"
             className="inline-flex items-center gap-1.5 text-xs font-extrabold text-brand-blue hover:underline"

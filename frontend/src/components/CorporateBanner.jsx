@@ -5,16 +5,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { Check } from "lucide-react";
 
-const openModal = (title = "Book a Free Consultation") => {
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(new CustomEvent("openConsultationModal", { detail: { title } }));
-  }
-};
-
 export default function CorporateBanner({ siteSettings = {} }) {
 
   return (
-    <section className="max-w-7xl mx-auto px-4 md:px-6 py-16">
+    <section className="max-w-7xl mx-auto px-4 md:px-6 py-8">
       <div className="rounded-3xl bg-gradient-to-r from-brand-navy via-slate-900 to-brand-navy p-8 md:p-12 text-white shadow-2xl overflow-hidden relative">
         
         {/* Glow Effects */}
@@ -48,17 +42,17 @@ export default function CorporateBanner({ siteSettings = {} }) {
             </div>
 
             <div className="flex flex-wrap gap-3 pt-4">
-              <button
-                onClick={() => openModal("Corporate Training Inquiry")}
+              <Link
+                href="/corporate-training"
                 className="rounded-2xl bg-brand-orange px-7 py-3.5 text-xs font-black text-white hover:bg-opacity-90 transition-all shadow-md cursor-pointer"
               >
-                Get a Free Consultation
-              </button>
+                Request Corporate Proposal
+              </Link>
               <Link
-                href="/contact"
+                href="/corporate-training"
                 className="inline-block rounded-2xl border-2 border-white/30 bg-white/10 px-7 py-3.5 text-xs font-black text-white hover:bg-white hover:text-brand-navy transition-all shadow-md"
               >
-                Contact Us
+                Explore Enterprise Plans →
               </Link>
             </div>
           </div>
@@ -67,7 +61,7 @@ export default function CorporateBanner({ siteSettings = {} }) {
           <div className="lg:col-span-6 relative">
             <div className="rounded-2xl overflow-hidden border-2 border-white/10 shadow-2xl">
               <Image
-                src="./images/about_us_professionals.jpg"
+                src={siteSettings.corporate_image_url || "/images/about_us_professionals.jpg"}
                 alt="Corporate Team Upskilling Meeting"
                 width={600}
                 height={350}

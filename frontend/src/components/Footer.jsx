@@ -28,20 +28,29 @@ const resources = [
   { name: "Refund Policy", href: "/refunds" },
 ];
 
-export default function Footer() {
+export default function Footer({ siteSettings: propSettings } = {}) {
   const [siteSettings, setSiteSettings] = useState({
     footer_text: 'Certification Planner is a leading North American professional training provider offering guaranteed bootcamps.',
-    footer_copyright: '© 2026 Certification Planner LLC. All rights reserved.'
+    footer_copyright: '© 2026 Certification Planner LLC. All rights reserved.',
+    ...(propSettings || {})
   });
 
   useEffect(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
-    fetch(`${apiUrl}/settings`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === 'success' && data.data) setSiteSettings(data.data);
-      })
-      .catch(err => console.error(err));
+    if (propSettings && Object.keys(propSettings).length > 0) {
+      setSiteSettings(prev => ({ ...prev, ...propSettings }));
+    }
+  }, [propSettings]);
+
+  useEffect(() => {
+    if (!propSettings || Object.keys(propSettings).length === 0) {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
+      fetch(`${apiUrl}/settings/`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'success' && data.data) setSiteSettings(data.data);
+        })
+        .catch(err => console.error(err));
+    }
   }, []);
 
   return (
@@ -51,13 +60,31 @@ export default function Footer() {
           
           {/* Brand Info */}
           <div className="col-span-2 space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-tr from-brand-navy to-brand-blue text-white font-bold text-base shadow-md">
-                CP
-              </div>
-              <span className="text-lg font-bold tracking-tight text-white">
-                Certification<span className="text-brand-orange">Planner</span>
-              </span>
+            <div className="flex items-center gap-2.5">
+              {(siteSettings?.use_custom_footer_logo && siteSettings?.footer_logo_url) ? (
+                <img
+                  src={siteSettings.footer_logo_url}
+                  alt={siteSettings.logo_alt || "Certification Planner"}
+                  style={{ height: `${siteSettings.footer_logo_height || 36}px`, width: "auto" }}
+                  className="object-contain max-w-[200px]"
+                />
+              ) : siteSettings?.logo_url ? (
+                <img
+                  src={siteSettings.logo_url}
+                  alt={siteSettings.logo_alt || "Certification Planner"}
+                  style={{ height: `${siteSettings.footer_logo_height || siteSettings.logo_height || 36}px`, width: "auto" }}
+                  className="object-contain max-w-[200px]"
+                />
+              ) : (
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-tr from-brand-navy to-brand-blue text-white font-bold text-base shadow-md">
+                  CP
+                </div>
+              )}
+              {(siteSettings?.show_logo_text !== false && (!siteSettings?.logo_url && !siteSettings?.footer_logo_url || siteSettings?.show_logo_text === true)) && (
+                <span className="text-lg font-bold tracking-tight text-white">
+                  {siteSettings?.site_title_prefix || "Certification"}<span className="text-brand-orange">{siteSettings?.site_title_suffix || "Planner"}</span>
+                </span>
+              )}
             </div>
             <p className="text-[11px] leading-relaxed max-w-xs">
               {siteSettings.footer_text || 'Vetted training programs designed to help you pass your certifications on the first try. Voted #1 global training partner by enterprise groups.'}

@@ -1,15 +1,28 @@
 import { NextResponse } from 'next/server';
-
-const defaultCoupons = [
-  { id: 1, code: 'EXECUTIVE10', discount_type: 'percentage', discount_value: 10, valid_until: '2026-12-31', is_active: true },
-  { id: 2, code: 'FLASH15', discount_type: 'percentage', discount_value: 15, valid_until: '2026-12-31', is_active: true }
-];
+import { getCoupons, saveCoupon } from '@/lib/db';
 
 export async function GET() {
-  return NextResponse.json({ status: 'success', data: defaultCoupons });
+  try {
+    const coupons = await getCoupons();
+    return NextResponse.json({ status: 'success', data: coupons });
+  } catch (err) {
+    return NextResponse.json({ status: 'error', message: err.message }, { status: 500 });
+  }
 }
 
 export async function POST(request) {
-  const body = await request.json();
-  return NextResponse.json({ status: 'success', message: 'Coupon saved', data: body });
+  try {
+    const body = await request.json();
+    if (!body.code) {
+      return NextResponse.json({ status: 'error', message: 'Coupon code is required' }, { status: 400 });
+    }
+    const saved = await saveCoupon(body);
+    return NextResponse.json({
+      status: 'success',
+      message: 'Coupon code created and published successfully! 🎟️',
+      data: saved
+    });
+  } catch (err) {
+    return NextResponse.json({ status: 'error', message: err.message }, { status: 500 });
+  }
 }

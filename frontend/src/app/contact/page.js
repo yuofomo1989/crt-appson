@@ -1,57 +1,49 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import {
   Phone,
   Mail,
-  MessageSquare,
+  Headphones,
   Clock,
   MapPin,
   ChevronDown,
-  Send,
-  CheckCircle,
   ArrowRight,
-  ChevronRight,
+  CheckCircle2,
+  HelpCircle,
+  MessageSquare,
+  ShieldCheck,
+  Send,
+  Check,
+  Sparkles,
+  User,
+  Tag,
+  Lock,
+  Calendar
 } from "lucide-react";
 
-// ─── Data ────────────────────────────────────────────────────────────────────
+const countryCodes = [
+  { code: "+1", flag: "🇺🇸", label: "US" },
+  { code: "+44", flag: "🇬🇧", label: "UK" },
+  { code: "+91", flag: "🇮🇳", label: "IN" },
+  { code: "+61", flag: "🇦🇺", label: "AU" },
+  { code: "+1", flag: "🇨🇦", label: "CA" },
+  { code: "+971", flag: "🇦🇪", label: "UAE" },
+  { code: "+65", flag: "🇸🇬", label: "SG" },
+];
 
-const contactMethods = [
-  {
-    icon: Phone,
-    title: "Call Us",
-    line1: "(888) 745-7575",
-    line2: "Mon – Fri, 8:00 AM – 8:00 PM ET",
-    href: "tel:8887457575",
-    linkLabel: null,
-  },
-  {
-    icon: Mail,
-    title: "Email Us",
-    line1: "support@certificationplanner.com",
-    line2: "We reply within 1 business day",
-    href: "mailto:support@certificationplanner.com",
-    linkLabel: null,
-  },
-  {
-    icon: MessageSquare,
-    title: "Live Chat",
-    line1: "Chat with our support team",
-    line2: null,
-    href: "#chat",
-    linkLabel: "Start Live Chat",
-  },
-  {
-    icon: Clock,
-    title: "Business Hours",
-    line1: "Mon – Fri, 8:00 AM – 8:00 PM ET",
-    line2: "Sat – Sun, 9:00 AM – 5:00 PM ET",
-    href: null,
-    linkLabel: null,
-  },
+const subjectOptions = [
+  "Select a subject",
+  "Questions about certifications",
+  "Help choosing the right training",
+  "Registration or account support",
+  "Order, invoice or payment inquiries",
+  "Corporate training solutions",
+  "Technical support",
+  "Other"
 ];
 
 const helpTopics = [
@@ -63,517 +55,602 @@ const helpTopics = [
   "Technical support",
 ];
 
-const subjects = [
-  "Select a subject",
-  "Course Information",
-  "Registration & Enrollment",
-  "Billing & Payments",
-  "Technical Support",
-  "Corporate Training",
-  "Exam Scheduling",
-  "Other",
-];
-
-const countryCodes = [
-  { code: "+1", flag: "🇺🇸", label: "US" },
-  { code: "+44", flag: "🇬🇧", label: "UK" },
-  { code: "+91", flag: "🇮🇳", label: "IN" },
-  { code: "+61", flag: "🇦🇺", label: "AU" },
-  { code: "+1", flag: "🇨🇦", label: "CA" },
-];
-
-// ─── Component ───────────────────────────────────────────────────────────────
-
 export default function ContactPage() {
+  const [siteSettings, setSiteSettings] = useState(null);
+
   const [form, setForm] = useState({
     name: "",
     email: "",
-    phone: "",
     countryCode: "+1",
+    phone: "",
     subject: "Select a subject",
     message: "",
     robot: false,
   });
-  const [submitted, setSubmitted] = useState(false);
+
   const [ccOpen, setCcOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  useEffect(() => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+    fetch(`${apiUrl}/settings/`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === "success" && data.data) {
+          setSiteSettings(data.data);
+        }
+      })
+      .catch((err) => console.error(err));
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
-
-  const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!form.robot) {
+      alert("Please check the 'I\\'m not a robot' security verification.");
+      return;
+    }
+    if (form.subject === "Select a subject") {
+      alert("Please select a subject for your inquiry.");
+      return;
+    }
+
     setSubmitting(true);
+    setErrorMsg("");
+
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
-      await fetch(`${apiUrl}/leads`, {
+      const res = await fetch(`${apiUrl}/leads`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: form.name,
           email: form.email,
           phone: `${form.countryCode} ${form.phone}`,
-          course: form.subject !== "Select a subject" ? form.subject : "General Contact Inquiry",
+          course: form.subject !== "Select a subject" ? form.subject : "Contact Us Page Inquiry",
           type: "inquiry",
           source: "Website Contact Us Page",
-          message: form.message
-        })
+          message: form.message,
+        }),
       });
-      setSubmitted(true);
+
+      const data = await res.json();
+      if (res.ok && data.status === "success") {
+        setSubmitted(true);
+      } else {
+        setSubmitted(true);
+      }
     } catch (err) {
-      console.error("Contact form error:", err);
+      console.error("Error submitting contact form:", err);
       setSubmitted(true);
     } finally {
       setSubmitting(false);
     }
   };
 
+  const handleRequestCallback = () => {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(
+        new CustomEvent("openConsultationModal", {
+          detail: { title: "Request a Callback" },
+        })
+      );
+    }
+  };
+
+  const handleStartLiveChat = () => {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(
+        new CustomEvent("openConsultationModal", {
+          detail: { title: "Chat with Our Support Team" },
+        })
+      );
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-white">
-      <Navbar />
+    <div className="min-h-screen bg-slate-50/40 text-gray-800 font-sans antialiased">
+      <Navbar siteSettings={siteSettings} />
 
-      {/* Breadcrumb */}
-      <div className="border-b border-gray-100 bg-gray-50">
-        <div className="mx-auto max-w-7xl px-6 py-3 flex items-center gap-2 text-xs text-gray-500">
-          <Link href="/" className="hover:text-brand-blue transition-colors">Home</Link>
-          <ChevronRight size={12} className="text-gray-300" />
-          <span className="text-gray-800 font-medium">Contact Us</span>
+      <main className="max-w-7xl mx-auto px-4 md:px-6">
+        
+        {/* ==========================================
+            1. BREADCRUMB
+            ========================================== */}
+        <div className="pt-3 pb-1 flex items-center gap-2 text-xs text-gray-400">
+          <Link href="/" className="text-brand-blue hover:underline font-semibold">
+            Home
+          </Link>
+          <span>&gt;</span>
+          <span className="text-gray-600 font-medium">Contact Us</span>
         </div>
-      </div>
 
-      {/* ── Hero ──────────────────────────────────────────────────────────── */}
-      <section className="bg-white py-14 md:py-20">
-        <div className="mx-auto max-w-7xl px-6 lg:flex lg:items-center lg:gap-16">
-          {/* Text */}
-          <div className="lg:flex-1">
-            <p className="text-xs font-bold uppercase tracking-widest text-brand-orange mb-4">
-              Contact Us
-            </p>
-            <h1 className="text-4xl font-extrabold leading-tight text-brand-navy md:text-5xl">
-              We're Here<br />to Help You
-            </h1>
-            <p className="mt-5 max-w-md text-sm text-gray-500 leading-relaxed">
-              Have a question or need guidance? Our team is ready to help you choose
-              the right certification path and achieve your goals.
-            </p>
-          </div>
-
-          {/* Illustration */}
-          <div className="mt-10 lg:mt-0 lg:flex-1 flex justify-center lg:justify-end">
-            <div className="relative w-full max-w-sm">
-              {/* Background blob */}
-              <div className="absolute inset-0 rounded-3xl bg-blue-50 -rotate-3 scale-105" />
-              {/* Support agent illustration (SVG placeholder) */}
-              <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-blue-50 to-blue-100 p-8 flex items-center justify-center min-h-[240px]">
-                {/* Agent avatar */}
-                <div className="text-center">
-                  <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-brand-blue to-brand-navy shadow-xl">
-                    <svg viewBox="0 0 80 80" className="h-16 w-16" fill="none">
-                      <circle cx="40" cy="28" r="16" fill="white" fillOpacity="0.9"/>
-                      <path d="M10 72c0-16.569 13.431-30 30-30s30 13.431 30 30" fill="white" fillOpacity="0.9"/>
-                      {/* headset */}
-                      <path d="M24 26a16 16 0 0 1 32 0" stroke="#FF6B00" strokeWidth="3" strokeLinecap="round" fill="none"/>
-                      <rect x="20" y="24" width="6" height="10" rx="3" fill="#FF6B00"/>
-                      <rect x="54" y="24" width="6" height="10" rx="3" fill="#FF6B00"/>
-                    </svg>
-                  </div>
-                  <p className="mt-4 text-sm font-bold text-brand-navy">Support Team</p>
-                  <p className="text-xs text-gray-500">Available Mon–Fri, 8AM–8PM ET</p>
-                  {/* Chat bubbles */}
-                  <div className="mt-4 flex items-start gap-2">
-                    <div className="rounded-2xl rounded-tl-none bg-brand-blue px-3 py-2 text-[11px] font-medium text-white shadow">
-                      How can I help you? 👋
-                    </div>
-                  </div>
-                  <div className="mt-2 flex items-start gap-2 justify-end">
-                    <div className="rounded-2xl rounded-tr-none bg-white border border-gray-200 px-3 py-2 text-[11px] font-medium text-gray-700 shadow-sm">
-                      I need help with my exam prep
-                    </div>
-                  </div>
-                </div>
-              </div>
+        {/* ==========================================
+            2. HERO SECTION
+            ========================================== */}
+        <section className="py-4 md:py-8">
+          <div className="max-w-5xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-14">
+            
+            {/* Left Content */}
+            <div className="flex-1 space-y-3.5 text-left max-w-lg">
+              <p className="text-xs font-black uppercase tracking-widest text-brand-orange">
+                CONTACT US
+              </p>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-brand-navy tracking-tight leading-[1.15]">
+                We're Here<br />to Help You
+              </h1>
+              <p className="text-xs sm:text-sm text-gray-500 leading-relaxed pt-1">
+                Have a question or need guidance? Our team is ready to help you choose
+                the right certification path and achieve your goals.
+              </p>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* ── Contact Methods ───────────────────────────────────────────────── */}
-      <section className="bg-gray-50 border-y border-gray-100 py-10">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {contactMethods.map((m, i) => {
-              const Icon = m.icon;
-              return (
-                <div key={i} className="rounded-2xl bg-white p-5 text-center shadow-sm ring-1 ring-gray-100 hover:shadow-md transition-shadow">
-                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-blue/8 text-brand-blue mb-4">
-                    <Icon size={22} />
-                  </div>
-                  <p className="text-sm font-bold text-brand-navy">{m.title}</p>
-                  {m.href && !m.linkLabel ? (
-                    <a href={m.href} className="mt-1 block text-xs font-semibold text-brand-blue hover:underline">
-                      {m.line1}
-                    </a>
-                  ) : (
-                    <p className="mt-1 text-xs font-semibold text-brand-blue">{m.line1}</p>
-                  )}
-                  {m.line2 && <p className="mt-0.5 text-[11px] text-gray-400">{m.line2}</p>}
-                  {m.linkLabel && (
-                    <a href={m.href} className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-brand-blue hover:underline">
-                      {m.linkLabel} <ArrowRight size={10} />
-                    </a>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+            {/* Right Photo with Floating Badges (Tight & Cohesive) */}
+            <div className="w-full lg:w-auto shrink-0 flex justify-center">
+              <div className="relative w-full max-w-[420px] sm:w-[420px]">
+                {/* Soft backdrop glow directly behind card */}
+                <div className="absolute -inset-3 bg-gradient-to-tr from-blue-100/60 via-sky-50 to-blue-50/50 rounded-3xl blur-xl -z-10" />
 
-      {/* ── Form + Help Panel ─────────────────────────────────────────────── */}
-      <section className="bg-white py-16">
-        <div className="mx-auto max-w-7xl px-6 grid gap-8 lg:grid-cols-3">
-
-          {/* Form — 2/3 width */}
-          <div className="lg:col-span-2 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
-            <h2 className="text-xl font-bold text-brand-navy">Send Us a Message</h2>
-            <p className="mt-1 text-sm text-gray-500">
-              Fill out the form below and our team will get back to you as soon as possible.
-            </p>
-
-            {submitted ? (
-              <div className="mt-10 flex flex-col items-center text-center py-10">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-green/10 text-brand-green mb-4">
-                  <CheckCircle size={32} />
-                </div>
-                <h3 className="text-lg font-bold text-brand-navy">Message Sent!</h3>
-                <p className="mt-2 text-sm text-gray-500 max-w-sm">
-                  Thank you for reaching out. Our team will respond within 1 business day.
-                </p>
-                <button
-                  onClick={() => { setSubmitted(false); setForm({ name:"", email:"", phone:"", countryCode:"+1", subject:"Select a subject", message:"", robot:false }); }}
-                  className="mt-6 rounded-lg bg-brand-blue px-6 py-2.5 text-sm font-semibold text-white hover:bg-opacity-90 transition-colors"
-                >
-                  Send Another Message
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="mt-6 space-y-5">
-                {/* Row 1: Name + Email */}
-                <div className="grid gap-5 sm:grid-cols-2">
-                  <div>
-                    <label className="mb-1.5 block text-xs font-semibold text-gray-700">
-                      Full Name <span className="text-brand-orange">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      required
-                      value={form.name}
-                      onChange={handleChange}
-                      placeholder="Enter your full name"
-                      className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:border-brand-blue focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-blue/15 transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1.5 block text-xs font-semibold text-gray-700">
-                      Email Address <span className="text-brand-orange">*</span>
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      required
-                      value={form.email}
-                      onChange={handleChange}
-                      placeholder="Enter your email address"
-                      className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:border-brand-blue focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-blue/15 transition-all"
-                    />
-                  </div>
-                </div>
-
-                {/* Row 2: Phone + Subject */}
-                <div className="grid gap-5 sm:grid-cols-2">
-                  {/* Phone with country code */}
-                  <div>
-                    <label className="mb-1.5 block text-xs font-semibold text-gray-700">
-                      Phone Number
-                    </label>
-                    <div className="flex gap-2">
-                      {/* Country code selector */}
-                      <div className="relative">
-                        <button
-                          type="button"
-                          onClick={() => setCcOpen(!ccOpen)}
-                          className="flex h-full items-center gap-1.5 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm font-medium text-gray-700 hover:border-brand-blue focus:outline-none transition-all"
-                        >
-                          <span>{countryCodes.find(c => c.code === form.countryCode)?.flag || "🇺🇸"}</span>
-                          <span className="text-xs">{form.countryCode}</span>
-                          <ChevronDown size={12} className="text-gray-400" />
-                        </button>
-                        {ccOpen && (
-                          <div className="absolute left-0 top-full mt-1 z-30 rounded-xl border border-gray-100 bg-white shadow-xl py-1 min-w-[120px]">
-                            {countryCodes.map((c, i) => (
-                              <button
-                                key={i}
-                                type="button"
-                                onClick={() => { setForm(f => ({ ...f, countryCode: c.code })); setCcOpen(false); }}
-                                className="flex w-full items-center gap-2 px-3 py-2 text-xs font-medium text-gray-700 hover:bg-blue-50 hover:text-brand-blue transition-colors"
-                              >
-                                <span>{c.flag}</span>
-                                <span>{c.label}</span>
-                                <span className="ml-auto text-gray-400">{c.code}</span>
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      <input
-                        type="tel"
-                        name="phone"
-                        value={form.phone}
-                        onChange={handleChange}
-                        placeholder="(201) 555-0123"
-                        className="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:border-brand-blue focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-blue/15 transition-all"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Subject */}
-                  <div>
-                    <label className="mb-1.5 block text-xs font-semibold text-gray-700">
-                      Subject <span className="text-brand-orange">*</span>
-                    </label>
-                    <div className="relative">
-                      <select
-                        name="subject"
-                        required
-                        value={form.subject}
-                        onChange={handleChange}
-                        className="w-full appearance-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-700 focus:border-brand-blue focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-blue/15 transition-all pr-10"
-                      >
-                        {subjects.map((s, i) => (
-                          <option key={i} value={s} disabled={i === 0}>{s}</option>
-                        ))}
-                      </select>
-                      <ChevronDown size={16} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Message */}
-                <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-gray-700">
-                    Message <span className="text-brand-orange">*</span>
-                  </label>
-                  <textarea
-                    name="message"
-                    required
-                    maxLength={1000}
-                    value={form.message}
-                    onChange={handleChange}
-                    rows={5}
-                    placeholder="How can we help you?"
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 placeholder-gray-400 focus:border-brand-blue focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-blue/15 transition-all resize-none"
-                  />
-                  <p className="mt-1 text-right text-[11px] text-gray-400">
-                    {form.message.length}/1000 characters
-                  </p>
-                </div>
-
-                {/* reCAPTCHA placeholder */}
-                <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 w-fit">
-                  <input
-                    type="checkbox"
-                    id="robot"
-                    name="robot"
-                    checked={form.robot}
-                    onChange={handleChange}
-                    className="h-4 w-4 rounded border-gray-300 accent-brand-blue"
-                  />
-                  <label htmlFor="robot" className="text-sm text-gray-700 font-medium select-none">
-                    I'm not a robot
-                  </label>
-                  <div className="ml-4 flex flex-col items-center opacity-60">
-                    <svg viewBox="0 0 64 64" className="h-8 w-8" fill="none">
-                      <path d="M32 4C16.536 4 4 16.536 4 32s12.536 28 28 28 28-12.536 28-28S47.464 4 32 4z" fill="#4A90D9" opacity=".15"/>
-                      <path d="M32 8c-13.255 0-24 10.745-24 24s10.745 24 24 24 24-10.745 24-24S45.255 8 32 8z" fill="#4A90D9" opacity=".3"/>
-                      <path d="M44 28l-8-8-4 4-4-4-8 8 4 4-4 4 8 8 4-4 4 4 8-8-4-4 4-4z" fill="#4A90D9"/>
-                    </svg>
-                    <span className="text-[8px] text-gray-400 mt-0.5">reCAPTCHA</span>
-                    <span className="text-[7px] text-gray-300">Privacy · Terms</span>
-                  </div>
-                </div>
-
-                {/* Submit */}
-                <div className="flex justify-end pt-1">
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="inline-flex items-center gap-2 rounded-xl bg-brand-blue px-7 py-3 text-sm font-bold text-white shadow-md hover:bg-opacity-90 hover:shadow-lg transition-all disabled:opacity-50 cursor-pointer"
-                  >
-                    {submitting ? "Sending..." : "Send Message"} <Send size={15} />
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-
-          {/* Help Panel — 1/3 width */}
-          <div className="space-y-5">
-            {/* How Can We Help */}
-            <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-              <div className="flex items-start gap-3 mb-4">
-                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-brand-blue/8 text-brand-blue">
+                {/* Floating chat icon badge */}
+                <div className="absolute -top-3.5 -left-3.5 z-20 bg-white rounded-2xl shadow-md border border-gray-100 p-2.5 text-brand-blue flex items-center justify-center">
                   <MessageSquare size={18} />
                 </div>
-                <div>
-                  <h3 className="text-sm font-bold text-brand-navy">How Can We Help?</h3>
-                  <p className="text-xs text-gray-400 mt-0.5">Here are some common reasons people reach out to us.</p>
+
+                {/* Floating phone icon badge */}
+                <div className="absolute -bottom-3.5 -left-3.5 z-20 bg-white rounded-2xl shadow-md border border-gray-100 p-2.5 text-brand-blue flex items-center justify-center">
+                  <Phone size={18} />
+                </div>
+
+                {/* Support Agent Image */}
+                <div className="rounded-3xl overflow-hidden shadow-xl border border-gray-100 bg-white">
+                  <img
+                    src="/images/contact_agent_clean.jpg?v=2"
+                    alt="Customer Support Representative"
+                    className="w-full h-[280px] sm:h-[330px] object-cover object-top"
+                  />
                 </div>
               </div>
-              <ul className="space-y-2.5">
-                {helpTopics.map((topic, i) => (
-                  <li key={i} className="flex items-center gap-2.5 text-xs text-gray-600">
-                    <CheckCircle size={14} className="flex-shrink-0 text-brand-blue" />
-                    {topic}
-                  </li>
-                ))}
-              </ul>
             </div>
 
-            {/* Request Callback */}
-            <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-              <h3 className="text-sm font-bold text-brand-navy">Prefer to request a call back?</h3>
-              <p className="mt-1 text-xs text-gray-400">Let us know the best time to call you.</p>
-              <Link
-                href="/profile"
-                className="mt-4 inline-flex items-center gap-2 rounded-xl border border-brand-blue px-4 py-2.5 text-xs font-bold text-brand-blue hover:bg-brand-blue hover:text-white transition-all"
+          </div>
+        </section>
+
+        {/* ==========================================
+            3. CONTACT METHODS (4 CARDS ROW)
+            ========================================== */}
+        <section className="my-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            
+            {/* Card 1: Call Us */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-xs hover:shadow-md transition-shadow p-6 text-center">
+              <div className="w-12 h-12 rounded-full bg-blue-50 text-brand-blue flex items-center justify-center mx-auto mb-3">
+                <Phone size={20} />
+              </div>
+              <h3 className="font-bold text-sm text-brand-navy">Call Us</h3>
+              <a
+                href={`tel:${(siteSettings?.support_phone || '(888) 745-7575').replace(/[^0-9]/g, '')}`}
+                className="text-xs font-bold text-gray-800 hover:text-brand-blue mt-1 block"
               >
-                <Phone size={13} /> Request a Callback
-              </Link>
+                {siteSettings?.support_phone || "(888) 745-7575"}
+              </a>
+              <p className="text-[11px] text-gray-400 mt-1">Mon – Fri, 8:00 AM – 8:00 PM ET</p>
             </div>
 
-            {/* Quick response guarantee */}
-            <div className="rounded-2xl bg-gradient-to-br from-brand-navy to-[#003f70] p-6 text-white">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 mb-4">
+            {/* Card 2: Email Us */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-xs hover:shadow-md transition-shadow p-6 text-center">
+              <div className="w-12 h-12 rounded-full bg-blue-50 text-brand-blue flex items-center justify-center mx-auto mb-3">
+                <Mail size={20} />
+              </div>
+              <h3 className="font-bold text-sm text-brand-navy">Email Us</h3>
+              <a
+                href={`mailto:${siteSettings?.support_email || 'support@certificationplanner.com'}`}
+                className="text-xs font-bold text-brand-blue hover:underline mt-1 block"
+              >
+                {siteSettings?.support_email || "support@certificationplanner.com"}
+              </a>
+              <p className="text-[11px] text-gray-400 mt-1">We reply within 1 business day</p>
+            </div>
+
+            {/* Card 3: Live Chat */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-xs hover:shadow-md transition-shadow p-6 text-center">
+              <div className="w-12 h-12 rounded-full bg-blue-50 text-brand-blue flex items-center justify-center mx-auto mb-3">
+                <Headphones size={20} />
+              </div>
+              <h3 className="font-bold text-sm text-brand-navy">Live Chat</h3>
+              <p className="text-xs text-gray-500 mt-1">Chat with our support team</p>
+              <button
+                type="button"
+                onClick={handleStartLiveChat}
+                className="text-xs font-bold text-brand-blue hover:underline mt-1 inline-flex items-center gap-1 cursor-pointer"
+              >
+                Start Live Chat →
+              </button>
+            </div>
+
+            {/* Card 4: Business Hours */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-xs hover:shadow-md transition-shadow p-6 text-center">
+              <div className="w-12 h-12 rounded-full bg-blue-50 text-brand-blue flex items-center justify-center mx-auto mb-3">
                 <Clock size={20} />
               </div>
-              <h3 className="text-sm font-bold">Fast Response Guarantee</h3>
-              <p className="mt-2 text-xs text-white/65 leading-relaxed">
-                We respond to all inquiries within 1 business day. Urgent matters
-                are escalated within 4 hours during business hours.
-              </p>
-              <div className="mt-4 flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-brand-green animate-pulse" />
-                <span className="text-xs text-white/70">Support team is online</span>
-              </div>
+              <h3 className="font-bold text-sm text-brand-navy">Business Hours</h3>
+              <p className="text-xs font-medium text-gray-700 mt-1">Mon – Fri, 8:00 AM – 8:00 PM ET</p>
+              <p className="text-[11px] text-gray-400 mt-0.5">Sat – Sun, 9:00 AM – 5:00 PM ET</p>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* ── Office + Map ──────────────────────────────────────────────────── */}
-      <section className="bg-gray-50 py-16">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="grid gap-8 lg:grid-cols-2 items-stretch">
-            {/* Office Info */}
-            <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
-              <h2 className="text-xl font-bold text-brand-navy mb-6">Our Office</h2>
-              <div className="space-y-5">
-                <div className="flex items-start gap-4">
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-brand-blue/8 text-brand-blue">
-                    <MapPin size={18} />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-gray-800">123 Main Street, Suite 400</p>
-                    <p className="text-sm text-gray-500">New York, NY 10001</p>
-                    <p className="text-sm text-gray-500">United States</p>
-                  </div>
+          </div>
+        </section>
+
+        {/* ==========================================
+            4. SEND US A MESSAGE & HOW CAN WE HELP
+            ========================================== */}
+        <section className="my-8">
+          <div className="grid lg:grid-cols-12 gap-8 items-start">
+            
+            {/* Left Column: Contact Form (8 cols) */}
+            <div className="lg:col-span-8 bg-white rounded-3xl border border-slate-200/80 shadow-xl shadow-slate-100/80 p-7 sm:p-9 text-left relative overflow-hidden">
+              {/* Top Accent Gradient Bar */}
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-brand-blue via-sky-400 to-brand-orange" />
+
+              <div className="space-y-1.5 mb-6">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-[11px] font-bold text-brand-blue">
+                  <MessageSquare size={13} className="text-brand-blue" /> Quick Support Request
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-brand-blue/8 text-brand-blue">
-                    <Phone size={18} />
-                  </div>
-                  <a href="tel:8887457575" className="text-sm font-semibold text-gray-800 hover:text-brand-blue transition-colors">
-                    (888) 745-7575
-                  </a>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-brand-blue/8 text-brand-blue">
-                    <Mail size={18} />
-                  </div>
-                  <a href="mailto:support@certificationplanner.com" className="text-sm font-semibold text-gray-800 hover:text-brand-blue transition-colors break-all">
-                    support@certificationplanner.com
-                  </a>
-                </div>
+                <h2 className="text-2xl sm:text-3xl font-black text-brand-navy tracking-tight">
+                  Send Us a Message
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                  Fill out the form below and our certified training advisors will respond with personalized guidance within 2-4 business hours.
+                </p>
               </div>
 
-              {/* Business hours table */}
-              <div className="mt-8 rounded-xl bg-gray-50 p-4">
-                <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Business Hours</p>
-                <div className="space-y-2 text-xs">
-                  {[
-                    { day: "Monday – Friday", hours: "8:00 AM – 8:00 PM ET" },
-                    { day: "Saturday", hours: "9:00 AM – 5:00 PM ET" },
-                    { day: "Sunday", hours: "Closed" },
-                  ].map((row, i) => (
-                    <div key={i} className="flex justify-between">
-                      <span className="text-gray-600 font-medium">{row.day}</span>
-                      <span className={`font-semibold ${row.hours === "Closed" ? "text-red-400" : "text-brand-navy"}`}>
-                        {row.hours}
+              {submitted ? (
+                <div className="py-14 text-center space-y-4 bg-slate-50/60 rounded-2xl border border-slate-100 p-8">
+                  <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-500 border border-emerald-100 flex items-center justify-center mx-auto shadow-sm">
+                    <CheckCircle2 size={36} />
+                  </div>
+                  <h3 className="text-xl font-black text-brand-navy">Message Received Successfully!</h3>
+                  <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+                    Thank you for contacting Certification Planner. Your inquiry has been routed to our senior training advisor team. We will respond within 2-4 business hours.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSubmitted(false);
+                      setForm({
+                        name: "",
+                        email: "",
+                        countryCode: "+1",
+                        phone: "",
+                        subject: "Select a subject",
+                        message: "",
+                        robot: false,
+                      });
+                    }}
+                    className="mt-3 px-6 py-2.5 rounded-xl bg-brand-blue text-white font-bold text-xs hover:bg-blue-600 transition-colors shadow-sm cursor-pointer"
+                  >
+                    Send Another Message
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-5 text-xs">
+                  
+                  {/* Row 1: Full Name & Email */}
+                  <div className="grid sm:grid-cols-2 gap-5">
+                    
+                    {/* Full Name */}
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-slate-700 block">
+                        Full Name <span className="text-brand-orange">*</span>
+                      </label>
+                      <div className="relative flex items-center">
+                        <User size={16} className="absolute left-3.5 text-slate-400 pointer-events-none" />
+                        <input
+                          type="text"
+                          name="name"
+                          required
+                          value={form.name}
+                          onChange={handleChange}
+                          placeholder="e.g. John Doe"
+                          className="w-full rounded-xl border border-slate-200 bg-slate-50/70 pl-10 pr-4 py-3 text-xs font-medium text-slate-800 placeholder-slate-400 focus:border-brand-blue focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:outline-none transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Email Address */}
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-slate-700 block">
+                        Email Address <span className="text-brand-orange">*</span>
+                      </label>
+                      <div className="relative flex items-center">
+                        <Mail size={16} className="absolute left-3.5 text-slate-400 pointer-events-none" />
+                        <input
+                          type="email"
+                          name="email"
+                          required
+                          value={form.email}
+                          onChange={handleChange}
+                          placeholder="e.g. john@example.com"
+                          className="w-full rounded-xl border border-slate-200 bg-slate-50/70 pl-10 pr-4 py-3 text-xs font-medium text-slate-800 placeholder-slate-400 focus:border-brand-blue focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:outline-none transition-all"
+                        />
+                      </div>
+                    </div>
+
+                  </div>
+
+                  {/* Row 2: Phone Number & Subject */}
+                  <div className="grid sm:grid-cols-2 gap-5">
+                    
+                    {/* Phone with Country Code */}
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-slate-700 block">
+                        Phone Number
+                      </label>
+                      <div className="flex items-center rounded-xl border border-slate-200 bg-slate-50/70 focus-within:border-brand-blue focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 transition-all overflow-hidden">
+                        
+                        {/* Country Code Dropdown */}
+                        <div className="relative shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => setCcOpen(!ccOpen)}
+                            className="flex items-center gap-1.5 px-3.5 py-3 text-xs font-bold text-slate-700 hover:text-brand-blue transition-colors cursor-pointer border-r border-slate-200/80 bg-slate-100/60"
+                          >
+                            <span>{countryCodes.find((c) => c.code === form.countryCode)?.flag || "🇺🇸"}</span>
+                            <span className="text-[11px] text-slate-600 font-semibold">{form.countryCode}</span>
+                            <ChevronDown size={12} className="text-slate-400" />
+                          </button>
+
+                          {ccOpen && (
+                            <div className="absolute left-0 top-full mt-1.5 z-40 rounded-xl border border-slate-200 bg-white shadow-2xl py-1 min-w-[140px] max-h-56 overflow-y-auto">
+                              {countryCodes.map((c, i) => (
+                                <button
+                                  key={i}
+                                  type="button"
+                                  onClick={() => {
+                                    setForm((f) => ({ ...f, countryCode: c.code }));
+                                    setCcOpen(false);
+                                  }}
+                                  className="flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-blue-50 hover:text-brand-blue transition-colors cursor-pointer"
+                                >
+                                  <span>{c.flag}</span>
+                                  <span className="font-bold">{c.label}</span>
+                                  <span className="ml-auto text-slate-400 font-mono text-[11px]">{c.code}</span>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Number Input */}
+                        <input
+                          type="tel"
+                          name="phone"
+                          value={form.phone}
+                          onChange={handleChange}
+                          placeholder="(201) 555-0123"
+                          className="flex-1 bg-transparent px-3.5 py-3 text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Subject Dropdown */}
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-slate-700 block">
+                        Subject <span className="text-brand-orange">*</span>
+                      </label>
+                      <div className="relative flex items-center">
+                        <Tag size={16} className="absolute left-3.5 text-slate-400 pointer-events-none" />
+                        <select
+                          name="subject"
+                          required
+                          value={form.subject}
+                          onChange={handleChange}
+                          className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50/70 pl-10 pr-10 py-3 text-xs font-semibold text-slate-700 focus:border-brand-blue focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:outline-none transition-all cursor-pointer"
+                        >
+                          {subjectOptions.map((subj, i) => (
+                            <option key={i} value={subj} disabled={i === 0}>
+                              {subj}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown size={14} className="pointer-events-none absolute right-3.5 text-slate-400" />
+                      </div>
+                    </div>
+
+                  </div>
+
+                  {/* Row 3: Message Textarea */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-slate-700">
+                        Message <span className="text-brand-orange">*</span>
+                      </label>
+                      <span className="text-[10px] font-mono font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">
+                        {form.message.length} / 1000 characters
                       </span>
                     </div>
+                    <textarea
+                      name="message"
+                      required
+                      maxLength={1000}
+                      rows={5}
+                      value={form.message}
+                      onChange={handleChange}
+                      placeholder="Tell us about the certification program you are interested in, your preferred schedule, or any specific questions..."
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50/70 p-4 text-xs font-medium text-slate-800 placeholder-slate-400 focus:border-brand-blue focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:outline-none transition-all resize-none leading-relaxed"
+                    />
+                  </div>
+
+                  {/* Row 4: Security Box & Send Button */}
+                  <div className="pt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-slate-100">
+                    
+                    {/* Google reCAPTCHA Styled Widget */}
+                    <div className="flex items-center gap-3.5 rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-2.5 w-fit shadow-2xs hover:bg-slate-50 transition-colors">
+                      <input
+                        type="checkbox"
+                        id="recaptchaCheck"
+                        name="robot"
+                        checked={form.robot}
+                        onChange={handleChange}
+                        className="h-5 w-5 rounded border-slate-300 accent-brand-blue cursor-pointer"
+                      />
+                      <label htmlFor="recaptchaCheck" className="text-xs font-bold text-slate-700 cursor-pointer select-none">
+                        I'm not a robot
+                      </label>
+                      <div className="ml-5 pl-4 border-l border-slate-200 flex flex-col items-center">
+                        <ShieldCheck size={20} className="text-brand-blue" />
+                        <span className="text-[8px] font-bold text-slate-400 tracking-tight">reCAPTCHA</span>
+                      </div>
+                    </div>
+
+                    {/* Submit Button */}
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="group px-8 py-3.5 rounded-xl bg-gradient-to-r from-brand-blue to-blue-600 hover:from-blue-600 hover:to-brand-navy text-white font-bold text-xs transition-all shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                    >
+                      <span>{submitting ? "Sending..." : "Send Message"}</span>
+                      <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
+                    </button>
+
+                  </div>
+
+                </form>
+              )}
+            </div>
+
+            {/* Right Column: How Can We Help? (4 cols) */}
+            <div className="lg:col-span-4 bg-white rounded-3xl border border-slate-200/80 shadow-xl shadow-slate-100/80 p-7 sm:p-8 flex flex-col justify-between text-left space-y-6 relative overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-sky-400 to-blue-600" />
+
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 text-brand-blue flex items-center justify-center shrink-0 shadow-2xs">
+                    <HelpCircle size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-sm text-brand-navy">How Can We Help?</h3>
+                    <p className="text-[11px] text-slate-400">Common reasons students and enterprise teams reach out:</p>
+                  </div>
+                </div>
+
+                <ul className="space-y-3 pt-2">
+                  {helpTopics.map((topic, idx) => (
+                    <li key={idx} className="flex items-start gap-2.5 text-xs text-slate-600 font-medium hover:text-brand-blue transition-colors">
+                      <div className="w-4 h-4 rounded-full bg-blue-50 text-brand-blue flex items-center justify-center shrink-0 mt-0.5">
+                        <Check size={11} strokeWidth={3} />
+                      </div>
+                      <span>{topic}</span>
+                    </li>
                   ))}
+                </ul>
+              </div>
+
+              {/* Callback Sub-card */}
+              <div className="bg-gradient-to-br from-slate-50 to-blue-50/40 border border-slate-200/70 rounded-2xl p-5 space-y-2 shadow-2xs">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <h4 className="font-black text-xs text-brand-navy">Prefer to request a call back?</h4>
+                </div>
+                <p className="text-[11px] text-slate-500">Let us know the best time to call you. Advisors available across US timezones.</p>
+                <button
+                  type="button"
+                  onClick={handleRequestCallback}
+                  className="w-full mt-2.5 py-3 px-4 rounded-xl border border-brand-blue/30 bg-white hover:bg-brand-blue hover:text-white text-brand-blue font-bold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm hover:shadow-md"
+                >
+                  <Phone size={14} /> Request a Callback
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+        </section>
+
+        {/* ==========================================
+            5. OUR OFFICE & MAP SECTION
+            ========================================== */}
+        <section className="my-10">
+          <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden grid lg:grid-cols-12 items-stretch">
+            
+            {/* Left Details (5 cols) */}
+            <div className="lg:col-span-5 p-8 md:p-10 flex flex-col justify-center space-y-6 text-left">
+              <h2 className="text-2xl font-black text-brand-navy">Our Office</h2>
+
+              <div className="space-y-5 text-xs font-semibold text-gray-700">
+                <div className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-blue-50 text-brand-blue flex items-center justify-center shrink-0">
+                    <MapPin size={18} />
+                  </div>
+                  <div className="pt-0.5">
+                    <p className="font-bold text-gray-900">2150 South 1300 East #500</p>
+                    <p className="text-gray-500">Salt Lake City, UT 84106</p>
+                    <p className="text-gray-500">United States</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-blue-50 text-brand-blue flex items-center justify-center shrink-0">
+                    <Phone size={18} />
+                  </div>
+                  <a
+                    href={`tel:${(siteSettings?.support_phone || '(888) 745-7575').replace(/[^0-9]/g, '')}`}
+                    className="text-gray-800 hover:text-brand-blue transition-colors font-bold"
+                  >
+                    {siteSettings?.support_phone || "(888) 745-7575"}
+                  </a>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-blue-50 text-brand-blue flex items-center justify-center shrink-0">
+                    <Mail size={18} />
+                  </div>
+                  <a
+                    href={`mailto:${siteSettings?.support_email || 'support@certificationplanner.com'}`}
+                    className="text-brand-blue hover:underline font-bold"
+                  >
+                    {siteSettings?.support_email || "support@certificationplanner.com"}
+                  </a>
                 </div>
               </div>
             </div>
 
-            {/* Map embed */}
-            <div className="rounded-2xl overflow-hidden shadow-sm ring-1 ring-gray-100 min-h-[360px]">
+            {/* Right Map (7 cols) */}
+            <div className="lg:col-span-7 relative min-h-[340px] bg-slate-100 overflow-hidden border-t lg:border-t-0 lg:border-l border-gray-100">
               <iframe
                 title="Certification Planner Office Location"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.617946!2d-73.9908823!3d40.7484404!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c259a9b30eac9f%3A0xaca05ca48ab5b01f!2sEmpire%20State%20Building!5e0!3m2!1sen!2sus!4v1690000000000"
+                src="https://maps.google.com/maps?q=2150%20South%201300%20East%20%23500%20Salt%20Lake%20City%20UT%2084106&t=&z=15&ie=UTF8&iwloc=&output=embed"
                 width="100%"
                 height="100%"
-                style={{ border: 0, minHeight: "360px" }}
+                className="w-full h-full min-h-[340px] border-0"
                 allowFullScreen
                 loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
               />
+
+              {/* Styled Interactive Marker Pin matching screenshot */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white/95 backdrop-blur-xs rounded-xl shadow-xl border border-gray-200/90 px-3.5 py-2.5 flex items-center gap-2.5 pointer-events-none">
+                <div className="w-3.5 h-3.5 rounded-full bg-rose-500 ring-4 ring-rose-100 shrink-0" />
+                <div className="text-left">
+                  <p className="font-black text-xs text-brand-navy">Certification Planner</p>
+                  <p className="text-[10px] text-gray-500">2150 South 1300 East #500, Salt Lake City, UT 84106</p>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* ── CTA Strip ─────────────────────────────────────────────────────── */}
-      <section className="bg-brand-navy py-12">
-        <div className="mx-auto max-w-7xl px-6 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div>
-            <p className="text-lg font-bold text-white">Still have questions?</p>
-            <p className="text-sm text-white/60 mt-1">
-              Browse our FAQ or explore our full catalog of certification programs.
-            </p>
           </div>
-          <div className="flex flex-wrap gap-4">
-            <Link
-              href="/courses"
-              className="inline-flex items-center gap-2 rounded-xl bg-brand-orange px-6 py-3 text-sm font-bold text-white hover:bg-opacity-90 transition-all"
-            >
-              Browse Certifications <ArrowRight size={15} />
-            </Link>
-            <Link
-              href="/consultation"
-              className="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-6 py-3 text-sm font-semibold text-white hover:bg-white/20 transition-all"
-            >
-              Free Consultation
-            </Link>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      <Footer />
+      </main>
+
+      <Footer siteSettings={siteSettings} />
     </div>
   );
 }

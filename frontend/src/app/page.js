@@ -45,7 +45,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white font-sans">
-      <Navbar />
+      <Navbar siteSettings={siteSettings} categories={categories} />
       <main>
         {/* Section 1: Hero */}
         <Hero siteSettings={siteSettings} />
@@ -77,7 +77,7 @@ export default function Home() {
         {/* Section 9: Ready to Advance Your Career CTA */}
         <PreFooter siteSettings={siteSettings} />
       </main>
-      <Footer />
+      <Footer siteSettings={siteSettings} />
     </div>
   );
 }

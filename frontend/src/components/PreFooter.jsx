@@ -36,11 +36,11 @@ export default function PreFooter({ siteSettings = {} }) {
               Get a Free Consultation
             </button>
             <a
-              href="tel:8887457575"
+              href={`tel:${(siteSettings.support_phone || "8887457575").replace(/[^0-9]/g, "")}`}
               className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-6 py-3.5 text-xs font-bold text-white hover:bg-white/10 transition-all"
             >
               <Phone size={16} className="text-brand-orange" />
-              Call Us: (888) 745-7575
+              Call Us: {siteSettings.support_phone || "(888) 745-7575"}
             </a>
           </div>
 

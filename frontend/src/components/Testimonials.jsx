@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star } from "lucide-react";
+import testimonialsDb from "@/data/testimonials_db.json";
 
 const openModal = (title = "Book a Free Consultation") => {
   if (typeof window !== "undefined") {
@@ -9,35 +10,25 @@ const openModal = (title = "Book a Free Consultation") => {
   }
 };
 
-const defaultTestimonials = [
-  {
-    name: "Rahul S.",
-    role: "Project Manager",
-    location: "Texas, USA",
-    cert: "PMP® Certified",
-    quote: "Certification Planner's instructor-led training helped me clear PMP® on my first attempt.",
-    badge: "Promotion",
-    badgeColor: "bg-emerald-50 text-emerald-600 border-emerald-200"
-  },
-  {
-    name: "Priya M.",
-    role: "Security Manager",
-    location: "Ontario, Canada",
-    cert: "CISSP® Certified",
-    quote: "The support and resources are unmatched. Highly recommend CP!",
-    badge: "Salary Hike 30%",
-    badgeColor: "bg-blue-50 text-brand-blue border-blue-200"
-  },
-  {
-    name: "James T.",
-    role: "Solutions Architect",
-    location: "Sydney, Australia",
-    cert: "AWS Solutions Architect",
-    quote: "Great training, real-world examples and excellent instructor support.",
-    badge: "New Career",
-    badgeColor: "bg-purple-50 text-purple-600 border-purple-200"
-  }
+const badgePalette = [
+  "bg-emerald-50 text-emerald-600 border-emerald-200",
+  "bg-blue-50 text-blue-600 border-blue-200",
+  "bg-purple-50 text-purple-600 border-purple-200",
+  "bg-amber-50 text-amber-600 border-amber-200"
 ];
+
+const badgeLabels = ["Promotion", "Verified Review", "Salary Hike", "Alumni Success", "Career Shift"];
+
+const defaultTestimonials = (testimonialsDb && testimonialsDb.length > 0 ? testimonialsDb : []).slice(0, 15).map((t, i) => ({
+  name: t.name,
+  role: t.role,
+  location: "United States",
+  cert: t.role.toLowerCase().includes("pmp") ? "PMP® Certified" : (t.role.toLowerCase().includes("itil") ? "ITIL® 4 Certified" : "Certified Professional"),
+  quote: t.content,
+  rating: t.rating || 5,
+  badge: badgeLabels[i % badgeLabels.length],
+  badgeColor: badgePalette[i % badgePalette.length]
+}));
 
 export default function Testimonials({ siteSettings = {} }) {
   const displayTestimonials = siteSettings.testimonials && siteSettings.testimonials.length > 0
@@ -52,7 +43,7 @@ export default function Testimonials({ siteSettings = {} }) {
     if (!isCarousel || isHovered) return;
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % displayTestimonials.length);
-    }, 3500);
+    }, 4500);
     return () => clearInterval(interval);
   }, [isCarousel, isHovered, displayTestimonials.length]);
 
@@ -74,7 +65,7 @@ export default function Testimonials({ siteSettings = {} }) {
     : displayTestimonials;
 
   return (
-    <section className="py-16 md:py-24 bg-white border-b border-gray-100 overflow-hidden">
+    <section className="py-10 md:py-14 bg-white border-b border-gray-100 overflow-hidden">
       <div className="mx-auto max-w-7xl px-4 md:px-6">
         <div className="grid lg:grid-cols-12 gap-12 items-center">
           
@@ -133,7 +124,7 @@ export default function Testimonials({ siteSettings = {} }) {
             {visibleTestimonials.map((item, idx) => (
               <div
                 key={idx}
-                className="bg-white rounded-3xl border border-gray-200/80 p-6 flex flex-col justify-between hover:shadow-xl transition-all duration-500 hover:translate-y-[-4px] text-left space-y-6 animate-in fade-in zoom-in-95"
+                className="bg-white rounded-3xl border border-gray-200/80 p-6 flex flex-col justify-between hover:shadow-xl transition-all duration-500 hover:translate-y-[-4px] text-left space-y-6"
               >
                 <div className="space-y-4">
                   {/* Badge & Rating */}
@@ -141,16 +132,16 @@ export default function Testimonials({ siteSettings = {} }) {
                     <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${item.badgeColor || 'bg-emerald-50 text-emerald-600 border-emerald-200'}`}>
                       {item.badge || 'Graduate'}
                     </span>
-                    <div className="flex text-amber-400">
+                    <div className="flex text-amber-400 gap-0.5">
                       {[...Array(parseInt(item.rating || 5))].map((_, i) => (
-                        <span key={i} className="text-xs">★</span>
+                        <Star key={i} size={13} className="fill-amber-400 text-amber-400" />
                       ))}
                     </div>
                   </div>
 
                   {/* Quote */}
                   <p className="text-xs text-gray-600 font-semibold leading-relaxed italic line-clamp-4">
-                    "{item.quote}"
+                    "{item.quote || item.content}"
                   </p>
                 </div>
 
@@ -162,7 +153,7 @@ export default function Testimonials({ siteSettings = {} }) {
                   <div>
                     <h4 className="text-xs font-black text-brand-navy">{item.name}</h4>
                     <p className="text-[10px] text-gray-400 font-bold">{item.role} • {item.location || 'USA'}</p>
-                    <p className="text-[10px] font-bold text-brand-blue">{item.cert}</p>
+                    <p className="text-[10px] font-bold text-brand-blue">{item.cert || "Alumni"}</p>
                   </div>
                 </div>
               </div>

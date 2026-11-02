@@ -6,44 +6,44 @@ import { Clock, Video, ChevronLeft, ChevronRight } from "lucide-react";
 
 const defaultClasses = [
   {
-    month: "SEP",
-    day: "05",
-    title: "PMP® Certification Training",
-    dates: "Sep 05 – Sep 08, 2026",
+    month: "NOV",
+    day: "10",
+    title: "PMP® Certification Exam Preparation Training",
+    dates: "Nov 10 – Nov 13, 2026",
     time: "9:00 AM – 5:00 PM (EST)",
     badgeColor: "bg-brand-blue text-white",
     btnColor: "bg-brand-blue hover:bg-opacity-90",
-    slug: "pmp-certification"
+    slug: "pmp-certification-training"
   },
   {
-    month: "SEP",
-    day: "12",
-    title: "CISSP® Certification Training",
-    dates: "Sep 12 – Sep 15, 2026",
+    month: "NOV",
+    day: "17",
+    title: "CISSP® Certification Bootcamp",
+    dates: "Nov 17 – Nov 20, 2026",
     time: "9:00 AM – 5:00 PM (EST)",
     badgeColor: "bg-brand-orange text-white",
     btnColor: "bg-brand-orange hover:bg-opacity-90",
-    slug: "cissp-certification"
+    slug: "cissp-certification-bootcamp"
   },
   {
-    month: "SEP",
-    day: "19",
-    title: "AWS Solutions Architect Training",
-    dates: "Sep 19 – Sep 22, 2026",
+    month: "NOV",
+    day: "24",
+    title: "Lean Six Sigma Green Belt Certification",
+    dates: "Nov 24 – Nov 27, 2026",
     time: "9:00 AM – 5:00 PM (EST)",
     badgeColor: "bg-emerald-600 text-white",
     btnColor: "bg-emerald-600 hover:bg-opacity-90",
-    slug: "aws-solutions-architect"
+    slug: "lean-sigma-green-belt-certification"
   },
   {
-    month: "SEP",
-    day: "26",
-    title: "AgilePM® Practitioner Training",
-    dates: "Sep 26 – Sep 29, 2026",
+    month: "DEC",
+    day: "01",
+    title: "PMI-ACP® Agile Certified Practitioner",
+    dates: "Dec 01 – Dec 04, 2026",
     time: "9:00 AM – 5:00 PM (EST)",
     badgeColor: "bg-purple-600 text-white",
     btnColor: "bg-purple-600 hover:bg-opacity-90",
-    slug: "agilepm-certification"
+    slug: "pmi-acp-certification-training"
   }
 ];
 
@@ -65,17 +65,17 @@ export default function UpcomingLiveClasses({ schedules = [], courses = [] }) {
   const monthNames = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
 
   const parseBatchDate = (batch_date) => {
-    if (!batch_date) return { month: "SEP", day: "05" };
+    if (!batch_date) return { month: "NOV", day: "10" };
     const str = batch_date.trim();
 
-    // ISO format: "2026-09-05 to 2026-09-09" or "2026-09-05"
+    // ISO format: "2026-11-10 to 2026-11-13" or "2026-11-10"
     const isoMatch = str.match(/(\d{4})-(\d{2})-(\d{2})/);
     if (isoMatch) {
       const monthIdx = parseInt(isoMatch[2], 10) - 1;
-      return { month: monthNames[monthIdx] || "SEP", day: isoMatch[3] };
+      return { month: monthNames[monthIdx] || "NOV", day: isoMatch[3] };
     }
 
-    // Human format: "Aug 26 - Aug 29, 2026" or "Sep 05 – Sep 08"
+    // Human format: "Nov 10 – Nov 13, 2026"
     const humanMatch = str.match(/([A-Za-z]{3,9})\s+(\d{1,2})/);
     if (humanMatch) {
       return {
@@ -84,14 +84,14 @@ export default function UpcomingLiveClasses({ schedules = [], courses = [] }) {
       };
     }
 
-    return { month: "SEP", day: "05" };
+    return { month: "NOV", day: "10" };
   };
 
   // Format time from "09:00" or "09:00 AM" → "9:00 AM"
   const formatTime = (t) => {
     if (!t) return null;
     t = t.trim();
-    if (/AM|PM/i.test(t)) return t; // already has AM/PM
+    if (/AM|PM/i.test(t)) return t;
     const [h, m] = t.split(":").map(Number);
     if (isNaN(h)) return t;
     const period = h >= 12 ? "PM" : "AM";
@@ -101,10 +101,10 @@ export default function UpcomingLiveClasses({ schedules = [], courses = [] }) {
 
   const displayClasses = (schedules && schedules.length > 0)
     ? schedules.slice(0, 8).map((sch, idx) => {
-        const courseObj = courses.find(c => c.id === sch.course_id);
+        const courseObj = (courses || []).find(c => c.id === sch.course_id || c.slug === sch.course_slug);
         const courseTitle = sch.course_title || (courseObj ? courseObj.title : "Professional Certification Bootcamp");
         
-        const { month: monthStr, day: dayStr } = parseBatchDate(sch.batch_date);
+        const { month: monthStr, day: dayStr } = parseBatchDate(sch.batch_date || sch.date_range);
         const startFmt = formatTime(sch.start_time);
         const endFmt = formatTime(sch.end_time);
         const timeStr = startFmt && endFmt
@@ -115,18 +115,18 @@ export default function UpcomingLiveClasses({ schedules = [], courses = [] }) {
           month: monthStr,
           day: dayStr,
           title: courseTitle,
-          dates: sch.batch_date || sch.date_range || "Upcoming Batch",
+          dates: sch.date_range || sch.batch_date || "Upcoming Batch",
           time: timeStr,
           location: sch.city || sch.format || "Live Online Classroom",
           badgeColor: badgeColors[idx % badgeColors.length],
           btnColor: btnColors[idx % btnColors.length],
-          slug: courseObj ? courseObj.slug : "courses"
+          slug: sch.course_slug || (courseObj ? courseObj.slug : "courses")
         };
       })
     : defaultClasses;
 
   return (
-    <section className="py-16 bg-white border-b border-gray-100">
+    <section className="py-10 bg-white border-b border-gray-100">
       <div className="mx-auto max-w-7xl px-4 md:px-6 space-y-8">
         
         {/* Header */}
@@ -176,7 +176,7 @@ export default function UpcomingLiveClasses({ schedules = [], courses = [] }) {
               {/* Action Button */}
               <div className="pt-2">
                 <Link
-                  href="/courses"
+                  href={item.slug && item.slug !== "courses" ? `/courses/${item.slug}` : "/courses"}
                   className={`block w-full py-2.5 rounded-xl text-white text-xs font-bold transition-all shadow-xs text-center cursor-pointer ${item.btnColor}`}
                 >
                   Enroll in Batch

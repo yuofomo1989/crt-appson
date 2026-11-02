@@ -1,14 +1,20 @@
 import { NextResponse } from 'next/server';
-
-const defaultTickets = [
-  { id: 1, ticket_number: 'TKT-88421', name: 'Alex Reynolds', email: 'alex.reynolds@example.com', subject: 'Batch Rescheduling Request', category: 'Schedule Change', status: 'open', message: 'Hi Support, requesting transfer to next weekend batch.', created_at: new Date().toISOString() }
-];
+import { getSupportTickets } from '@/lib/db';
 
 export async function GET() {
-  return NextResponse.json({ status: 'success', data: defaultTickets });
+  try {
+    const tickets = await getSupportTickets();
+    return NextResponse.json({ status: 'success', data: tickets });
+  } catch (err) {
+    return NextResponse.json({ status: 'error', message: err.message }, { status: 500 });
+  }
 }
 
 export async function POST(request) {
-  const body = await request.json();
-  return NextResponse.json({ status: 'success', data: body });
+  try {
+    const body = await request.json();
+    return NextResponse.json({ status: 'success', data: body });
+  } catch (err) {
+    return NextResponse.json({ status: 'error', message: err.message }, { status: 500 });
+  }
 }

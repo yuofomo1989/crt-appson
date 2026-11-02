@@ -1,10 +1,16 @@
 import { NextResponse } from 'next/server';
+import { getPopups } from '@/lib/db';
 
 export async function GET() {
-  return NextResponse.json({
-    status: 'success',
-    data: [
-      { id: 1, title: 'Summer Executive Flash Sale', subtitle: 'Get $200 off any bootcamp with code EXECUTIVE200', coupon_code: 'EXECUTIVE200', trigger_delay: 15, is_active: true }
-    ]
-  });
+  try {
+    const popups = await getPopups();
+    // Return all popups so the client can evaluate target rules and active status
+    return NextResponse.json({
+      status: 'success',
+      total: popups.length,
+      data: popups
+    });
+  } catch (err) {
+    return NextResponse.json({ status: 'error', message: err.message }, { status: 500 });
+  }
 }

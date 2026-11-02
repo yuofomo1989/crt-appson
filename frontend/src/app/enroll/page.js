@@ -24,6 +24,17 @@ function EnrollContent() {
     if (urlCourse) {
       setSelectedCourse(urlCourse);
     }
+    const urlFormat = searchParams.get("format");
+    if (urlFormat) {
+      const fmt = urlFormat.toLowerCase();
+      if (fmt.includes("self") || fmt.includes("paced")) {
+        setTimeout(() => scrollToSection("self-learning-section"), 500);
+      } else if (fmt.includes("person") || fmt.includes("classroom")) {
+        setTimeout(() => scrollToSection("in-person-section"), 500);
+      } else if (fmt.includes("online") || fmt.includes("virtual")) {
+        setTimeout(() => scrollToSection("live-online-section"), 500);
+      }
+    }
   }, [searchParams]);
 
   React.useEffect(() => {
@@ -110,12 +121,14 @@ function EnrollContent() {
   const handleAddToCart = (courseName, format, price, date) => {
     const cartItem = {
       course: courseName,
+      title: courseName,
       format: format,
       price: price,
       date: date
     };
     if (typeof window !== "undefined") {
       localStorage.setItem("cp_cart", JSON.stringify(cartItem));
+      window.dispatchEvent(new Event("cartUpdated"));
       const isSubpath = window.location.pathname.includes('/crt-appson');
       const basePath = isSubpath ? '/crt-appson' : '';
       window.location.href = `${basePath}/checkout/`;
@@ -271,16 +284,16 @@ function EnrollContent() {
             <Clock size={16} /> Live Online Class ({liveOnlineList.length})
           </button>
           <button
+            onClick={() => scrollToSection("self-learning-section")}
+            className="pb-4 px-6 flex items-center gap-2 border-b-2 border-transparent hover:text-gray-800 transition-all cursor-pointer"
+          >
+            <BookOpen size={16} /> Self Learning ({selfLearningList.length})
+          </button>
+          <button
             onClick={() => scrollToSection("in-person-section")}
             className="pb-4 px-6 flex items-center gap-2 border-b-2 border-transparent hover:text-gray-800 transition-all cursor-pointer"
           >
             <Users size={16} /> In-Person Classroom ({inPersonList.length})
-          </button>
-          <button
-            onClick={() => scrollToSection("self-learning-section")}
-            className="pb-[#16px] pb-4 px-6 flex items-center gap-2 border-b-2 border-transparent hover:text-gray-800 transition-all cursor-pointer"
-          >
-            <BookOpen size={16} /> Self Learning ({selfLearningList.length})
           </button>
         </div>
 
@@ -387,7 +400,89 @@ function EnrollContent() {
         </div>
 
         {/* ==========================================
-            5. IN-PERSON CLASSROOM SECTION
+            5. SELF LEARNING SECTION
+            ========================================== */}
+        <div className="space-y-6" id="self-learning-section">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-50 pb-3">
+            <div>
+              <h3 className="text-base font-extrabold text-brand-navy flex items-center gap-2">
+                <BookOpen size={18} className="text-brand-green" />
+                Self Learning
+              </h3>
+              <p className="text-[10px] text-gray-400 font-semibold">Learn at your own pace with lifetime access to the course materials.</p>
+            </div>
+            <a href="#all" className="text-xs font-bold text-brand-blue hover:text-brand-navy flex items-center gap-1">
+              View All Self Learning Options →
+            </a>
+          </div>
+
+          <div className="bg-white rounded-3xl border border-gray-100 shadow-md overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[900px] text-left text-xs font-semibold text-gray-700">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-gray-100 text-gray-500">
+                    <th className="p-4 pl-6">Mode</th>
+                    <th className="p-4">Access Type</th>
+                    <th className="p-4">Access Duration</th>
+                    <th className="p-4">Includes</th>
+                    <th className="p-4">Contact Hours</th>
+                    <th className="p-4">Price</th>
+                    <th className="p-4">Status</th>
+                    <th className="p-4 pr-6 text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selfLearningList.length > 0 ? (
+                    selfLearningList.map((row, idx) => (
+                      <tr key={idx} className="border-b border-gray-50 hover:bg-slate-50/50 transition-colors">
+                        <td className="p-4 pl-6 font-bold text-brand-navy flex items-center gap-2">
+                          <BookOpen size={16} className="text-brand-blue" />
+                          <span>Self-Paced</span>
+                        </td>
+                        <td className="p-4 text-gray-800">Online LMS Access</td>
+                        <td className="p-4 font-bold text-gray-600">{row.batch_date || row.date_range || row.duration || "Aug 15 – Aug 18, 2026"}</td>
+                        <td className="p-4 text-[10px] text-gray-500 font-semibold space-y-1">
+                          <p className="text-brand-green font-bold">✔ 35 Contact Hours Certificate</p>
+                          <p className="text-brand-green font-bold">✔ Mock Exams & Quizzes</p>
+                          <p className="text-brand-green font-bold">✔ Downloadable Resources</p>
+                        </td>
+                        <td className="p-4 font-bold text-gray-600">35</td>
+                        <td className="p-4 font-black text-brand-navy">${row.price || 795} USD</td>
+                        <td className="p-4">
+                          <span className="px-2.5 py-1 rounded text-[9px] font-bold bg-emerald-50 text-emerald-500 border border-emerald-100">
+                            {row.status || "Open"}
+                          </span>
+                        </td>
+                        <td className="p-4 pr-6 text-center">
+                          <button
+                            onClick={() => handleAddToCart(selectedCourse, "Self Learning", row.price || 795, "Lifetime Access")}
+                            className="flex items-center justify-center gap-1.5 rounded-lg bg-brand-blue py-2 px-4 text-xs font-bold text-white hover:bg-opacity-90 w-full cursor-pointer"
+                          >
+                            <ShoppingCart size={12} /> Add to Cart
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="8" className="p-8 text-center text-gray-400 font-semibold">
+                        No Self Learning packages match the selected filters.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <div className="p-4 text-center border-t border-gray-50">
+              <button className="text-xs font-bold text-brand-blue hover:underline cursor-pointer">
+                View More Self Learning Options ↓
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* ==========================================
+            6. IN-PERSON CLASSROOM SECTION
             ========================================== */}
         <div className="space-y-6" id="in-person-section">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-50 pb-3">
@@ -492,88 +587,6 @@ function EnrollContent() {
             <div className="p-4 text-center border-t border-gray-50">
               <button className="text-xs font-bold text-brand-blue hover:underline cursor-pointer">
                 View More In-Person Classes ↓
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* ==========================================
-            6. SELF LEARNING SECTION
-            ========================================== */}
-        <div className="space-y-6" id="self-learning-section">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-50 pb-3">
-            <div>
-              <h3 className="text-base font-extrabold text-brand-navy flex items-center gap-2">
-                <BookOpen size={18} className="text-brand-green" />
-                Self Learning
-              </h3>
-              <p className="text-[10px] text-gray-400 font-semibold">Learn at your own pace with lifetime access to the course materials.</p>
-            </div>
-            <a href="#all" className="text-xs font-bold text-brand-blue hover:text-brand-navy flex items-center gap-1">
-              View All Self Learning Options →
-            </a>
-          </div>
-
-          <div className="bg-white rounded-3xl border border-gray-100 shadow-md overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[900px] text-left text-xs font-semibold text-gray-700">
-                <thead>
-                  <tr className="bg-slate-50 border-b border-gray-100 text-gray-500">
-                    <th className="p-4 pl-6">Mode</th>
-                    <th className="p-4">Access Type</th>
-                    <th className="p-4">Access Duration</th>
-                    <th className="p-4">Includes</th>
-                    <th className="p-4">Contact Hours</th>
-                    <th className="p-4">Price</th>
-                    <th className="p-4">Status</th>
-                    <th className="p-4 pr-6 text-center">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {selfLearningList.length > 0 ? (
-                    selfLearningList.map((row, idx) => (
-                      <tr key={idx} className="border-b border-gray-50 hover:bg-slate-50/50 transition-colors">
-                        <td className="p-4 pl-6 font-bold text-brand-navy flex items-center gap-2">
-                          <BookOpen size={16} className="text-brand-blue" />
-                          <span>Self-Paced</span>
-                        </td>
-                        <td className="p-4 text-gray-800">Online LMS Access</td>
-                        <td className="p-4 font-bold text-gray-600">{row.batch_date || row.date_range || row.duration || "Aug 15 – Aug 18, 2026"}</td>
-                        <td className="p-4 text-[10px] text-gray-500 font-semibold space-y-1">
-                          <p className="text-brand-green font-bold">✔ 35 Contact Hours Certificate</p>
-                          <p className="text-brand-green font-bold">✔ Mock Exams & Quizzes</p>
-                          <p className="text-brand-green font-bold">✔ Downloadable Resources</p>
-                        </td>
-                        <td className="p-4 font-bold text-gray-600">35</td>
-                        <td className="p-4 font-black text-brand-navy">${row.price || 795} USD</td>
-                        <td className="p-4">
-                          <span className="px-2.5 py-1 rounded text-[9px] font-bold bg-emerald-50 text-emerald-500 border border-emerald-100">
-                            {row.status || "Open"}
-                          </span>
-                        </td>
-                        <td className="p-4 pr-6 text-center">
-                          <button
-                            onClick={() => handleAddToCart(selectedCourse, "Self Learning", row.price || 795, "Lifetime Access")}
-                            className="flex items-center justify-center gap-1.5 rounded-lg bg-brand-blue py-2 px-4 text-xs font-bold text-white hover:bg-opacity-90 w-full cursor-pointer"
-                          >
-                            <ShoppingCart size={12} /> Add to Cart
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="8" className="p-8 text-center text-gray-400 font-semibold">
-                        No Self Learning packages match the selected filters.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-            <div className="p-4 text-center border-t border-gray-50">
-              <button className="text-xs font-bold text-brand-blue hover:underline cursor-pointer">
-                View More Self Learning Options ↓
               </button>
             </div>
           </div>

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Search, ChevronDown, Menu, X, Phone } from "lucide-react";
+import { Search, ChevronDown, Menu, X, Phone, User, ShoppingCart } from "lucide-react";
 
 const openModal = (title = "Book a Free Consultation") => {
   if (typeof window !== "undefined") {
@@ -13,11 +13,15 @@ const openModal = (title = "Book a Free Consultation") => {
 const DEFAULT_HEADER_MENU_ITEMS = [
   {
     id: 1786637378095,
-    title: "COURSES",
-    url: "#",
+    title: "Certifications",
+    url: "/certifications",
     children: [
-      { title: "Project Management", url: "/category/project-management" },
-      { title: "Cybersecurity", url: "/category/cybersecurity" }
+      { title: "⚡ View All Certifications", url: "/certifications" },
+      { title: "Agile & Project Management", url: "/category/agile-project-management" },
+      { title: "Information Security", url: "/category/information-security-certification" },
+      { title: "Lean and Six Sigma", url: "/category/lean-six-sigma-certification" },
+      { title: "DevOps & Salesforce", url: "/category/devops-and-sf-certification" },
+      { title: "IT Service & Architecture", url: "/category/itil-certification" }
     ]
   },
   {
@@ -25,44 +29,125 @@ const DEFAULT_HEADER_MENU_ITEMS = [
     title: "Resources",
     url: "/resources",
     children: []
+  },
+  {
+    id: 1793288436473,
+    title: "Corporate Training",
+    url: "/corporate-training",
+    children: []
+  },
+  {
+    id: 1793288446144,
+    title: "About Us",
+    url: "/about",
+    children: []
+  },
+  {
+    id: 1793288453791,
+    title: "Contact Us",
+    url: "/contact",
+    children: []
   }
 ];
 
-export default function Navbar() {
+export default function Navbar({ siteSettings: propSettings, categories: propCategories } = {}) {
   const [isOpen, setIsOpen] = useState(false);
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState(propCategories || []);
+  const [loggedInUser, setLoggedInUser] = useState(null);
+  const [cartCount, setCartCount] = useState(0);
+
   const [siteSettings, setSiteSettings] = useState({
     support_phone: '(888) 745-7575',
     top_bar_badge: 'Guaranteed-to-Run Classes',
     top_bar_text: 'PMI Authorized Training Partner',
-    header_menu_items: DEFAULT_HEADER_MENU_ITEMS
+    header_menu_items: DEFAULT_HEADER_MENU_ITEMS,
+    ...(propSettings || {})
   });
+
+  // Check login & cart state
+  useEffect(() => {
+    const updateCartAndUser = () => {
+      if (typeof window !== "undefined") {
+        const token = localStorage.getItem("cp_auth_token");
+        const name = localStorage.getItem("cp_user_name");
+        const role = localStorage.getItem("cp_user_role");
+        if (token) {
+          setLoggedInUser({
+            name: name || "User",
+            role: role || "student"
+          });
+        } else {
+          setLoggedInUser(null);
+        }
+
+        try {
+          const cart = JSON.parse(localStorage.getItem("cp_cart") || "null");
+          if (cart && (cart.course || cart.title)) {
+            setCartCount(1);
+          } else if (Array.isArray(cart) && cart.length > 0) {
+            setCartCount(cart.length);
+          } else {
+            setCartCount(0);
+          }
+        } catch (e) {
+          setCartCount(0);
+        }
+      }
+    };
+
+    updateCartAndUser();
+    window.addEventListener("cartUpdated", updateCartAndUser);
+    window.addEventListener("storage", updateCartAndUser);
+    return () => {
+      window.removeEventListener("cartUpdated", updateCartAndUser);
+      window.removeEventListener("storage", updateCartAndUser);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (propSettings && Object.keys(propSettings).length > 0) {
+      const items = Array.isArray(propSettings.header_menu_items) && propSettings.header_menu_items.length > 0
+        ? propSettings.header_menu_items
+        : DEFAULT_HEADER_MENU_ITEMS;
+      setSiteSettings(prev => ({ ...prev, ...propSettings, header_menu_items: items }));
+    }
+  }, [propSettings]);
+
+  useEffect(() => {
+    if (Array.isArray(propCategories) && propCategories.length > 0) {
+      setCategories(propCategories);
+    }
+  }, [propCategories]);
 
   useEffect(() => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
-    fetch(`${apiUrl}/categories`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === 'success' && data.data) setCategories(data.data);
-      })
-      .catch(err => console.log('Categories load note:', err));
+    if (!propCategories || propCategories.length === 0) {
+      fetch(`${apiUrl}/categories/`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'success' && data.data) setCategories(data.data);
+        })
+        .catch(err => console.log('Categories load note:', err));
+    }
 
-    fetch(`${apiUrl}/settings`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === 'success' && data.data) {
-          const serverItems = Array.isArray(data.data.header_menu_items) && data.data.header_menu_items.length > 0
-            ? data.data.header_menu_items
-            : DEFAULT_HEADER_MENU_ITEMS;
+    if (!propSettings || Object.keys(propSettings).length === 0) {
+      fetch(`${apiUrl}/settings/`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'success' && data.data) {
+            const serverItems = Array.isArray(data.data.header_menu_items) && data.data.header_menu_items.length > 0
+              ? data.data.header_menu_items
+              : DEFAULT_HEADER_MENU_ITEMS;
 
-          setSiteSettings(prev => ({
-            ...prev,
-            ...data.data,
-            header_menu_items: serverItems
-          }));
-        }
-      })
-      .catch(err => console.log('Settings load note:', err));
+            setSiteSettings(prev => ({
+              ...prev,
+              ...data.data,
+              header_menu_items: serverItems
+            }));
+          }
+        })
+        .catch(err => console.log('Settings load note:', err));
+    }
   }, []);
 
   return (
@@ -90,16 +175,27 @@ export default function Navbar() {
 
       <div className="mx-auto flex max-w-7xl items-center justify-between p-4 md:px-6">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-tr from-brand-navy to-brand-blue text-white font-bold text-xl shadow-md">
-            CP
-          </div>
-          <span className="text-xl font-bold tracking-tight text-brand-navy">
-            Certification<span className="text-brand-orange">Planner</span>
-          </span>
+        <Link href="/" className="flex items-center gap-2.5">
+          {siteSettings?.logo_url ? (
+            <img
+              src={siteSettings.logo_url}
+              alt={siteSettings.logo_alt || "Certification Planner"}
+              style={{ height: `${siteSettings.logo_height || 40}px`, width: "auto" }}
+              className="object-contain max-w-[240px]"
+            />
+          ) : (
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-tr from-brand-navy to-brand-blue text-white font-bold text-xl shadow-md">
+              CP
+            </div>
+          )}
+          {(siteSettings?.show_logo_text !== false && (!siteSettings?.logo_url || siteSettings?.show_logo_text === true)) && (
+            <span className="text-xl font-bold tracking-tight text-brand-navy">
+              {siteSettings?.site_title_prefix || "Certification"}<span className="text-brand-orange">{siteSettings?.site_title_suffix || "Planner"}</span>
+            </span>
+          )}
         </Link>
 
-        {/* Desktop Navigation Links (WordPress-Style Dynamic Tree) */}
+        {/* Desktop Navigation Links */}
         <nav className="hidden lg:flex items-center gap-8 text-sm font-medium text-gray-700">
           {(siteSettings.header_menu_items && siteSettings.header_menu_items.length > 0 ? siteSettings.header_menu_items : DEFAULT_HEADER_MENU_ITEMS).map((item, idx) => (
             item.children && item.children.length > 0 ? (
@@ -127,27 +223,98 @@ export default function Navbar() {
           ))}
         </nav>
 
-        {/* Action Buttons */}
-        <div className="hidden lg:flex items-center gap-4">
-          <Link href="/courses" className="text-gray-500 hover:text-brand-blue p-2 rounded-full hover:bg-gray-50 transition-colors">
+        {/* Action Buttons (Desktop) */}
+        <div className="hidden lg:flex items-center gap-3">
+          {/* Search */}
+          <Link
+            href="/courses"
+            className="text-gray-500 hover:text-brand-blue p-2 rounded-full hover:bg-gray-100 transition-colors"
+            title="Search Certifications"
+          >
             <Search size={20} />
           </Link>
+
+          {/* Cart Icon */}
+          <Link
+            href="/cart/"
+            className="relative text-gray-600 hover:text-brand-blue p-2 rounded-full hover:bg-gray-100 transition-colors flex items-center justify-center"
+            title="Cart & Enrollment"
+          >
+            <ShoppingCart size={20} />
+            {cartCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-brand-orange text-white text-[10px] font-black h-4 w-4 rounded-full flex items-center justify-center shadow-xs">
+                {cartCount}
+              </span>
+            )}
+          </Link>
+
+          {/* User Login / Account Button */}
+          {loggedInUser ? (
+            <Link
+              href={loggedInUser.role === "admin" || loggedInUser.role === "super admin" ? "/admin" : "/profile"}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all border border-slate-200"
+              title={loggedInUser.role === "admin" || loggedInUser.role === "super admin" ? "Admin Console" : "My Account"}
+            >
+              <User size={16} className="text-brand-blue" />
+              <span className="max-w-[85px] truncate font-bold">
+                {loggedInUser.name.split(" ")[0]}
+              </span>
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="flex items-center gap-1.5 text-gray-700 hover:text-brand-blue px-3 py-2 rounded-xl hover:bg-gray-100 transition-colors text-xs font-bold"
+              title="Student & Enterprise Login"
+            >
+              <User size={18} />
+              <span>Login</span>
+            </Link>
+          )}
+
+          {/* Consultation CTA */}
           <button
             onClick={() => openModal("Get a Free Consultation")}
-            className="rounded-lg bg-brand-blue px-5 py-2.5 text-sm font-semibold text-white hover:bg-opacity-90 shadow-sm transition-all hover:shadow-md cursor-pointer"
+            className="rounded-xl bg-brand-blue px-5 py-2.5 text-xs font-bold text-white hover:bg-opacity-90 shadow-sm transition-all hover:shadow-md cursor-pointer ml-1"
           >
             Get a Free Consultation
           </button>
         </div>
 
-        {/* Mobile Menu Button */}
-        <div className="flex items-center gap-2 lg:hidden">
-          <button className="text-gray-500 p-2 hover:bg-gray-50 rounded-lg">
+        {/* Mobile Action Icons + Drawer Toggle */}
+        <div className="flex items-center gap-1.5 lg:hidden">
+          <Link
+            href="/courses"
+            className="text-gray-600 p-2 hover:bg-gray-50 rounded-lg"
+            title="Search"
+          >
             <Search size={20} />
-          </button>
+          </Link>
+
+          <Link
+            href="/cart/"
+            className="relative text-gray-600 p-2 hover:bg-gray-50 rounded-lg"
+            title="Cart"
+          >
+            <ShoppingCart size={20} />
+            {cartCount > 0 && (
+              <span className="absolute top-1 right-1 bg-brand-orange text-white text-[9px] font-black h-3.5 w-3.5 rounded-full flex items-center justify-center">
+                {cartCount}
+              </span>
+            )}
+          </Link>
+
+          <Link
+            href={loggedInUser ? (loggedInUser.role === "admin" ? "/admin" : "/profile") : "/login"}
+            className="text-gray-600 p-2 hover:bg-gray-50 rounded-lg"
+            title="Login"
+          >
+            <User size={20} />
+          </Link>
+
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="text-gray-700 p-2 hover:bg-gray-50 rounded-lg"
+            className="text-gray-700 p-2 hover:bg-gray-50 rounded-lg ml-1"
+            aria-label="Toggle Navigation Menu"
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -179,12 +346,32 @@ export default function Navbar() {
                 )}
               </div>
             ))}
+
+            <div className="pt-3 border-t border-gray-100 flex items-center gap-3">
+              <Link
+                href="/login"
+                onClick={() => setIsOpen(false)}
+                className="flex-1 py-2.5 rounded-xl border border-gray-200 text-center text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center justify-center gap-1.5"
+              >
+                <User size={16} />
+                <span>{loggedInUser ? "My Account" : "Login"}</span>
+              </Link>
+              <Link
+                href="/cart/"
+                onClick={() => setIsOpen(false)}
+                className="flex-1 py-2.5 rounded-xl border border-gray-200 text-center text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center justify-center gap-1.5"
+              >
+                <ShoppingCart size={16} />
+                <span>Cart</span>
+              </Link>
+            </div>
+
             <button
               onClick={() => {
                 setIsOpen(false);
                 openModal("Get a Free Consultation");
               }}
-              className="mt-4 w-full text-center rounded-lg bg-brand-blue py-3 font-semibold text-white hover:bg-opacity-90 transition-colors cursor-pointer"
+              className="mt-2 w-full text-center rounded-xl bg-brand-blue py-3 text-xs font-bold text-white hover:bg-opacity-90 transition-colors cursor-pointer shadow-md"
             >
               Get a Free Consultation
             </button>

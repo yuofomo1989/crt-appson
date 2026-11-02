@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { Phone, Users, Video } from "lucide-react";
+import { Phone, Users } from "lucide-react";
+import { getHeroImageConfig, buildEdgeMask } from "@/lib/heroImage";
 
 const openModal = (title = "Book a Free Consultation") => {
   if (typeof window !== "undefined") {
@@ -17,6 +17,12 @@ export default function Hero({ siteSettings = {} }) {
     heroImage = heroImage.substring(1);
   }
 
+  // Image size / position / softness are controlled from Admin > Homepage Builder > Hero Image Studio
+  const cfg = getHeroImageConfig(siteSettings);
+  const justify = cfg.align === "left" ? "flex-start" : cfg.align === "center" ? "center" : "flex-end";
+  const badgeCount = siteSettings.hero_badge_count || siteSettings.total_students_trained || "50,000+";
+  const badgeText = siteSettings.hero_badge_subtitle || "Professionals Trained Worldwide";
+
   return (
     <section className="relative w-full overflow-hidden bg-white pt-6 sm:pt-10 lg:pt-14 pb-0">
       {/* Background Soft Ambient Arc Gradient */}
@@ -25,12 +31,12 @@ export default function Hero({ siteSettings = {} }) {
       </div>
 
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-12 gap-8 lg:gap-6 items-end">
+        <div className="grid lg:grid-cols-12 gap-8 lg:gap-6 items-stretch">
           
           {/* =========================================
               LEFT COLUMN: Typography & Actions
              ========================================= */}
-          <div className="lg:col-span-6 space-y-6 text-left pb-8 lg:pb-16 pt-2">
+          <div className="lg:col-span-6 space-y-6 text-left pb-4 lg:pb-8 pt-2 flex flex-col justify-center">
             
             {/* Main Headline (Exact Match to Reference) */}
             <h1 className="text-4xl sm:text-5xl lg:text-[56px] xl:text-[62px] font-black text-[#0B1E33] tracking-tight leading-[1.12]">
@@ -90,74 +96,55 @@ export default function Hero({ siteSettings = {} }) {
           </div>
 
           {/* =========================================
-              RIGHT COLUMN: Full-Scale Background Image & Video Callouts
+              RIGHT COLUMN: Hero Image (fully controlled from Admin)
              ========================================= */}
-          <div className="lg:col-span-6 relative flex items-end justify-center lg:justify-end self-end">
-            
-            <div className="relative w-full max-w-[500px] xl:max-w-[560px] flex items-end justify-center">
-              
-              {/* Soft Light-Blue Background Arch Behind People */}
-              <div className="absolute -top-12 sm:-top-16 right-4 sm:right-8 w-72 sm:w-88 h-72 sm:h-88 rounded-full bg-[#E5EEF9] -z-10 pointer-events-none"></div>
+          <div
+            className="lg:col-span-6 relative flex items-center min-h-[280px]"
+            style={{ justifyContent: justify }}
+          >
+            <div
+              className="relative"
+              style={{
+                width: cfg.width ? `min(100%, ${cfg.width}px)` : "100%",
+                height: cfg.height ? `${cfg.height}px` : cfg.fit === "cover" ? "100%" : undefined,
+                minHeight: cfg.fit === "cover" ? 320 : undefined,
+                transform: `translate(${cfg.offX}px, ${cfg.offY}px)`,
+              }}
+            >
+              {/* Optional soft circle behind transparent cut-out images */}
+              {cfg.showCircle && (
+                <div className="absolute -top-6 right-4 sm:right-8 w-72 sm:w-96 h-72 sm:h-96 rounded-full bg-[#E5EEF9] -z-10 pointer-events-none"></div>
+              )}
 
-              {/* Main Full Image (Direct on background, no borders) */}
-              <div className="relative w-full flex items-end justify-center">
-                <Image
-                  src={heroImage}
-                  alt="Certification Planner Live Training"
-                  width={620}
-                  height={540}
-                  className="w-full h-auto object-contain object-bottom select-none pointer-events-none drop-shadow-xs"
-                  priority
-                />
-              </div>
+              {/* Image with feathered edges so it blends into the page */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={heroImage}
+                alt="Certification Planner Live Training"
+                draggable={false}
+                className="select-none pointer-events-none block"
+                style={{
+                  width: "100%",
+                  height: cfg.fit === "cover" || cfg.height ? "100%" : "auto",
+                  objectFit: cfg.fit,
+                  objectPosition: cfg.fit === "contain" ? "center bottom" : "center center",
+                  ...buildEdgeMask(cfg.fade),
+                }}
+              />
 
-              {/* FLOATING VIDEO CALL TILE 1: Top Right (Male Attendee with Headset) */}
-              <div className="absolute top-2 sm:top-4 right-0 sm:right-2 bg-white p-1 rounded-2xl shadow-xl border border-gray-100/90 z-20 hover:scale-105 transition-transform duration-300">
-                <div className="relative w-20 sm:w-24 h-16 sm:h-20 rounded-xl overflow-hidden bg-gradient-to-tr from-slate-800 to-slate-700 flex items-center justify-center">
-                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-500/20 via-transparent to-transparent"></div>
-                  {/* Avatar graphic */}
-                  <div className="flex flex-col items-center justify-center text-center">
-                    <div className="h-9 w-9 rounded-full bg-slate-600 border border-white/20 flex items-center justify-center text-white text-xs font-bold shadow-xs">
-                      👨‍💼
-                    </div>
+              {/* Floating stats badge (always inside the image area) */}
+              {cfg.showBadge && (
+                <div className="absolute bottom-4 sm:bottom-6 right-2 sm:right-4 bg-brand-blue text-white px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl shadow-xl shadow-blue-600/30 border border-white/20 flex items-center gap-3 z-20">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/20 text-white shadow-inner">
+                    <Users size={18} />
                   </div>
-                  {/* Active video indicator */}
-                  <div className="absolute bottom-1 right-1 h-2.5 w-2.5 rounded-full bg-emerald-400 border border-white"></div>
-                </div>
-              </div>
-
-              {/* FLOATING VIDEO CALL TILE 2: Middle Right (Female Attendee Waving) */}
-              <div className="absolute top-24 sm:top-28 -right-2 sm:right-0 bg-white p-1 rounded-2xl shadow-xl border border-gray-100/90 z-20 hover:scale-105 transition-transform duration-300">
-                <div className="relative w-20 sm:w-24 h-16 sm:h-20 rounded-xl overflow-hidden bg-gradient-to-tr from-amber-700 to-amber-900 flex items-center justify-center">
-                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-orange-500/20 via-transparent to-transparent"></div>
-                  {/* Avatar graphic */}
-                  <div className="flex flex-col items-center justify-center text-center">
-                    <div className="h-9 w-9 rounded-full bg-amber-600 border border-white/20 flex items-center justify-center text-white text-xs font-bold shadow-xs">
-                      👩‍💻
-                    </div>
+                  <div className="text-left">
+                    <p className="text-sm sm:text-base font-black leading-tight">{badgeCount}</p>
+                    <p className="text-[10px] text-blue-100 font-semibold leading-tight">{badgeText}</p>
                   </div>
-                  {/* Active video indicator */}
-                  <div className="absolute bottom-1 right-1 h-2.5 w-2.5 rounded-full bg-emerald-400 border border-white"></div>
                 </div>
-              </div>
-
-              {/* FLOATING STATS BADGE: Bottom Right (Exact Match to Reference) */}
-              <div className="absolute bottom-6 sm:bottom-8 right-0 sm:right-2 bg-brand-blue text-white px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl shadow-xl shadow-blue-600/30 border border-white/20 flex items-center gap-3 z-20">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/20 text-white shadow-inner">
-                  <Users size={18} />
-                </div>
-                <div className="text-left">
-                  <p className="text-sm sm:text-base font-black leading-tight">
-                    {siteSettings.total_students_trained || "50,000+"}
-                  </p>
-                  <p className="text-[10px] text-blue-100 font-semibold leading-tight">
-                    Professionals Trained Worldwide
-                  </p>
-                </div>
-              </div>
-
+              )}
             </div>
-
           </div>
 
         </div>

@@ -33,7 +33,7 @@ export default function TrustBadges({ siteSettings = {} }) {
   ];
 
   return (
-    <section className="relative z-20 -mt-2 pb-12 pt-2 bg-transparent">
+    <section className="relative z-20 -mt-2 pb-4 pt-2 bg-transparent">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white border border-gray-100/90 rounded-2xl shadow-md py-6 px-4 sm:px-8">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 sm:gap-8 items-center">

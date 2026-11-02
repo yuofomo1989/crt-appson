@@ -34,7 +34,7 @@ export default function FaqSection({ siteSettings = {} }) {
     : defaultFaqs;
 
   return (
-    <section className="py-16 md:py-24 bg-slate-50/60 border-b border-gray-100">
+    <section className="py-10 md:py-14 bg-slate-50/60 border-b border-gray-100">
       <div className="mx-auto max-w-4xl px-4 md:px-6 space-y-10">
         
         {/* Header */}

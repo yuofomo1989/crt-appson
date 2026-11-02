@@ -1,10 +1,41 @@
 import { NextResponse } from 'next/server';
+import articles from '@/data/articles_db.json';
 
-const defaultArticles = [
-  { id: 1, title: 'How to Pass the PMP Exam on Your First Attempt in 2026', slug: 'how-to-pass-pmp-exam-first-attempt', category_name: 'Project Management', author: 'Certification Planner Editorial', is_featured: true, created_at: new Date().toISOString() },
-  { id: 2, title: 'Top 5 In-Demand Cybersecurity Certifications for 2026', slug: 'top-cybersecurity-certifications-2026', category_name: 'Cybersecurity', author: 'Information Security Team', is_featured: true, created_at: new Date().toISOString() }
-];
+export async function GET(request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const category = searchParams.get('category');
+    const search = searchParams.get('search');
+    const limit = parseInt(searchParams.get('limit')) || 0;
 
-export async function GET() {
-  return NextResponse.json({ status: 'success', data: defaultArticles });
+    let result = articles || [];
+
+    if (category && category !== 'all') {
+      const catLower = category.toLowerCase();
+      result = result.filter(a => 
+        (a.category_name && a.category_name.toLowerCase().includes(catLower)) ||
+        (a.category_slug && a.category_slug.toLowerCase() === catLower)
+      );
+    }
+
+    if (search) {
+      const q = search.toLowerCase();
+      result = result.filter(a => 
+        (a.title && a.title.toLowerCase().includes(q)) ||
+        (a.description && a.description.toLowerCase().includes(q))
+      );
+    }
+
+    if (limit > 0) {
+      result = result.slice(0, limit);
+    }
+
+    return NextResponse.json({
+      status: 'success',
+      total: result.length,
+      data: result
+    });
+  } catch (err) {
+    return NextResponse.json({ status: 'error', message: err.message }, { status: 500 });
+  }
 }

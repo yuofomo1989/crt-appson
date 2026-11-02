@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import {
@@ -14,6 +13,9 @@ import {
   Mail,
   TrendingUp,
   CheckCircle,
+  BookOpen,
+  Sparkles,
+  Filter
 } from "lucide-react";
 
 export default function ResourcesPage() {
@@ -21,23 +23,32 @@ export default function ResourcesPage() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const [activeCategory, setActiveCategory] = useState(null);
+  const [visibleCount, setVisibleCount] = useState(12);
   
   const [dbArticles, setDbArticles] = useState([]);
   const [dbCategories, setDbCategories] = useState([]);
+  const [siteSettings, setSiteSettings] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchResourceData() {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
       try {
-        const [aRes, cRes] = await Promise.all([
-          fetch(`${apiUrl}/articles`),
-          fetch(`${apiUrl}/article-categories`)
+        const [aRes, cRes, sRes] = await Promise.all([
+          fetch(`${apiUrl}/articles`).then(r => r.json()).catch(() => ({})),
+          fetch(`${apiUrl}/article-categories`).then(r => r.json()).catch(() => ({})),
+          fetch(`${apiUrl}/settings/`).then(r => r.json()).catch(() => null)
         ]);
-        const aData = await aRes.json();
-        const cData = await cRes.json();
-        if (aData.status === "success" && aData.data) setDbArticles(aData.data);
-        if (cData.status === "success" && cData.data) setDbCategories(cData.data);
+
+        if (aRes.status === "success" && Array.isArray(aRes.data)) {
+          setDbArticles(aRes.data);
+        }
+        if (cRes.status === "success" && Array.isArray(cRes.data)) {
+          setDbCategories(cRes.data);
+        }
+        if (sRes) {
+          setSiteSettings(sRes);
+        }
       } catch (err) {
         console.error("Error fetching resources data:", err);
       } finally {
@@ -53,23 +64,27 @@ export default function ResourcesPage() {
   };
 
   const filteredArticles = dbArticles.filter(art => {
-    const matchCat = activeCategory === null || (art.category_name || "").toLowerCase() === activeCategory.toLowerCase();
-    const matchSearch = !search || (art.title || "").toLowerCase().includes(search.toLowerCase()) || (art.description || "").toLowerCase().includes(search.toLowerCase());
+    const matchCat = activeCategory === null || 
+      (art.category_name || "").toLowerCase() === activeCategory.toLowerCase() ||
+      (art.category_slug || "").toLowerCase() === activeCategory.toLowerCase();
+    const matchSearch = !search || 
+      (art.title || "").toLowerCase().includes(search.toLowerCase()) || 
+      (art.description || "").toLowerCase().includes(search.toLowerCase());
     return matchCat && matchSearch;
   });
 
-  const popularArticles = [...dbArticles].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 5);
+  const displayedArticles = filteredArticles.slice(0, visibleCount);
 
   return (
     <div className="min-h-screen bg-white text-left">
-      <Navbar />
+      <Navbar siteSettings={siteSettings} />
 
       {/* Breadcrumb */}
       <div className="border-b border-gray-100 bg-gray-50">
         <div className="mx-auto max-w-7xl px-6 py-3 flex items-center gap-2 text-xs text-gray-500">
           <Link href="/" className="hover:text-brand-blue transition-colors">Home</Link>
           <ChevronRight size={12} className="text-gray-300" />
-          <span className="text-gray-800 font-medium">Resources</span>
+          <span className="text-gray-800 font-medium">Resources &amp; Articles</span>
         </div>
       </div>
 
@@ -78,22 +93,24 @@ export default function ResourcesPage() {
         <div className="mx-auto max-w-7xl px-6 lg:flex lg:items-center lg:gap-16">
           {/* Text + Search */}
           <div className="lg:flex-1 max-w-xl">
-            <p className="text-xs font-bold uppercase tracking-widest text-brand-orange mb-3">RESOURCES</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-brand-orange mb-3">RESOURCE HUB</p>
             <h1 className="text-4xl font-extrabold leading-tight text-brand-navy md:text-5xl">
               Insights. Guidance.<br />Career Growth.
             </h1>
             <p className="mt-4 text-sm text-gray-500 leading-relaxed">
-              Explore expert articles, tips, and industry insights to help you
-              advance your skills, prepare for certifications, and stay ahead in your career.
+              Explore {dbArticles.length}+ expert articles, exam preparation tips, salary benchmarks, and industry insights to help you advance your career.
             </p>
             {/* Search bar */}
             <div className="mt-7 relative">
               <input
                 type="text"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setVisibleCount(12);
+                }}
                 placeholder="Search articles, topics, or keywords..."
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-5 pr-12 text-sm text-gray-800 placeholder-gray-400 shadow-sm focus:border-brand-blue focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-blue/15 transition-all"
+                className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3.5 pl-5 pr-12 text-sm text-gray-800 placeholder-gray-400 shadow-sm focus:border-brand-blue focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-blue/15 transition-all"
               />
               <button className="absolute right-3 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-lg bg-brand-blue text-white hover:bg-opacity-90 transition-colors">
                 <Search size={15} />
@@ -101,27 +118,28 @@ export default function ResourcesPage() {
             </div>
           </div>
 
-          {/* Hero Image */}
-          <div className="mt-12 lg:mt-0 lg:flex-1 flex justify-center lg:justify-end">
-            <div className="relative w-full max-w-md">
-              {/* Dot pattern */}
-              <div className="absolute top-4 right-0 grid grid-cols-8 gap-1.5 opacity-20 z-0">
-                {Array.from({ length: 48 }).map((_, i) => (
-                  <div key={i} className="h-1.5 w-1.5 rounded-full bg-brand-blue" />
-                ))}
+          {/* Hero Stats Card */}
+          <div className="mt-10 lg:mt-0 lg:flex-1 flex justify-center lg:justify-end">
+            <div className="w-full max-w-md bg-gradient-to-br from-slate-900 to-brand-navy rounded-3xl p-8 text-white shadow-xl space-y-6">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+                <span className="text-xs font-black uppercase tracking-wider text-brand-orange">Knowledge Base</span>
+                <span className="text-xs font-bold px-3 py-1 bg-blue-500/10 text-blue-300 rounded-full border border-blue-500/20">
+                  {dbArticles.length} Articles Live
+                </span>
               </div>
-              <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl ring-1 ring-gray-200 bg-slate-900">
-                <img
-                  src="/resources_hero_laptop.jpg"
-                  alt="Resources page on a laptop"
-                  className="w-full h-auto object-cover"
-                  onError={(e) => { e.target.src = "/article_green_project_hero.jpg"; }}
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60">
+                  <div className="text-3xl font-black text-brand-orange">{dbCategories.length}</div>
+                  <div className="text-xs text-slate-300 font-semibold mt-1">Categories</div>
+                </div>
+                <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60">
+                  <div className="text-3xl font-black text-white">100%</div>
+                  <div className="text-xs text-slate-300 font-semibold mt-1">Free Access</div>
+                </div>
               </div>
-              {/* CP badge */}
-              <div className="absolute -bottom-3 -left-4 z-20 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-navy to-brand-blue text-white font-extrabold text-lg shadow-xl">
-                CP
-              </div>
+              <p className="text-xs text-slate-400 leading-relaxed font-medium">
+                Written by accredited instructors and enterprise leaders covering PMP, CISSP, Lean Six Sigma, Salesforce, and modern tech frameworks.
+              </p>
             </div>
           </div>
         </div>
@@ -132,229 +150,183 @@ export default function ResourcesPage() {
         <div className="mx-auto max-w-7xl px-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-base font-bold text-brand-navy">Browse by Category</h2>
-            <button
-              onClick={() => setActiveCategory(null)}
-              className="inline-flex items-center gap-1 text-xs font-semibold text-brand-blue hover:underline"
-            >
-              View All Categories <ArrowRight size={13} />
-            </button>
+            {activeCategory && (
+              <button
+                onClick={() => {
+                  setActiveCategory(null);
+                  setVisibleCount(12);
+                }}
+                className="text-xs font-bold text-brand-blue hover:underline"
+              >
+                Clear Filter (Show All)
+              </button>
+            )}
           </div>
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/resources"
-              className={`flex items-center gap-3 rounded-xl border px-4 py-3 text-left hover:shadow-sm transition-all ${
-                activeCategory === null ? "ring-2 ring-brand-blue bg-blue-50/80 border-blue-200" : "bg-gray-50 border-gray-100"
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            <button
+              onClick={() => {
+                setActiveCategory(null);
+                setVisibleCount(12);
+              }}
+              className={`rounded-2xl border p-4 text-left transition-all cursor-pointer ${
+                activeCategory === null
+                  ? "ring-2 ring-brand-blue bg-blue-50/80 border-blue-200"
+                  : "bg-gray-50 border-gray-100 hover:bg-slate-100"
               }`}
             >
-              <div>
-                <p className="text-xs font-bold text-gray-800 leading-snug">All Resources</p>
-                <p className="text-[11px] text-gray-400 font-medium mt-0.5">Articles <span className="font-bold text-gray-600">{dbArticles.length}</span></p>
-              </div>
-            </Link>
+              <p className="text-xs font-bold text-gray-800">All Resources</p>
+              <p className="text-[11px] text-gray-400 font-semibold mt-0.5">{dbArticles.length} Articles</p>
+            </button>
+
             {dbCategories.map((cat, i) => (
-              <Link
+              <button
                 key={i}
-                href={`/resources/category/${cat.slug || cat.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
-                className={`flex items-center gap-3 rounded-xl border px-4 py-3 text-left hover:shadow-sm transition-all ${
-                  activeCategory === cat.name ? "ring-2 ring-brand-blue bg-blue-50/80 border-blue-200" : "bg-gray-50 border-gray-100"
+                onClick={() => {
+                  setActiveCategory(cat.name);
+                  setVisibleCount(12);
+                }}
+                className={`rounded-2xl border p-4 text-left transition-all cursor-pointer ${
+                  activeCategory === cat.name
+                    ? "ring-2 ring-brand-blue bg-blue-50/80 border-blue-200"
+                    : "bg-gray-50 border-gray-100 hover:bg-slate-100"
                 }`}
               >
-                <div>
-                  <p className="text-xs font-bold text-gray-800 leading-snug">{cat.name}</p>
-                  <p className="text-[11px] text-gray-400 font-medium mt-0.5">
-                    Articles <span className="font-bold text-gray-600">{dbArticles.filter(a => (a.category_name || '').toLowerCase() === cat.name.toLowerCase()).length}</span>
-                  </p>
-                </div>
-              </Link>
+                <p className="text-xs font-bold text-gray-800 truncate" title={cat.name}>{cat.name}</p>
+                <p className="text-[11px] text-gray-400 font-semibold mt-0.5">{cat.count} Articles</p>
+              </button>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── Featured + Popular ────────────────────────────────────────────── */}
+      {/* ── Articles Grid ─────────────────────────────────────────────────── */}
       <section className="bg-gray-50 py-14">
-        <div className="mx-auto max-w-7xl px-6 grid gap-8 lg:grid-cols-3">
-
-          {/* Featured Articles — 2/3 */}
-          <div className="lg:col-span-2">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-base font-bold text-brand-navy">Featured Articles</h2>
-              <button onClick={() => { setActiveCategory(null); setSearch(""); }} className="inline-flex items-center gap-1 text-xs font-semibold text-brand-blue hover:underline">
-                View All Articles <ArrowRight size={13} />
-              </button>
-            </div>
-
-            <div className="grid gap-5 sm:grid-cols-2 md:grid-cols-3">
-              {filteredArticles.map((art, i) => (
-                <Link
-                  key={i}
-                  href={`/blog/${art.slug}`}
-                  className="group rounded-2xl bg-white shadow-sm ring-1 ring-gray-100 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex flex-col"
-                >
-                  {/* Image */}
-                  <div className="relative h-36 overflow-hidden bg-slate-900">
-                    <img
-                      src={art.image || "/article_green_project_hero.jpg"}
-                      alt={art.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      onError={(e) => { e.target.src = "/article_green_project_hero.jpg"; }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-                    <div className="absolute top-3 left-3">
-                      <span className="rounded-full px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider backdrop-blur-sm bg-white/90 text-brand-blue">
-                        {art.category_name || "INSIGHT"}
-                      </span>
-                    </div>
-                  </div>
-                  {/* Content */}
-                  <div className="flex flex-col flex-1 p-4">
-                    <h3 className="text-xs font-bold text-brand-navy leading-snug group-hover:text-brand-blue transition-colors line-clamp-2">
-                      {art.title}
-                    </h3>
-                    <p className="mt-2 text-[11px] text-gray-500 leading-relaxed flex-1 line-clamp-2">{art.description}</p>
-                    <div className="mt-3 flex items-center gap-3 text-[10px] text-gray-400 font-medium">
-                      <span className="flex items-center gap-1"><Calendar size={10} />{new Date(art.created_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                      <span className="flex items-center gap-1"><Clock size={10} />{art.views || 120} views</span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-
-              {/* Newsletter CTA card */}
-              <div className="rounded-2xl border-2 border-dashed border-gray-200 bg-white flex flex-col items-center justify-center text-center p-6 gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-blue/8 text-brand-blue">
-                  <Mail size={22} />
-                </div>
-                <h3 className="text-xs font-bold text-brand-navy leading-snug">Never Miss an Update</h3>
-                <p className="text-[11px] text-gray-500 leading-relaxed">
-                  Get the latest articles, tips, and resources delivered to your inbox.
-                </p>
-                <button
-                  onClick={() => document.getElementById("newsletter-input")?.focus()}
-                  className="mt-1 rounded-xl bg-brand-blue px-5 py-2 text-xs font-bold text-white hover:bg-opacity-90 transition-all shadow-sm"
-                >
-                  Subscribe Now
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Most Popular — 1/3 */}
-          <div>
-            <div className="flex items-center gap-2 mb-6">
-              <TrendingUp size={16} className="text-brand-orange" />
-              <h2 className="text-base font-bold text-brand-navy">Most Popular</h2>
-            </div>
-
-            <div className="space-y-4">
-              {popularArticles.map((art, i) => (
-                <Link
-                  key={i}
-                  href={`/blog/${art.slug}`}
-                  className="group flex items-start gap-3 cursor-pointer hover:bg-white rounded-xl p-2 -mx-2 transition-all"
-                >
-                  {/* Number */}
-                  <span className="flex-shrink-0 w-6 text-xs font-extrabold text-gray-300 pt-0.5">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  {/* Real thumbnail */}
-                  <div className="relative flex-shrink-0 h-14 w-14 rounded-xl overflow-hidden shadow-sm bg-slate-900">
-                    <img
-                      src={art.image || "/article_green_project_hero.jpg"}
-                      alt={art.title}
-                      className="w-full h-full object-cover"
-                      onError={(e) => { e.target.src = "/article_green_project_hero.jpg"; }}
-                    />
-                  </div>
-                  {/* Text */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-brand-navy leading-snug group-hover:text-brand-blue transition-colors line-clamp-2">
-                      {art.title}
-                    </p>
-                    <div className="mt-1.5 flex items-center gap-2 text-[10px] text-gray-400 font-medium">
-                      <span className="flex items-center gap-1"><Calendar size={9} />{new Date(art.created_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                      <span className="flex items-center gap-1"><Clock size={9} />{art.views || 120} views</span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-
-            <button onClick={() => { setActiveCategory(null); setSearch(""); }} className="mt-6 inline-flex items-center gap-1.5 text-xs font-bold text-brand-blue hover:underline">
-              View All Popular Articles <ArrowRight size={13} />
-            </button>
-
-            {/* Ad / Promo sidebar card */}
-            <div className="mt-8 rounded-2xl bg-gradient-to-br from-brand-navy to-[#003f70] p-5 text-white">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-brand-orange mb-2">Free Resource</p>
-              <h3 className="text-sm font-bold leading-snug">2026 Certification Salary Guide</h3>
-              <p className="mt-2 text-[11px] text-white/60 leading-relaxed">
-                See how much certified professionals earn across 20+ specializations.
+        <div className="mx-auto max-w-7xl px-6 space-y-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-black text-brand-navy">
+                {activeCategory ? `${activeCategory} Articles` : "All Articles & Guides"}
+              </h2>
+              <p className="text-xs text-gray-400 font-semibold mt-0.5">
+                Showing {displayedArticles.length} of {filteredArticles.length} resources
               </p>
-              <button
-                onClick={() => {
-                  if (typeof window !== "undefined") {
-                    window.dispatchEvent(new CustomEvent("openConsultationModal", { detail: { title: "Download Free Salary Guide" } }));
-                  }
-                }}
-                className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-brand-orange px-4 py-2 text-[11px] font-bold text-white hover:bg-opacity-90 transition-all cursor-pointer"
-              >
-                Download Free <ArrowRight size={11} />
-              </button>
             </div>
           </div>
+
+          {filteredArticles.length > 0 ? (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {displayedArticles.map((art, i) => (
+                <Link
+                  key={art.id || i}
+                  href={`/blog/${art.slug}`}
+                  className="group rounded-2xl bg-white shadow-xs border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
+                >
+                  <div>
+                    {/* Image */}
+                    <div className="relative h-44 overflow-hidden bg-slate-900">
+                      <img
+                        src={art.image || "/article_green_project_hero.jpg"}
+                        alt={art.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        onError={(e) => { e.target.src = "/article_green_project_hero.jpg"; }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                      <div className="absolute top-3 left-3">
+                        <span className="rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wider backdrop-blur-md bg-white/95 text-brand-blue shadow-xs">
+                          {art.category_name || "ARTICLE"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-5 space-y-2">
+                      <h3 className="text-sm font-black text-brand-navy leading-snug group-hover:text-brand-blue transition-colors line-clamp-2">
+                        {art.title}
+                      </h3>
+                      <p className="text-xs text-gray-500 leading-relaxed line-clamp-3 font-medium">
+                        {art.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Card Footer */}
+                  <div className="px-5 pb-5 pt-2 border-t border-gray-50 flex items-center justify-between text-[11px] text-gray-400 font-semibold">
+                    <span className="flex items-center gap-1">
+                      <Calendar size={12} />
+                      {new Date(art.created_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </span>
+                    <span className="text-brand-blue font-bold group-hover:underline flex items-center gap-1">
+                      Read More →
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-white rounded-3xl border border-gray-100 p-16 text-center space-y-4">
+              <p className="text-base font-bold text-gray-700">No articles matched your search.</p>
+              <button
+                onClick={() => { setSearch(""); setActiveCategory(null); }}
+                className="px-6 py-2.5 rounded-xl bg-brand-blue text-white text-xs font-bold"
+              >
+                Clear Search &amp; Show All
+              </button>
+            </div>
+          )}
+
+          {/* Load More Button */}
+          {filteredArticles.length > visibleCount && (
+            <div className="text-center pt-6">
+              <button
+                onClick={() => setVisibleCount(prev => prev + 12)}
+                className="px-8 py-3.5 rounded-xl bg-white border border-gray-200 text-brand-navy hover:bg-slate-50 font-bold text-xs shadow-xs transition-all hover:border-brand-blue"
+              >
+                Load More Articles ({filteredArticles.length - visibleCount} Remaining) ↓
+              </button>
+            </div>
+          )}
         </div>
       </section>
 
-      {/* ── Newsletter Strip ──────────────────────────────────────────────── */}
-      <section className="bg-brand-navy py-12">
-        <div className="mx-auto max-w-7xl px-6 flex flex-col md:flex-row items-center justify-between gap-8">
-          {/* Left */}
-          <div className="flex items-center gap-5">
-            <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-white/10 text-white">
-              <Mail size={26} />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-white">Stay Informed. Stay Ahead.</h2>
-              <p className="text-xs text-white/55 mt-1">
-                Subscribe to our newsletter and get expert insights, career tips, and exclusive resources.
-              </p>
-            </div>
+      {/* ── Newsletter Subscribe ──────────────────────────────────────────── */}
+      <section className="bg-white border-t border-gray-100 py-16">
+        <div className="mx-auto max-w-4xl px-6 text-center space-y-6">
+          <div className="h-12 w-12 rounded-2xl bg-blue-50 text-brand-blue flex items-center justify-center mx-auto">
+            <Mail size={22} />
           </div>
-
-          {/* Right — email form */}
-          <div className="w-full md:w-auto">
-            {subscribed ? (
-              <div className="flex items-center gap-2 text-brand-green font-semibold text-sm">
-                <CheckCircle size={18} /> Subscribed! Welcome aboard.
-              </div>
-            ) : (
-              <form onSubmit={handleSubscribe} className="flex gap-3">
-                <input
-                  id="newsletter-input"
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email address"
-                  className="w-64 md:w-72 rounded-xl border border-white/15 bg-white/10 px-4 py-2.5 text-sm text-white placeholder-white/40 focus:border-white/40 focus:bg-white/15 focus:outline-none transition-all backdrop-blur-sm"
-                />
-                <button
-                  type="submit"
-                  className="rounded-xl bg-brand-blue px-5 py-2.5 text-sm font-bold text-white hover:bg-opacity-90 transition-all shadow-lg whitespace-nowrap"
-                >
-                  Subscribe
-                </button>
-              </form>
-            )}
-            <p className="mt-2 text-[10px] text-white/35 text-center md:text-left">
-              We respect your privacy. Unsubscribe anytime.
+          <div className="space-y-2">
+            <h2 className="text-2xl font-black text-brand-navy">Never Miss an Industry Update</h2>
+            <p className="text-xs text-gray-500 max-w-md mx-auto">
+              Get the latest certification updates, free career roadmaps, and expert articles delivered directly to your inbox.
             </p>
           </div>
+          {subscribed ? (
+            <div className="p-4 rounded-2xl bg-emerald-50 text-emerald-700 text-xs font-bold">
+              🎉 Thank you for subscribing! We'll keep you updated.
+            </div>
+          ) : (
+            <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email address..."
+                className="flex-1 rounded-xl border border-gray-200 px-4 py-3 text-xs focus:outline-none focus:ring-2 focus:ring-brand-blue/20"
+              />
+              <button
+                type="submit"
+                className="rounded-xl bg-brand-blue px-6 py-3 font-bold text-white text-xs hover:bg-opacity-90 shadow-sm"
+              >
+                Subscribe Free
+              </button>
+            </form>
+          )}
         </div>
       </section>
 
-      <Footer />
+      <Footer siteSettings={siteSettings} />
     </div>
   );
 }

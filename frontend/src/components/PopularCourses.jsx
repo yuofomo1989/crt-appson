@@ -190,18 +190,10 @@ export default function PopularCourses() {
                   </Link>
                   <button
                     onClick={() => {
-                      const cartItem = {
-                        course: course.title,
-                        format: "Live Online Class",
-                        price: parseFloat(course.price.replace("$", "").replace(",", "")),
-                        date: course.nextDate
-                      };
-                      if (typeof window !== "undefined") {
-                        localStorage.setItem("cp_cart", JSON.stringify(cartItem));
-                        const isSubpath = window.location.pathname.includes('/crt-appson');
-                        const basePath = isSubpath ? '/crt-appson' : '';
-                        window.location.href = `${basePath}/checkout/`;
-                      }
+                      const courseTitle = course.title || "Certification Training";
+                      const isSubpath = typeof window !== "undefined" && window.location.pathname.includes('/crt-appson');
+                      const basePath = isSubpath ? '/crt-appson' : '';
+                      window.location.href = `${basePath}/enroll/?course=${encodeURIComponent(courseTitle)}&format=Live%20Online`;
                     }}
                     className="flex h-11 items-center justify-center gap-1 rounded-xl bg-brand-blue px-4 text-xs font-bold text-white hover:bg-opacity-90 transition-all shadow-md shadow-blue-500/10 cursor-pointer"
                   >

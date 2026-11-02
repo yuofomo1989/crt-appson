@@ -6,12 +6,35 @@ import CourseDetailsClient from "@/components/CourseDetailsClient";
 import initialCourses from "@/data/courses_db.json";
 import initialSchedules from "@/data/schedules_db.json";
 
+function findCourseBySlug(list, targetSlug) {
+  if (!list || list.length === 0) return null;
+  if (!targetSlug) return list[0];
+  const s = targetSlug.toLowerCase().trim();
+
+  // 1. Exact match on slug
+  let found = list.find(c => c.slug && c.slug.toLowerCase() === s);
+  if (found) return found;
+
+  // 2. Exact match on normalized title
+  found = list.find(c => c.title && c.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") === s);
+  if (found) return found;
+
+  // 3. Normalized alias matching (e.g. "pmp-certification" -> "pmp-certification-training")
+  const cleanWord = s.replace(/(-certification|-training|-prep|-exam)/gi, "").replace(/[^a-z0-9]/g, "");
+  if (cleanWord.length >= 3) {
+    found = list.find(c => {
+      const cSlug = (c.slug || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+      const cTitle = (c.title || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+      return cSlug.includes(cleanWord) || cTitle.includes(cleanWord);
+    });
+    if (found) return found;
+  }
+
+  return list[0];
+}
+
 export default function CourseDetailsWrapper({ slug }) {
-  // Find course from pre-exported database immediately
-  const preloadedCourse = (initialCourses || []).find(
-    c => (c.slug || c.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")) === slug ||
-         (slug === "pmp-certification" && (c.slug === "pmp-certification-training" || c.title.includes("PMP")))
-  ) || initialCourses?.[0] || null;
+  const preloadedCourse = findCourseBySlug(initialCourses, slug);
 
   const [course, setCourse] = useState(preloadedCourse);
   const [schedules, setSchedules] = useState(initialSchedules || []);
@@ -28,21 +51,16 @@ export default function CourseDetailsWrapper({ slug }) {
         const cData = await cRes.json();
         const sData = await sRes.json();
 
-        let allCourses = [];
-        if (cData.status === "success" && cData.data && cData.data.length > 0) {
-          allCourses = cData.data;
-          const foundCourse = allCourses.find(
-            c => (c.slug || c.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")) === slug ||
-                 (slug === "pmp-certification" && (c.slug === "pmp-certification-training" || c.title.includes("PMP")))
-          ) || allCourses[0];
-          setCourse(foundCourse);
+        if (cData.status === "success" && Array.isArray(cData.data) && cData.data.length > 0) {
+          const matched = findCourseBySlug(cData.data, slug);
+          if (matched) setCourse(matched);
         }
 
-        if (sData.status === "success" && sData.data && sData.data.length > 0) {
+        if (sData.status === "success" && Array.isArray(sData.data)) {
           setSchedules(sData.data);
         }
       } catch (err) {
-        // Safe fallback already pre-loaded from database JSON!
+        // Safe fallback already preloaded
       }
     }
     fetchCourseData();

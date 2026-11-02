@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "name": "Global Executive Flash Sale",
+    "title": "Summer Executive Flash Sale",
+    "subtitle": "Get $200 off any bootcamp with code EXECUTIVE200",
+    "coupon_code": "EXECUTIVE200",
+    "cta_text": "Claim Free Consultation & Offer",
+    "trigger_type": "delay",
+    "delay_seconds": 4,
+    "target_type": "all",
+    "target_course_ids": [],
+    "target_category_names": [],
+    "theme_color": "navy",
+    "banner_image": "/article_green_project_hero.jpg",
+    "status": "active",
+    "created_at": "2026-10-31T00:00:00.000Z",
+    "updated_at": "2026-11-02T19:12:20.454Z",
+    "trigger_delay": 15,
+    "is_active": true
+  }
+]

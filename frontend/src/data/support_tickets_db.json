@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1793648066990,
+    "ticket_number": "CHAT-29273",
+    "name": "Rohan Sharma",
+    "email": "rohan.sharma@example.com",
+    "phone": "+1 555 234 5678",
+    "subject": "Live Chat: PMP® Certification Training",
+    "request_type": "Live Chat Inquiry",
+    "status": "open",
+    "priority": "high",
+    "course_title": "PMP® Certification Training",
+    "source_page": "/courses/pmp-certification-training",
+    "created_at": "2026-11-02T19:34:26.990Z",
+    "updated_at": "2026-11-02T19:34:26.990Z",
+    "messages": [
+      {
+        "id": 1,
+        "sender": "student",
+        "sender_name": "Rohan Sharma",
+        "message": "Hello, what are the dates for the next PMP weekend batch?",
+        "created_at": "2026-11-02T19:34:26.990Z"
+      },
+      {
+        "id": 2,
+        "sender": "support",
+        "sender_name": "Sarah Mitchell (Advisor)",
+        "message": "Hello! 👋 Thank you for connecting with Certification Planner. I have noted your inquiry regarding \"PMP® Certification Training\". Our senior advisor is reviewing your request right now. You can also reach our direct advisory line at +1-855-322-1201.",
+        "created_at": "2026-11-02T19:34:27.990Z"
+      },
+      {
+        "id": 3,
+        "sender": "support",
+        "sender_name": "Sarah Mitchell (Support Admin)",
+        "message": "Hi Rohan! Our next PMP weekend batch starts on Saturday, Nov 15th from 9 AM to 5 PM EST. Would you like me to reserve a tentative seat?",
+        "created_at": "2026-11-02T19:34:48.642Z"
+      }
+    ]
+  },
+  {
+    "id": 1,
+    "ticket_number": "TKT-88421",
+    "name": "Alex Reynolds",
+    "email": "alex.reynolds@example.com",
+    "subject": "PMP® Exam Application Verification Support",
+    "status": "in_progress",
+    "priority": "high",
+    "course_title": "PMP® Certification Training",
+    "created_at": "2026-10-31T11:45:00.000Z",
+    "messages": [
+      {
+        "id": 1,
+        "sender": "student",
+        "sender_name": "Alex Reynolds",
+        "message": "Hi, I have completed the 35 contact hours training and need assistance verifying my project management experience on the PMI portal before submitting.",
+        "created_at": "2026-10-31T11:45:00.000Z"
+      }
+    ],
+    "admin_notes": "Assigned to instructor Greg for PMI application review.",
+    "updated_at": "2026-11-02T19:05:00.126Z"
+  }
+]

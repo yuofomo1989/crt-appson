@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getOrders } from '@/lib/db';
+import { getOrders, saveOrder } from '@/lib/db';
 
 export async function GET() {
   try {
@@ -13,7 +13,8 @@ export async function GET() {
 export async function POST(request) {
   try {
     const body = await request.json();
-    return NextResponse.json({ status: 'success', message: 'Order created', data: body });
+    const saved = await saveOrder(body);
+    return NextResponse.json({ status: 'success', message: 'Order created', data: saved });
   } catch (err) {
     return NextResponse.json({ status: 'error', message: err.message }, { status: 500 });
   }

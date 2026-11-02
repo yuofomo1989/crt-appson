@@ -16,6 +16,7 @@ const levels = ["All Levels", "Beginner", "Intermediate", "Advanced"];
 export default function Certifications() {
   const [coursesList, setCoursesList] = useState(initialCourses || []);
   const [categoriesList, setCategoriesList] = useState(initialCategories || []);
+  const [siteSettings, setSiteSettings] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const [selectedPath, setSelectedPath] = useState("All Paths");
@@ -28,12 +29,17 @@ export default function Certifications() {
     async function fetchDynamicCourses() {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
       try {
-        const [cRes, catRes] = await Promise.all([
+        const [cRes, catRes, setRes] = await Promise.all([
           fetch(`${apiUrl}/courses`),
-          fetch(`${apiUrl}/categories`)
+          fetch(`${apiUrl}/categories`),
+          fetch(`${apiUrl}/settings/`).catch(() => ({}))
         ]);
         const cData = await cRes.json();
         const catData = await catRes.json();
+        if (setRes.json) {
+          const setData = await setRes.json().catch(() => null);
+          if (setData) setSiteSettings(setData);
+        }
 
         if (cData.status === 'success' && cData.data && cData.data.length > 0) {
           setCoursesList(cData.data);
@@ -73,7 +79,7 @@ export default function Certifications() {
 
   return (
     <div className="min-h-screen bg-slate-50/50 flex flex-col justify-between">
-      <Navbar />
+      <Navbar siteSettings={siteSettings} />
 
       <main className="max-w-7xl mx-auto px-4 py-12 md:px-6 flex-1 space-y-8 w-full">
         
@@ -291,16 +297,8 @@ export default function Certifications() {
                         </Link>
                         <button
                           onClick={() => {
-                            const cartItem = {
-                              course: course.title,
-                              format: "Live Online Class",
-                              price: typeof course.price === 'number' ? course.price : parseFloat(String(course.price).replace("$", "").replace(",", "")),
-                              date: course.nextDate || "Aug 26 - Aug 29, 2026"
-                            };
-                            if (typeof window !== "undefined") {
-                              localStorage.setItem("cp_cart", JSON.stringify(cartItem));
-                              window.location.href = `/enroll`;
-                            }
+                            const courseTitle = course.title || "Certification Training";
+                            window.location.href = `/enroll/?course=${encodeURIComponent(courseTitle)}&format=Live%20Online`;
                           }}
                           className="flex h-9 items-center justify-center gap-1.5 rounded-xl bg-brand-blue px-3.5 text-[10px] font-bold text-white hover:bg-opacity-90 shadow-md transition-all cursor-pointer"
                         >
@@ -403,7 +401,7 @@ export default function Certifications() {
       )}
 
       <PreFooter />
-      <Footer />
+      <Footer siteSettings={siteSettings} />
     </div>
   );
 }

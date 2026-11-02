@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getUsers } from '@/lib/db';
+import { getUsers, saveUser } from '@/lib/db';
 
 export async function GET() {
   try {
@@ -13,7 +13,8 @@ export async function GET() {
 export async function POST(request) {
   try {
     const body = await request.json();
-    return NextResponse.json({ status: 'success', message: 'User updated', data: body });
+    const saved = await saveUser(body);
+    return NextResponse.json({ status: 'success', message: 'User created successfully', data: saved });
   } catch (err) {
     return NextResponse.json({ status: 'error', message: err.message }, { status: 500 });
   }

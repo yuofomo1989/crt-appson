@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "course_id": 1,
+    "course_title": "PMP® Certification Training",
+    "document_title": "PMP Official Exam Outline & Syllabus 2026",
+    "file_url": "/brochures/pmp-syllabus.pdf",
+    "file_type": "pdf",
+    "file_size": "2.4 MB",
+    "created_at": "2026-09-01T00:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "course_id": 15,
+    "course_title": "CISSP® Exam Prep Bootcamp",
+    "document_title": "CISSP 8 Domains Master Curriculum Guide",
+    "file_url": "/brochures/cissp-syllabus.pdf",
+    "file_type": "pdf",
+    "file_size": "3.1 MB",
+    "created_at": "2026-09-01T00:00:00.000Z"
+  }
+]

@@ -2,6 +2,7 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { ModalProvider } from "@/context/ModalContext";
 import DynamicMarketingPopup from "@/components/DynamicMarketingPopup";
+import FloatingChatWidget from "@/components/FloatingChatWidget";
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -25,6 +26,7 @@ export default function RootLayout({ children }) {
         <ModalProvider>
           {children}
           <DynamicMarketingPopup />
+          <FloatingChatWidget />
         </ModalProvider>
       </body>
     </html>

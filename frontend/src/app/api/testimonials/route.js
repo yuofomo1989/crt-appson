@@ -1,10 +1,26 @@
 import { NextResponse } from 'next/server';
+import testimonialsDb from '@/data/testimonials_db.json';
 
-const defaultTestimonials = [
-  { id: 1, name: "Marcus Vance", role: "VP of Technology", company: "FinTech Solutions", content: "The PMP bootcamp was exceptionally organized. Passed my exam on the first try with Above Target ratings in all 3 domains!", rating: 5, course_id: 1, is_featured: true },
-  { id: 2, name: "Elena Rostova", role: "Principal Cloud Architect", company: "Datacom Systems", content: "Hands-on labs and real-world exam simulators made the AWS Solutions Architect certification achievable within 3 weeks.", rating: 5, course_id: 2, is_featured: true }
-];
+export async function GET(request) {
+  const { searchParams } = new URL(request.url);
+  const page = searchParams.get('page') || searchParams.get('slug') || '';
+  const limit = parseInt(searchParams.get('limit')) || 20;
 
-export async function GET() {
-  return NextResponse.json({ status: 'success', data: defaultTestimonials });
+  let list = testimonialsDb || [];
+
+  if (page) {
+    const slug = page.toLowerCase().trim();
+    const filtered = list.filter(t => 
+      Array.isArray(t.course_slugs) && t.course_slugs.some(s => s.toLowerCase().includes(slug) || slug.includes(s.toLowerCase()))
+    );
+    if (filtered.length > 0) {
+      list = filtered;
+    }
+  }
+
+  return NextResponse.json({
+    status: 'success',
+    total: list.length,
+    data: list.slice(0, limit)
+  });
 }
