@@ -99,8 +99,55 @@ export default function UpcomingLiveClasses({ schedules = [], courses = [] }) {
     return `${hour12}:${String(m || 0).padStart(2, "0")} ${period}`;
   };
 
-  const displayClasses = (schedules && schedules.length > 0)
-    ? schedules.slice(0, 8).map((sch, idx) => {
+  // Pick distinct certification courses so each card showcases a unique top program
+  const getCourseFamily = (title = "") => {
+    const t = title.toLowerCase();
+    if (t.includes("pmp plus") || t.includes("pmp ")) return "pmp";
+    if (t.includes("capm")) return "capm";
+    if (t.includes("pmi-acp") || t.includes("pmi acp")) return "pmi-acp";
+    if (t.includes("cissp")) return "cissp";
+    if (t.includes("green belt") && !t.includes("black")) return "lssgb";
+    if (t.includes("green and black") || t.includes("black belt")) return "lssbb";
+    if (t.includes("cbap")) return "cbap";
+    if (t.includes("pgmp")) return "pgmp";
+    if (t.includes("cism") || t.includes("cisa")) return "cism";
+    if (t.includes("security+")) return "secplus";
+    if (t.includes("devops")) return "devops";
+    if (t.includes("salesforce")) return "salesforce";
+    return t;
+  };
+
+  const getDistinctSchedules = (list = []) => {
+    if (!list || list.length === 0) return [];
+    const distinct = [];
+    const seenFamilies = new Set();
+    for (const s of list) {
+      const cObj = (courses || []).find(c => c.id === s.course_id || c.slug === s.course_slug);
+      const title = s.course_title || (cObj ? cObj.title : "");
+      if (!title) continue;
+      const family = getCourseFamily(title);
+      if (!seenFamilies.has(family)) {
+        seenFamilies.add(family);
+        distinct.push(s);
+        if (distinct.length >= 8) break;
+      }
+    }
+    // If fewer than 8 distinct found, fill remainder with other available schedules
+    if (distinct.length < 8) {
+      for (const s of list) {
+        if (!distinct.some(d => d.id === s.id)) {
+          distinct.push(s);
+          if (distinct.length >= 8) break;
+        }
+      }
+    }
+    return distinct.length > 0 ? distinct : list.slice(0, 8);
+  };
+
+  const distinctList = (schedules && schedules.length > 0) ? getDistinctSchedules(schedules) : [];
+
+  const displayClasses = (distinctList.length > 0)
+    ? distinctList.map((sch, idx) => {
         const courseObj = (courses || []).find(c => c.id === sch.course_id || c.slug === sch.course_slug);
         const courseTitle = sch.course_title || (courseObj ? courseObj.title : "Professional Certification Bootcamp");
         
