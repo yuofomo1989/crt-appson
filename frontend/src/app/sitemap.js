@@ -1,6 +1,6 @@
 import courses from '@/data/courses_db.json';
 import categories from '@/data/categories_db.json';
-import articles from '@/data/articles_db.json';
+import articles from '@/data/articles_summary.json';
 
 export default function sitemap() {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.certificationplanner.com';

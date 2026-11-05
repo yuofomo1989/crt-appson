@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import articles from '@/data/articles_db.json';
+import { getArticles } from '@/lib/db';
 
 export async function GET(request) {
   try {
@@ -8,6 +8,7 @@ export async function GET(request) {
     const search = searchParams.get('search');
     const limit = parseInt(searchParams.get('limit')) || 0;
 
+    const articles = await getArticles();
     let result = articles || [];
 
     if (category && category !== 'all') {

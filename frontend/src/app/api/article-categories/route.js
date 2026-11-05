@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import articles from '@/data/articles_db.json';
+import articles from '@/data/articles_summary.json';
 
 export async function GET() {
   try {

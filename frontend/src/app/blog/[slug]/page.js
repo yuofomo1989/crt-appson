@@ -32,7 +32,7 @@ import {
   MessageCircle
 } from "lucide-react";
 
-import initialArticles from "@/data/articles_db.json";
+import initialArticles from "@/data/articles_summary.json";
 
 const LIFECYCLE_PHASES = [
   {

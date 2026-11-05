@@ -33,7 +33,7 @@ import {
   Crown
 } from "lucide-react";
 
-import initialArticles from "@/data/articles_db.json";
+import initialArticles from "@/data/articles_summary.json";
 import initialSiteSettings from "@/data/site_settings_db.json";
 
 const openModal = (title = "Book a Free Consultation") => {

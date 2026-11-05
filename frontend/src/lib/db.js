@@ -7,19 +7,7 @@ import initialSchedules from '@/data/schedules_db.json';
 import initialSiteSettings from '@/data/site_settings_db.json';
 
 function getDbFilePath(filename) {
-  const possibleDirs = [
-    path.join(process.cwd(), 'src', 'data'),
-    path.join(process.cwd(), 'frontend', 'src', 'data'),
-  ];
-  for (const d of possibleDirs) {
-    const full = path.join(d, filename);
-    if (fs.existsSync(full)) return full;
-  }
-  const targetDir = possibleDirs[0];
-  if (!fs.existsSync(targetDir)) {
-    try { fs.mkdirSync(targetDir, { recursive: true }); } catch (e) {}
-  }
-  return path.join(targetDir, filename);
+  return path.join(process.cwd(), 'src', 'data', filename);
 }
 
 let pool = null;
