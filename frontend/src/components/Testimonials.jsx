@@ -65,12 +65,12 @@ export default function Testimonials({ siteSettings = {} }) {
     : displayTestimonials;
 
   return (
-    <section className="py-10 md:py-14 bg-white border-b border-gray-100 overflow-hidden">
+    <section className="py-6 md:py-8 bg-white border-b border-gray-100 overflow-hidden">
       <div className="mx-auto max-w-7xl px-4 md:px-6">
-        <div className="grid lg:grid-cols-12 gap-12 items-center">
+        <div className="grid lg:grid-cols-12 gap-7 items-center">
           
           {/* Left Column Text & CTA */}
-          <div className="lg:col-span-4 space-y-6 text-left">
+          <div className="lg:col-span-4 space-y-4 text-left">
             <h2 className="text-3xl md:text-5xl font-black text-brand-navy tracking-tight leading-tight">
               {siteSettings.testimonials_title ? (
                 <span dangerouslySetInnerHTML={{ __html: siteSettings.testimonials_title }} />
@@ -89,9 +89,10 @@ export default function Testimonials({ siteSettings = {} }) {
             <div className="flex items-center gap-3 pt-2">
               <button
                 onClick={() => openModal("Book a Free Consultation")}
-                className="inline-flex items-center justify-center rounded-2xl bg-brand-blue px-7 py-4 text-xs font-bold text-white shadow-lg shadow-blue-500/20 hover:bg-opacity-90 transition-all hover:scale-[1.01] cursor-pointer"
+                className="inline-flex items-center justify-center gap-1.5 rounded-2xl bg-brand-blue px-7 py-4 text-xs font-bold text-white shadow-lg shadow-blue-500/20 hover:bg-opacity-90 transition-all hover:scale-[1.01] cursor-pointer"
               >
-                View More Success Stories
+                <span>View More Success Stories</span>
+                <span>→</span>
               </button>
 
               {isCarousel && (
@@ -124,19 +125,19 @@ export default function Testimonials({ siteSettings = {} }) {
             {visibleTestimonials.map((item, idx) => (
               <div
                 key={idx}
-                className="bg-white rounded-3xl border border-gray-200/80 p-6 flex flex-col justify-between hover:shadow-xl transition-all duration-500 hover:translate-y-[-4px] text-left space-y-6"
+                className="bg-white rounded-3xl border border-gray-200/80 p-6 flex flex-col justify-between hover:shadow-xl transition-all duration-500 hover:translate-y-[-4px] text-left space-y-5"
               >
                 <div className="space-y-4">
-                  {/* Badge & Rating */}
+                  {/* Rating Stars on Left & Badge on Right (Matches Reference Image 1) */}
                   <div className="flex items-center justify-between">
-                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${item.badgeColor || 'bg-emerald-50 text-emerald-600 border-emerald-200'}`}>
-                      {item.badge || 'Graduate'}
-                    </span>
                     <div className="flex text-amber-400 gap-0.5">
                       {[...Array(parseInt(item.rating || 5))].map((_, i) => (
                         <Star key={i} size={13} className="fill-amber-400 text-amber-400" />
                       ))}
                     </div>
+                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${item.badgeColor || 'bg-emerald-50 text-emerald-600 border-emerald-200'}`}>
+                      {item.badge || 'Promotion'}
+                    </span>
                   </div>
 
                   {/* Quote */}
@@ -145,15 +146,21 @@ export default function Testimonials({ siteSettings = {} }) {
                   </p>
                 </div>
 
-                {/* Author Info */}
-                <div className="pt-4 border-t border-gray-100 flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-brand-blue/10 text-brand-blue font-bold flex items-center justify-center text-sm border border-brand-blue/20 shrink-0">
-                    {item.name ? item.name.charAt(0) : "S"}
+                {/* Author Info + Bottom Blue Underlined Credential */}
+                <div className="pt-4 border-t border-gray-100 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-brand-blue/10 text-brand-blue font-bold flex items-center justify-center text-sm border border-brand-blue/20 shrink-0">
+                      {item.name ? item.name.charAt(0) : "S"}
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-black text-brand-navy">{item.name}</h4>
+                      <p className="text-[10px] text-gray-400 font-bold">{item.role} • {item.location || 'USA'}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="text-xs font-black text-brand-navy">{item.name}</h4>
-                    <p className="text-[10px] text-gray-400 font-bold">{item.role} • {item.location || 'USA'}</p>
-                    <p className="text-[10px] font-bold text-brand-blue">{item.cert || "Alumni"}</p>
+                  <div className="pt-1">
+                    <span className="inline-block text-[11px] font-extrabold text-brand-blue border-b-2 border-brand-blue pb-0.5">
+                      {item.cert || "Certified PMP®"}
+                    </span>
                   </div>
                 </div>
               </div>

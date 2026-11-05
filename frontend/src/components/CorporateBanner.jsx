@@ -8,16 +8,16 @@ import { Check } from "lucide-react";
 export default function CorporateBanner({ siteSettings = {} }) {
 
   return (
-    <section className="max-w-7xl mx-auto px-4 md:px-6 py-8">
-      <div className="rounded-3xl bg-gradient-to-r from-brand-navy via-slate-900 to-brand-navy p-8 md:p-12 text-white shadow-2xl overflow-hidden relative">
+    <section className="max-w-7xl mx-auto px-4 md:px-6 py-5">
+      <div className="rounded-3xl bg-gradient-to-r from-brand-navy via-slate-900 to-brand-navy p-6 md:p-8 text-white shadow-2xl overflow-hidden relative">
         
         {/* Glow Effects */}
         <div className="absolute top-0 right-0 h-96 w-96 rounded-full bg-brand-blue/20 blur-3xl"></div>
 
-        <div className="grid lg:grid-cols-12 gap-8 items-center relative z-10">
+        <div className="grid lg:grid-cols-12 gap-6 items-center relative z-10">
           
           {/* Left Text */}
-          <div className="lg:col-span-6 space-y-6 text-left">
+          <div className="lg:col-span-6 space-y-4 text-left">
             <h2 className="text-2xl md:text-4xl font-black tracking-tight leading-tight">
               {siteSettings.corporate_title || "Corporate Training Solutions"}
             </h2>

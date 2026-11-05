@@ -63,8 +63,8 @@ export default function WhyChooseUs({ siteSettings = {} }) {
     : defaultBenefits;
 
   return (
-    <section className="py-10 md:py-14 bg-slate-50/60 border-b border-gray-100">
-      <div className="mx-auto max-w-7xl px-4 md:px-6 space-y-12">
+    <section className="py-6 md:py-8 bg-slate-50/60 border-b border-gray-100">
+      <div className="mx-auto max-w-7xl px-4 md:px-6 space-y-5">
         
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto space-y-3">

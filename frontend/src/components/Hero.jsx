@@ -24,19 +24,19 @@ export default function Hero({ siteSettings = {} }) {
   const badgeText = siteSettings.hero_badge_subtitle || "Professionals Trained Worldwide";
 
   return (
-    <section className="relative w-full overflow-hidden bg-white pt-6 sm:pt-10 lg:pt-14 pb-0">
+    <section className="relative w-full overflow-hidden bg-white pt-4 sm:pt-6 lg:pt-8 pb-0">
       {/* Background Soft Ambient Arc Gradient */}
       <div className="absolute top-0 right-0 w-[55%] h-full pointer-events-none hidden lg:block">
         <div className="absolute -top-10 right-0 w-[580px] h-[580px] rounded-full bg-gradient-to-br from-blue-100/50 via-sky-50/40 to-transparent blur-2xl"></div>
       </div>
 
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-12 gap-8 lg:gap-6 items-stretch">
+        <div className="grid lg:grid-cols-12 gap-6 lg:gap-6 items-stretch">
           
           {/* =========================================
               LEFT COLUMN: Typography & Actions
              ========================================= */}
-          <div className="lg:col-span-6 space-y-6 text-left pb-4 lg:pb-8 pt-2 flex flex-col justify-center">
+          <div className="lg:col-span-6 space-y-4 text-left pb-3 lg:pb-5 pt-1 flex flex-col justify-center">
             
             {/* Main Headline (Exact Match to Reference) */}
             <h1 className="text-4xl sm:text-5xl lg:text-[56px] xl:text-[62px] font-black text-[#0B1E33] tracking-tight leading-[1.12]">
@@ -61,10 +61,11 @@ export default function Hero({ siteSettings = {} }) {
             {/* Action Buttons */}
             <div className="flex flex-wrap items-center gap-4 pt-1">
               <Link
-                href="/courses"
-                className="inline-flex items-center justify-center rounded-xl bg-brand-blue hover:bg-blue-600 px-7 py-3.5 text-sm font-bold text-white shadow-md shadow-blue-500/20 transition-all hover:scale-[1.02] active:scale-[0.99]"
+                href="/certifications"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-orange hover:bg-orange-600 px-7 py-3.5 text-sm font-bold text-white shadow-md shadow-orange-500/20 transition-all hover:scale-[1.02] active:scale-[0.99]"
               >
-                Explore Certifications
+                <span>Explore Certifications</span>
+                <span>→</span>
               </Link>
 
               <button

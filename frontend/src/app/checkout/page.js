@@ -4,29 +4,45 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import {
   CreditCard,
-  Shield,
+  ShieldCheck,
   User,
-  ShoppingBag,
   ShoppingCart,
   ArrowRight,
+  ArrowLeft,
   Lock,
   Calendar,
   Clock,
-  MapPin,
+  Monitor,
+  Layers,
   Check,
   Headphones,
-  Globe,
   Trash2,
-  Sparkles,
   ChevronRight,
-  Star,
-  BookOpen
+  ChevronDown,
+  BookOpen,
+  Mail,
+  Phone,
+  MessageSquare,
+  Building2,
+  Landmark,
+  Gift,
+  Info,
+  GraduationCap
 } from "lucide-react";
 
 import initialCourses from "@/data/courses_db.json";
+
+const DEFAULT_CHECKOUT_ITEM = {
+  course: "PMP® Certification Exam Preparation Training",
+  format: "Live Online Class",
+  price: 999,
+  date: "Nov 03 – Nov 06, 2026 (Tue – Fri)",
+  time: "9:00 AM – 5:00 PM (EST)",
+  location: "Live Online Classroom",
+  duration: "4 Days | 35 Contact Hours"
+};
 
 export default function Checkout() {
   const router = useRouter();
@@ -39,6 +55,7 @@ export default function Checkout() {
   const [company, setCompany] = useState("");
   const [howHear, setHowHear] = useState("");
   const [marketingOpt, setMarketingOpt] = useState(false);
+  const [showAdditionalInfo, setShowAdditionalInfo] = useState(false);
 
   // Payment states
   const [paymentMethod, setPaymentMethod] = useState("card");
@@ -48,8 +65,8 @@ export default function Checkout() {
   const [nameOnCard, setNameOnCard] = useState("");
   const [saveCard, setSaveCard] = useState(true);
 
-  // Cart state: initialized as null (NOT hardcoded with default course)
-  const [cartItem, setCartItem] = useState(null);
+  // Cart state
+  const [cartItem, setCartItem] = useState(DEFAULT_CHECKOUT_ITEM);
   const [isCartLoaded, setIsCartLoaded] = useState(false);
   const [isTestModeEnabled, setIsTestModeEnabled] = useState(false);
 
@@ -61,23 +78,18 @@ export default function Checkout() {
           const parsed = JSON.parse(stored);
           if (parsed && (parsed.course || parsed.title)) {
             setCartItem({
-              course: parsed.course || parsed.title || "Certification Training",
-              format: parsed.format || "Live Online Class",
-              price: parseFloat(parsed.price) || 1095,
-              date: parsed.date || parsed.batch_date || "Upcoming Live Cohort",
-              time: parsed.time || "9:00 AM – 5:00 PM (EST)",
-              location: parsed.location || parsed.city || "Online Virtual Classroom",
-              duration: parsed.duration || "4 Days | 35 Contact Hours"
+              course: parsed.course || parsed.title || DEFAULT_CHECKOUT_ITEM.course,
+              format: parsed.format || DEFAULT_CHECKOUT_ITEM.format,
+              price: parseFloat(parsed.price) || DEFAULT_CHECKOUT_ITEM.price,
+              date: parsed.date || parsed.batch_date || DEFAULT_CHECKOUT_ITEM.date,
+              time: parsed.time || DEFAULT_CHECKOUT_ITEM.time,
+              location: parsed.location || parsed.city || DEFAULT_CHECKOUT_ITEM.location,
+              duration: parsed.duration || DEFAULT_CHECKOUT_ITEM.duration
             });
-          } else {
-            setCartItem(null);
           }
         } catch (e) {
           console.error("Error parsing cart item", e);
-          setCartItem(null);
         }
-      } else {
-        setCartItem(null);
       }
       setIsCartLoaded(true);
 
@@ -97,7 +109,11 @@ export default function Checkout() {
     setCartItem(null);
   };
 
-  const rewardPoints = cartItem ? Math.floor(cartItem.price / 10) : 0;
+  const handleRestoreDefaultItem = () => {
+    setCartItem(DEFAULT_CHECKOUT_ITEM);
+  };
+
+  const rewardPoints = cartItem ? Math.floor(cartItem.price / 10) : 99;
 
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
@@ -116,7 +132,14 @@ export default function Checkout() {
       subtotal: cartItem.price,
       discount_amount: 0,
       payment_status: "completed",
-      payment_method: paymentMethod === "test_gateway" ? "🧪 Sandbox Test Gateway" : (paymentMethod === "card" ? "Credit / Debit Card" : paymentMethod),
+      payment_method:
+        paymentMethod === "test_gateway"
+          ? "🧪 Sandbox Test Gateway"
+          : paymentMethod === "card"
+          ? "Credit / Debit Card"
+          : paymentMethod === "paypal"
+          ? "PayPal"
+          : "Wire Transfer",
       items: [
         {
           course: cartItem.course,
@@ -127,227 +150,230 @@ export default function Checkout() {
         }
       ]
     };
-    
+
     if (typeof window !== "undefined") {
       localStorage.setItem("cp_latest_order", JSON.stringify(orderPayload));
       localStorage.removeItem("cp_cart");
       window.dispatchEvent(new Event("cartUpdated"));
     }
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
     try {
       await Promise.all([
         fetch(`${apiUrl}/orders/checkout`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
           body: JSON.stringify(orderPayload)
         }),
         fetch(`${apiUrl}/admin/orders`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
           body: JSON.stringify(orderPayload)
         })
       ]);
     } catch (err) {
       console.error("Order API sync error:", err);
     }
-    
+
     router.push(`/confirmation?orderId=${orderId}&amount=${cartItem.price}`);
   };
 
   const popularCourses = (initialCourses || []).slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-slate-50/20 font-sans antialiased text-gray-800">
+    <div className="min-h-screen flex flex-col bg-[#f8fafc] font-sans antialiased text-slate-800">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-4 py-8 md:py-12 md:px-6 space-y-10">
-        
-        {/* Breadcrumb path */}
-        <div className="text-[11px] text-gray-400 font-bold flex items-center gap-1.5 text-left">
-          <Link href="/" className="hover:text-brand-blue cursor-pointer">Home</Link>
-          <ChevronRight size={12} />
-          <span className="text-gray-600 font-black">Cart & Checkout</span>
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-5 space-y-4">
+        {/* Breadcrumb */}
+        <div className="text-xs text-slate-500 font-medium flex items-center gap-1.5">
+          <Link href="/" className="hover:text-[#0066cc] transition-colors">
+            Home
+          </Link>
+          <ChevronRight size={13} className="text-slate-400" />
+          <span className="text-slate-700 font-semibold">Cart & Checkout</span>
         </div>
 
-        {/* Loading state before checking localStorage */}
-        {!isCartLoaded && (
-          <div className="py-20 text-center space-y-3">
-            <div className="h-8 w-8 border-2 border-brand-blue border-t-transparent rounded-full animate-spin mx-auto" />
-            <p className="text-xs text-gray-400 font-bold">Loading your cart...</p>
+        {/* Top Header + 4-Step Progress Stepper Row */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-1">
+          {/* Left: Orange Lock + Secure Checkout Title */}
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-14 rounded-2xl bg-gradient-to-b from-[#ff7a18] to-[#ea580c] text-white flex items-center justify-center shadow-md shadow-orange-500/20 shrink-0">
+              <Lock size={26} strokeWidth={2.3} />
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl md:text-[34px] font-black tracking-tight text-[#0f172a] leading-none">
+                Secure <span className="text-[#f97316]">Checkout</span>
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-600 font-medium mt-1.5">
+                Complete your registration in a few simple steps.
+              </p>
+            </div>
           </div>
-        )}
 
-        {/* 1. EMPTY CART STATE (When user hasn't added any product) */}
+          {/* Right: 4-Step Horizontal Stepper */}
+          <div className="w-full lg:w-auto lg:min-w-[520px] flex items-center justify-between">
+            {/* Step 1: Your Cart */}
+            <div className="flex flex-col items-center gap-1.5">
+              <div className="w-8 h-8 rounded-full bg-[#16a34a] text-white flex items-center justify-center font-bold shadow-sm">
+                <Check size={16} strokeWidth={3} />
+              </div>
+              <span className="text-[11px] font-semibold text-slate-700">Your Cart</span>
+            </div>
+
+            <div className="h-[2px] bg-[#16a34a] flex-1 mx-2 sm:mx-3 -mt-5" />
+
+            {/* Step 2: Your Details (Active) */}
+            <div className="flex flex-col items-center gap-1.5">
+              <div className="w-8 h-8 rounded-full bg-[#0066cc] text-white flex items-center justify-center text-xs font-extrabold shadow-md shadow-blue-500/25">
+                2
+              </div>
+              <span className="text-[11px] font-extrabold text-[#0066cc]">Your Details</span>
+            </div>
+
+            <div className="h-[2px] bg-blue-200 flex-1 mx-2 sm:mx-3 -mt-5" />
+
+            {/* Step 3: Payment */}
+            <div className="flex flex-col items-center gap-1.5">
+              <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-extrabold">
+                3
+              </div>
+              <span className="text-[11px] font-semibold text-slate-600">Payment</span>
+            </div>
+
+            <div className="h-[2px] bg-slate-200 flex-1 mx-2 sm:mx-3 -mt-5" />
+
+            {/* Step 4: Confirmation */}
+            <div className="flex flex-col items-center gap-1.5">
+              <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-extrabold">
+                4
+              </div>
+              <span className="text-[11px] font-semibold text-slate-600">Confirmation</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Empty Cart State (only if user clicks Remove) */}
         {isCartLoaded && !cartItem && (
-          <div className="max-w-3xl mx-auto space-y-12 py-6 text-center">
-            
-            {/* Empty Cart Banner */}
-            <div className="bg-white rounded-3xl border border-gray-200/80 p-10 md:p-14 shadow-sm space-y-6">
-              <div className="h-20 w-20 rounded-full bg-blue-50 border border-blue-100 text-brand-blue flex items-center justify-center mx-auto shadow-inner">
+          <div className="max-w-3xl mx-auto space-y-10 py-6 text-center">
+            <div className="bg-white rounded-3xl border border-slate-200/80 p-10 md:p-14 shadow-sm space-y-6">
+              <div className="h-20 w-20 rounded-full bg-blue-50 border border-blue-100 text-[#0066cc] flex items-center justify-center mx-auto">
                 <ShoppingCart size={36} strokeWidth={1.75} />
               </div>
-
               <div className="space-y-2">
-                <h2 className="text-2xl md:text-3xl font-black text-brand-navy">Your Cart is Empty</h2>
-                <p className="text-xs md:text-sm text-gray-500 font-medium max-w-md mx-auto leading-relaxed">
-                  You haven't added any certification program to your cart yet. Explore our top accredited bootcamps and choose the right program for your career.
+                <h2 className="text-2xl md:text-3xl font-black text-[#0f172a]">Your Cart is Empty</h2>
+                <p className="text-xs md:text-sm text-slate-500 font-medium max-w-md mx-auto leading-relaxed">
+                  You removed the training program from your cart. Browse our upcoming live classes or restore your selected course below.
                 </p>
               </div>
-
-              <div className="pt-2">
+              <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
                 <Link
-                  href="/courses"
-                  className="inline-flex items-center gap-2 rounded-xl bg-brand-blue px-8 py-4 text-xs font-bold text-white hover:bg-opacity-95 shadow-md shadow-blue-500/20 transition-all hover:scale-[1.01]"
+                  href="/enroll"
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#0066cc] px-7 py-3.5 text-xs font-bold text-white hover:bg-[#0052a3] shadow-md transition-all"
                 >
                   <BookOpen size={16} />
-                  <span>Browse All Certifications</span>
-                  <ArrowRight size={16} />
+                  <span>Browse Schedule & Enroll</span>
+                  <ArrowRight size={15} />
                 </Link>
+                <button
+                  type="button"
+                  onClick={handleRestoreDefaultItem}
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-6 py-3.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all cursor-pointer"
+                >
+                  Restore PMP® Training ($999)
+                </button>
               </div>
             </div>
-
-            {/* Recommended Programs to add */}
-            <div className="space-y-6 text-left">
-              <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-                <h3 className="text-sm font-black text-brand-navy uppercase tracking-wider">
-                  Popular Certifications You Can Enroll In
-                </h3>
-                <Link href="/courses" className="text-xs font-bold text-brand-blue hover:underline">
-                  View All Courses →
-                </Link>
-              </div>
-
-              <div className="grid sm:grid-cols-3 gap-6">
-                {popularCourses.map((c) => (
-                  <div
-                    key={c.id}
-                    className="bg-white rounded-2xl border border-gray-200/80 p-5 flex flex-col justify-between shadow-xs hover:shadow-md transition-all space-y-4"
-                  >
-                    <div className="space-y-2">
-                      <span className="text-[10px] font-bold px-2 py-0.5 bg-blue-50 text-brand-blue rounded-full">
-                        {c.category_name || "Professional"}
-                      </span>
-                      <h4 className="text-xs font-black text-brand-navy line-clamp-2">{c.title}</h4>
-                      <p className="text-[11px] text-gray-400 font-bold">{c.duration || "4 Days Bootcamp"}</p>
-                    </div>
-
-                    <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
-                      <span className="text-xs font-black text-brand-navy">
-                        ${c.pricing?.live_online || 1095}
-                      </span>
-                      <Link
-                        href={`/courses/${c.slug}`}
-                        className="px-3.5 py-1.5 rounded-lg bg-brand-navy text-white text-[11px] font-bold hover:bg-brand-blue transition-colors"
-                      >
-                        View Details
-                      </Link>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
           </div>
         )}
 
-        {/* 2. ACTIVE CART & CHECKOUT FORM (When a product has been added) */}
-        {isCartLoaded && cartItem && (
-          <>
-            {/* Progress Bar Path */}
-            <div className="max-w-3xl mx-auto flex items-center justify-between pb-6 border-b border-gray-100 text-[10px] md:text-xs font-bold text-gray-400">
-              <div className="flex flex-col items-center gap-1.5 opacity-60">
-                <div className="h-7 w-7 rounded-full bg-slate-200 text-gray-600 flex items-center justify-center font-bold">✓</div>
-                <span>Your Cart</span>
-              </div>
-              <div className="h-[2px] bg-slate-200 flex-1 mx-4 max-w-[100px]"></div>
-
-              <div className="flex flex-col items-center gap-1.5 text-brand-blue">
-                <div className="h-7 w-7 rounded-full bg-brand-blue text-white flex items-center justify-center font-bold">2</div>
-                <span>Your Details</span>
-              </div>
-              <div className="h-[2px] bg-slate-200 flex-1 mx-4 max-w-[100px]"></div>
-
-              <div className="flex flex-col items-center gap-1.5">
-                <div className="h-7 w-7 rounded-full bg-slate-200 text-gray-500 flex items-center justify-center font-bold">3</div>
-                <span>Payment</span>
-              </div>
-              <div className="h-[2px] bg-slate-200 flex-1 mx-4 max-w-[100px]"></div>
-
-              <div className="flex flex-col items-center gap-1.5">
-                <div className="h-7 w-7 rounded-full bg-slate-200 text-gray-500 flex items-center justify-center font-bold">4</div>
-                <span>Confirmation</span>
-              </div>
-            </div>
-
-            {/* Split Form & Sidebar Grid */}
-            <div className="grid lg:grid-cols-12 gap-8 items-start">
-              
-              <form onSubmit={handlePlaceOrder} className="lg:col-span-8 space-y-8">
-                
-                {/* Step Header */}
-                <div className="text-left">
-                  <h2 className="text-2xl font-black text-brand-navy">Enter Your Information</h2>
-                  <p className="text-xs text-gray-400 font-bold mt-1">Please provide your details to continue to payment.</p>
+        {/* Active Checkout 12-Column Split Grid */}
+        {cartItem && (
+          <form onSubmit={handlePlaceOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+            {/* LEFT COLUMN (7 Cols): Information + Payment Method */}
+            <div className="lg:col-span-7 space-y-4">
+              {/* Outer Card 1: Enter Your Information */}
+              <div className="bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-7 shadow-sm space-y-5">
+                {/* Section Header */}
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-full bg-[#0066cc] text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <Lock size={18} />
+                  </div>
+                  <div>
+                    <h2 className="text-lg sm:text-xl font-black text-[#0f172a] leading-tight">
+                      Enter Your Information
+                    </h2>
+                    <p className="text-xs text-slate-500 font-medium mt-0.5">
+                      Please provide your details to continue to payment.
+                    </p>
+                  </div>
                 </div>
 
-                {/* Block 1: Personal Information */}
-                <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm space-y-4 text-left">
-                  <h3 className="text-xs uppercase tracking-wider text-gray-400 font-black">Personal Information</h3>
-                  
-                  <div className="space-y-1">
-                    <label className="text-[10px] text-gray-500 font-bold">Full Name *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Enter your full name"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      className="w-full rounded-xl border border-gray-200 px-4 py-3.5 text-xs font-semibold text-gray-700 outline-none focus:border-brand-blue"
-                    />
+                {/* Inner Card: Personal Information */}
+                <div className="rounded-2xl border border-slate-200/90 bg-white p-5 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm sm:text-base font-extrabold text-[#0f172a] flex items-center gap-2">
+                      <User size={17} className="text-[#0066cc]" />
+                      Personal Information
+                    </h3>
+                    <span className="text-[11px] font-bold text-red-500">* Required fields</span>
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="text-[10px] text-gray-500 font-bold">Email Address *</label>
-                    <input
-                      type="email"
-                      required
-                      placeholder="Enter your email address"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full rounded-xl border border-gray-200 px-4 py-3.5 text-xs font-semibold text-gray-700 outline-none focus:border-brand-blue"
-                    />
+                  {/* Full Name */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-slate-700">
+                      Full Name <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <User size={15} className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        required
+                        placeholder="Enter your full name"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 py-3 text-xs sm:text-sm font-medium text-slate-800 placeholder:text-slate-400 outline-none focus:border-[#0066cc] focus:ring-2 focus:ring-blue-500/10 transition-all"
+                      />
+                    </div>
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="text-[10px] text-gray-500 font-bold">Phone Number *</label>
-                    <div className="flex gap-2">
+                  {/* Email Address */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-slate-700">
+                      Email Address <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <Mail size={15} className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="email"
+                        required
+                        placeholder="Enter your email address"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 py-3 text-xs sm:text-sm font-medium text-slate-800 placeholder:text-slate-400 outline-none focus:border-[#0066cc] focus:ring-2 focus:ring-blue-500/10 transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Phone Number */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-slate-700">
+                      Phone Number <span className="text-red-500">*</span>
+                    </label>
+                    <div className="flex gap-2.5">
                       <div className="relative shrink-0">
                         <select
                           value={countryCode}
                           onChange={(e) => setCountryCode(e.target.value)}
-                          className="rounded-xl border border-gray-200 pl-3 pr-8 py-3.5 text-xs font-bold text-gray-700 outline-none bg-white cursor-pointer focus:border-brand-blue"
+                          className="h-full rounded-xl border border-slate-200 bg-white pl-3 pr-7 py-3 text-xs sm:text-sm font-bold text-slate-700 outline-none cursor-pointer focus:border-[#0066cc]"
                         >
-                          <option value="+1">🇺🇸 United States (+1)</option>
-                          <option value="+1-CA">🇨🇦 Canada (+1)</option>
-                          <option value="+44">🇬🇧 United Kingdom (+44)</option>
-                          <option value="+61">🇦🇺 Australia (+61)</option>
-                          <option value="+49">🇩🇪 Germany (+49)</option>
-                          <option value="+91">🇮🇳 India (+91)</option>
-                          <option value="+65">🇸🇬 Singapore (+65)</option>
-                          <option value="+971">🇦🇪 UAE (+971)</option>
-                          <option value="+966">🇸🇦 Saudi Arabia (+966)</option>
-                          <option value="+27">🇿🇦 South Africa (+27)</option>
-                          <option value="+52">🇲🇽 Mexico (+52)</option>
-                          <option value="+55">🇧🇷 Brazil (+55)</option>
-                          <option value="+81">🇯🇵 Japan (+81)</option>
-                          <option value="+33">🇫🇷 France (+33)</option>
-                          <option value="+39">🇮🇹 Italy (+39)</option>
-                          <option value="+34">🇪🇸 Spain (+34)</option>
-                          <option value="+31">🇳🇱 Netherlands (+31)</option>
-                          <option value="+41">🇨🇭 Switzerland (+41)</option>
-                          <option value="+64">🇳🇿 New Zealand (+64)</option>
-                          <option value="+353">🇮🇪 Ireland (+353)</option>
+                          <option value="+1">🇺🇸 +1</option>
+                          <option value="+1-CA">🇨🇦 +1</option>
+                          <option value="+44">🇬🇧 +44</option>
+                          <option value="+61">🇦🇺 +61</option>
+                          <option value="+91">🇮🇳 +91</option>
+                          <option value="+65">🇸🇬 +65</option>
+                          <option value="+971">🇦🇪 +971</option>
                         </select>
                       </div>
                       <input
@@ -356,325 +382,563 @@ export default function Checkout() {
                         placeholder="(201) 555-0123"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        className="w-full rounded-xl border border-gray-200 px-4 py-3.5 text-xs font-semibold text-gray-700 outline-none focus:border-brand-blue"
+                        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs sm:text-sm font-medium text-slate-800 placeholder:text-slate-400 outline-none focus:border-[#0066cc] focus:ring-2 focus:ring-blue-500/10 transition-all"
                       />
                     </div>
-                    <p className="text-[9px] text-gray-400 font-semibold mt-1">We will use this number to send you updates about your training.</p>
                   </div>
 
-                  <div className="flex items-start gap-2.5 pt-2 text-[10px] text-gray-500 font-bold">
-                    <Shield size={16} className="text-brand-blue shrink-0 mt-0.5" />
+                  {/* Safe Info Note */}
+                  <div className="flex items-center gap-2 pt-1 text-[11px] text-slate-500 font-medium">
+                    <ShieldCheck size={15} className="text-[#0066cc] shrink-0" />
                     <span>Your information is safe with us. We will never share your details with third parties.</span>
                   </div>
                 </div>
 
-                {/* Block 2: Additional Information (Optional) */}
-                <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm space-y-4 text-left">
-                  <h3 className="text-xs uppercase tracking-wider text-gray-400 font-black">Additional Information (Optional)</h3>
-
-                  <div className="space-y-1">
-                    <label className="text-[10px] text-gray-500 font-bold">Company Name</label>
-                    <input
-                      type="text"
-                      placeholder="Enter your company name"
-                      value={company}
-                      onChange={(e) => setCompany(e.target.value)}
-                      className="w-full rounded-xl border border-gray-200 px-4 py-3.5 text-xs font-semibold text-gray-700 outline-none focus:border-brand-blue"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[10px] text-gray-500 font-bold">How did you hear about us?</label>
-                    <select
-                      value={howHear}
-                      onChange={(e) => setHowHear(e.target.value)}
-                      className="w-full rounded-xl border border-gray-200 px-4 py-3.5 text-xs font-semibold text-gray-700 outline-none bg-white"
-                    >
-                      <option value="">Select an option</option>
-                      <option>Google Search</option>
-                      <option>LinkedIn / Social Media</option>
-                      <option>Employer Recommendation</option>
-                      <option>Word of Mouth</option>
-                    </select>
-                  </div>
-
-                  <div className="flex items-start gap-2 pt-2">
-                    <input
-                      type="checkbox"
-                      id="marketing"
-                      checked={marketingOpt}
-                      onChange={(e) => setMarketingOpt(e.target.checked)}
-                      className="mt-1 shrink-0"
-                    />
-                    <label htmlFor="marketing" className="text-[10px] text-gray-400 font-bold leading-relaxed cursor-pointer select-none">
-                      I would like to receive updates about courses, promotions and special offers. You can unsubscribe at any time.
-                    </label>
-                  </div>
-                </div>
-
-                {/* Block 3: Choose a Payment Method */}
-                <div className="space-y-4 text-left">
-                  <div>
-                    <h3 className="text-lg font-black text-brand-navy">Choose a Payment Method</h3>
-                    <p className="text-xs text-gray-400 font-bold mt-1">All transactions are secure and encrypted.</p>
-                  </div>
-
-                  <div className="grid md:grid-cols-12 gap-6 items-start">
-                    
-                    {/* Method selector options */}
-                    <div className="md:col-span-4 space-y-3">
-                      {[
-                        ...(isTestModeEnabled ? [{ id: "test_gateway", title: "🧪 Instant Test Gateway (Sandbox)", desc: "Admin Test Mode ON: 1-Click test payment & order sync" }] : []),
-                        { id: "card", title: "Credit / Debit Card", desc: "Visa, MasterCard, AMEX, Discover" },
-                        { id: "paypal", title: "PayPal", desc: "Pay securely with your PayPal account" },
-                        { id: "wire", title: "Wire Transfer / Bank Transfer", desc: "Pay via wire transfer or bank transfer" }
-                      ].map((opt) => (
-                        <button
-                          key={opt.id}
-                          type="button"
-                          onClick={() => setPaymentMethod(opt.id)}
-                          className={`w-full p-4 rounded-2xl border text-left flex items-start gap-3 transition-all cursor-pointer ${
-                            paymentMethod === opt.id
-                              ? "border-brand-blue bg-blue-50/20 ring-1 ring-brand-blue"
-                              : "border-gray-100 hover:bg-slate-50 bg-white"
-                          }`}
-                        >
-                          <input
-                            type="radio"
-                            name="payment_select"
-                            checked={paymentMethod === opt.id}
-                            readOnly
-                            className="mt-1 shrink-0 cursor-pointer"
-                          />
-                          <div className="space-y-1">
-                            <p className="text-xs font-extrabold text-brand-navy leading-tight">{opt.title}</p>
-                            <p className="text-[9px] text-gray-400 font-bold leading-relaxed">{opt.desc}</p>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-
-                    {/* Selected payment form card */}
-                    <div className="md:col-span-8 bg-white border border-gray-100 rounded-3xl p-6 shadow-sm space-y-4 text-left">
-                      {paymentMethod === "test_gateway" && (
-                        <div className="space-y-4 py-4 text-center">
-                          <div className="mx-auto h-12 w-12 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center font-black text-lg">
-                            🧪
-                          </div>
-                          <div className="space-y-1">
-                            <h4 className="text-sm font-black text-brand-navy">Simulated Test Mode Active</h4>
-                            <p className="text-xs text-gray-500 font-semibold max-w-sm mx-auto">
-                              Clicking "Complete Payment" will simulate a successful transaction and sync this order live to the Admin Panel in real time.
-                            </p>
-                          </div>
-                          <span className="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold font-mono">
-                            STATUS: READY TO TEST
-                          </span>
-                        </div>
-                      )}
-
-                      {paymentMethod === "card" && (
-                        <div className="space-y-4">
-                          <div className="flex items-center justify-between">
-                            <h4 className="text-xs font-black text-brand-navy">Pay with Credit / Debit Card</h4>
-                            <div className="text-[10px] text-gray-400 font-black flex gap-1.5">
-                              <span>VISA</span> | <span>MC</span> | <span>AMEX</span>
-                            </div>
-                          </div>
-
-                          <div className="space-y-1">
-                            <label className="text-[10px] text-gray-500 font-bold">Card Number *</label>
-                            <input
-                              type="text"
-                              required
-                              placeholder="1234 5678 9012 3456"
-                              value={cardNumber}
-                              onChange={(e) => setCardNumber(e.target.value)}
-                              className="w-full rounded-xl border border-gray-200 px-4 py-3.5 text-xs font-semibold text-gray-700 outline-none focus:border-brand-blue"
-                            />
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-1">
-                              <label className="text-[10px] text-gray-500 font-bold">Expiry Date *</label>
-                              <input
-                                type="text"
-                                required
-                                placeholder="MM / YY"
-                                value={expiry}
-                                onChange={(e) => setExpiry(e.target.value)}
-                                className="w-full rounded-xl border border-gray-200 px-4 py-3.5 text-xs font-semibold text-gray-700 outline-none focus:border-brand-blue"
-                              />
-                            </div>
-                            <div className="space-y-1">
-                              <label className="text-[10px] text-gray-500 font-bold">CVV *</label>
-                              <input
-                                type="text"
-                                required
-                                placeholder="123"
-                                value={cvv}
-                                onChange={(e) => setCvv(e.target.value)}
-                                className="w-full rounded-xl border border-gray-200 px-4 py-3.5 text-xs font-semibold text-gray-700 outline-none focus:border-brand-blue"
-                              />
-                            </div>
-                          </div>
-
-                          <div className="space-y-1">
-                            <label className="text-[10px] text-gray-500 font-bold">Name on Card *</label>
-                            <input
-                              type="text"
-                              required
-                              placeholder="Enter name as it appears on card"
-                              value={nameOnCard}
-                              onChange={(e) => setNameOnCard(e.target.value)}
-                              className="w-full rounded-xl border border-gray-200 px-4 py-3.5 text-xs font-semibold text-gray-700 outline-none focus:border-brand-blue"
-                            />
-                          </div>
-
-                          <div className="flex items-center gap-2 pt-2">
-                            <input
-                              type="checkbox"
-                              id="save_card"
-                              checked={saveCard}
-                              onChange={(e) => setSaveCard(e.target.checked)}
-                              className="shrink-0"
-                            />
-                            <label htmlFor="save_card" className="text-[10px] text-gray-400 font-bold cursor-pointer select-none">
-                              Save card for faster checkout
-                            </label>
-                          </div>
-                        </div>
-                      )}
-
-                      {paymentMethod === "paypal" && (
-                        <div className="space-y-4 text-center py-6">
-                          <p className="text-xs text-gray-500 font-semibold">After clicking place order, you will be redirected to PayPal to complete your purchase securely.</p>
-                          <div className="inline-block bg-amber-500 text-white font-extrabold text-xs px-8 py-3.5 rounded-xl">Pay with PayPal</div>
-                        </div>
-                      )}
-
-                      {paymentMethod === "wire" && (
-                        <div className="space-y-4 py-3 text-xs font-semibold text-gray-600">
-                          <p>Corporate invoice details and bank instructions will be sent to your work email immediately upon clicking complete payment.</p>
-                        </div>
-                      )}
-
-                    </div>
-                  </div>
-                </div>
-
-                {/* Place Order Trigger */}
-                <div className="pt-2 text-left">
+                {/* Collapsible Accordion: Additional Information (Optional) */}
+                <div className="rounded-2xl border border-slate-200/90 bg-white overflow-hidden">
                   <button
-                    type="submit"
-                    className="w-full md:w-auto rounded-xl bg-[#ff5c00] hover:bg-[#e05200] px-12 py-4 font-bold text-white text-xs shadow-lg shadow-orange-500/15 cursor-pointer flex items-center justify-center gap-1.5 transition-all"
+                    type="button"
+                    onClick={() => setShowAdditionalInfo(!showAdditionalInfo)}
+                    className="w-full px-5 py-3.5 flex items-center justify-between text-left hover:bg-slate-50/70 transition-colors cursor-pointer"
                   >
-                    Complete Payment →
+                    <div className="flex items-center gap-2.5">
+                      <Building2 size={17} className="text-[#0066cc]" />
+                      <span className="text-sm font-extrabold text-[#0f172a]">
+                        Additional Information <span className="font-normal text-slate-500">(Optional)</span>
+                      </span>
+                    </div>
+                    <ChevronDown
+                      size={18}
+                      className={`text-slate-500 transition-transform duration-200 ${
+                        showAdditionalInfo ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+
+                  {showAdditionalInfo && (
+                    <div className="px-5 pb-5 pt-2 border-t border-slate-100 space-y-4">
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-700">Company / Organization Name</label>
+                        <input
+                          type="text"
+                          placeholder="Enter your company name"
+                          value={company}
+                          onChange={(e) => setCompany(e.target.value)}
+                          className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-xs sm:text-sm font-medium text-slate-800 outline-none focus:border-[#0066cc]"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-700">How did you hear about us?</label>
+                        <select
+                          value={howHear}
+                          onChange={(e) => setHowHear(e.target.value)}
+                          className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-xs sm:text-sm font-medium text-slate-700 outline-none bg-white"
+                        >
+                          <option value="">Select an option</option>
+                          <option>Google Search</option>
+                          <option>LinkedIn / Social Media</option>
+                          <option>Employer Recommendation</option>
+                          <option>Colleague / Referral</option>
+                        </select>
+                      </div>
+
+                      <label className="flex items-start gap-2.5 cursor-pointer select-none pt-1">
+                        <input
+                          type="checkbox"
+                          checked={marketingOpt}
+                          onChange={(e) => setMarketingOpt(e.target.checked)}
+                          className="mt-0.5 rounded border-slate-300 text-[#0066cc] focus:ring-[#0066cc]"
+                        />
+                        <span className="text-[11px] text-slate-500 font-medium leading-relaxed">
+                          I would like to receive updates about upcoming cohorts, exam guides, and special offers.
+                        </span>
+                      </label>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Outer Card 2: Choose a Payment Method */}
+              <div className="bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-7 shadow-sm space-y-5">
+                {/* Header */}
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 text-[#0066cc] flex items-center justify-center shrink-0">
+                    <CreditCard size={20} />
+                  </div>
+                  <div>
+                    <h2 className="text-lg sm:text-xl font-black text-[#0f172a] leading-tight">
+                      Choose a Payment Method
+                    </h2>
+                    <p className="text-xs text-slate-500 font-medium mt-0.5">
+                      All transactions are secure and encrypted.
+                    </p>
+                  </div>
+                </div>
+
+                {/* 3 Horizontal Payment Selector Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                  {/* Option 1: Credit / Debit Card */}
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod("card")}
+                    className={`relative rounded-2xl p-4 text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1.5 ${
+                      paymentMethod === "card"
+                        ? "border-2 border-[#0066cc] bg-[#f5f9ff] shadow-xs"
+                        : "border border-slate-200 bg-white hover:bg-slate-50"
+                    }`}
+                  >
+                    <div
+                      className={`w-4 h-4 rounded-full border flex items-center justify-center absolute top-3 left-3 ${
+                        paymentMethod === "card" ? "border-[#0066cc] bg-[#0066cc]" : "border-slate-300 bg-white"
+                      }`}
+                    >
+                      {paymentMethod === "card" && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                    </div>
+                    <CreditCard size={22} className="text-[#0066cc] mt-1" />
+                    <p className="text-xs sm:text-[13px] font-extrabold text-[#0f172a]">Credit / Debit Card</p>
+                    <p className="text-[10px] text-slate-500 font-medium">Visa, Mastercard, AMEX, Discover</p>
+                  </button>
+
+                  {/* Option 2: PayPal */}
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod("paypal")}
+                    className={`relative rounded-2xl p-4 text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1.5 ${
+                      paymentMethod === "paypal"
+                        ? "border-2 border-[#0066cc] bg-[#f5f9ff] shadow-xs"
+                        : "border border-slate-200 bg-white hover:bg-slate-50"
+                    }`}
+                  >
+                    <div
+                      className={`w-4 h-4 rounded-full border flex items-center justify-center absolute top-3 left-3 ${
+                        paymentMethod === "paypal" ? "border-[#0066cc] bg-[#0066cc]" : "border-slate-300 bg-white"
+                      }`}
+                    >
+                      {paymentMethod === "paypal" && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                    </div>
+                    <div className="h-[22px] flex items-center justify-center mt-1 font-black italic text-lg text-[#003087] leading-none">
+                      P<span className="text-[#0079c1]">P</span>
+                    </div>
+                    <p className="text-xs sm:text-[13px] font-extrabold text-[#0f172a]">PayPal</p>
+                    <p className="text-[10px] text-slate-500 font-medium">Pay securely with PayPal</p>
+                  </button>
+
+                  {/* Option 3: Wire Transfer */}
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod("wire")}
+                    className={`relative rounded-2xl p-4 text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1.5 ${
+                      paymentMethod === "wire"
+                        ? "border-2 border-[#0066cc] bg-[#f5f9ff] shadow-xs"
+                        : "border border-slate-200 bg-white hover:bg-slate-50"
+                    }`}
+                  >
+                    <div
+                      className={`w-4 h-4 rounded-full border flex items-center justify-center absolute top-3 left-3 ${
+                        paymentMethod === "wire" ? "border-[#0066cc] bg-[#0066cc]" : "border-slate-300 bg-white"
+                      }`}
+                    >
+                      {paymentMethod === "wire" && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                    </div>
+                    <Landmark size={22} className="text-[#0066cc] mt-1" />
+                    <p className="text-xs sm:text-[13px] font-extrabold text-[#0f172a]">Wire Transfer</p>
+                    <p className="text-[10px] text-slate-500 font-medium">Bank transfer / ACH</p>
                   </button>
                 </div>
 
-              </form>
-
-              {/* Right Side Sidebar Summary */}
-              <div className="lg:col-span-4 space-y-6">
-                
-                {/* Box 1: Order Summary */}
-                <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm space-y-6 text-left">
-                  <div className="flex items-center justify-between border-b border-gray-50 pb-3">
-                    <h3 className="text-sm font-extrabold text-brand-navy">Order Summary</h3>
-                    <button
-                      type="button"
-                      onClick={handleRemoveCartItem}
-                      className="text-[10px] text-red-500 hover:text-red-700 font-bold flex items-center gap-1 cursor-pointer"
-                    >
-                      <Trash2 size={12} /> Remove
-                    </button>
-                  </div>
-
-                  {/* Course Detail card row */}
-                  <div className="flex gap-4">
-                    <div className="h-14 w-14 rounded-xl bg-blue-50 text-brand-blue flex items-center justify-center font-black text-sm shrink-0 border border-blue-100">
-                      🎓
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs font-black text-brand-navy leading-tight">{cartItem.course}</p>
-                      <span className="inline-block bg-blue-50 text-brand-blue text-[9px] font-bold px-2 py-0.5 rounded">
-                        {cartItem.format}
-                      </span>
-                      
-                      <div className="pt-1.5 space-y-1 text-[9px] text-gray-400 font-bold">
-                        <p className="flex items-center gap-1"><Calendar size={10} /> {cartItem.date}</p>
-                        <p className="flex items-center gap-1"><Clock size={10} /> {cartItem.time}</p>
-                        <p className="flex items-center gap-1"><MapPin size={10} /> {cartItem.location}</p>
-                        <p className="flex items-center gap-1">⏱ {cartItem.duration}</p>
+                {/* Inner Card: Payment Details */}
+                <div className="rounded-2xl border border-slate-200/90 bg-white p-5 space-y-4">
+                  {paymentMethod === "card" && (
+                    <>
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <h3 className="text-sm sm:text-base font-extrabold text-[#0f172a] flex items-center gap-2">
+                          <CreditCard size={17} className="text-[#0066cc]" />
+                          Card Information
+                        </h3>
+                        {/* Payment Brand Logos */}
+                        <div className="flex items-center gap-1.5">
+                          <span className="px-2 py-0.5 rounded border border-slate-200 bg-white text-[10px] font-black italic text-[#1a1f71]">
+                            VISA
+                          </span>
+                          <span className="px-2 py-0.5 rounded border border-slate-200 bg-white flex items-center">
+                            <span className="w-2.5 h-2.5 rounded-full bg-[#eb001b] inline-block" />
+                            <span className="w-2.5 h-2.5 rounded-full bg-[#f79e1b] inline-block -ml-1" />
+                          </span>
+                          <span className="px-1.5 py-0.5 rounded bg-[#006fcf] text-white text-[9px] font-black tracking-tight">
+                            AMEX
+                          </span>
+                          <span className="px-1.5 py-0.5 rounded border border-slate-200 bg-white text-[9px] font-black text-[#f68121]">
+                            DISCOVER
+                          </span>
+                        </div>
                       </div>
+
+                      {/* Card Number */}
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-700">
+                          Card Number <span className="text-red-500">*</span>
+                        </label>
+                        <div className="relative">
+                          <CreditCard
+                            size={15}
+                            className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"
+                          />
+                          <input
+                            type="text"
+                            required
+                            placeholder="1234 5678 9012 3456"
+                            value={cardNumber}
+                            onChange={(e) => setCardNumber(e.target.value)}
+                            className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 py-3 text-xs sm:text-sm font-medium text-slate-800 placeholder:text-slate-400 outline-none focus:border-[#0066cc] focus:ring-2 focus:ring-blue-500/10 transition-all"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Expiry Date & CVV */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-slate-700">
+                            Expiry Date <span className="text-red-500">*</span>
+                          </label>
+                          <div className="relative">
+                            <Calendar
+                              size={15}
+                              className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"
+                            />
+                            <input
+                              type="text"
+                              required
+                              placeholder="MM / YY"
+                              value={expiry}
+                              onChange={(e) => setExpiry(e.target.value)}
+                              className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 py-3 text-xs sm:text-sm font-medium text-slate-800 placeholder:text-slate-400 outline-none focus:border-[#0066cc] focus:ring-2 focus:ring-blue-500/10 transition-all"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-slate-700">
+                            CVV <span className="text-red-500">*</span>
+                          </label>
+                          <div className="relative">
+                            <Lock
+                              size={15}
+                              className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"
+                            />
+                            <input
+                              type="text"
+                              required
+                              placeholder="123"
+                              value={cvv}
+                              onChange={(e) => setCvv(e.target.value)}
+                              className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-9 py-3 text-xs sm:text-sm font-medium text-slate-800 placeholder:text-slate-400 outline-none focus:border-[#0066cc] focus:ring-2 focus:ring-blue-500/10 transition-all"
+                            />
+                            <Info
+                              size={15}
+                              className="text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Name on Card */}
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-700">
+                          Name on Card <span className="text-red-500">*</span>
+                        </label>
+                        <div className="relative">
+                          <User
+                            size={15}
+                            className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"
+                          />
+                          <input
+                            type="text"
+                            required
+                            placeholder="Enter name as it appears on card"
+                            value={nameOnCard}
+                            onChange={(e) => setNameOnCard(e.target.value)}
+                            className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 py-3 text-xs sm:text-sm font-medium text-slate-800 placeholder:text-slate-400 outline-none focus:border-[#0066cc] focus:ring-2 focus:ring-blue-500/10 transition-all"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Save card checkbox */}
+                      <label className="flex items-center gap-2.5 pt-1 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={saveCard}
+                          onChange={(e) => setSaveCard(e.target.checked)}
+                          className="w-4 h-4 rounded border-slate-300 text-[#0066cc] focus:ring-[#0066cc]"
+                        />
+                        <span className="text-xs font-medium text-slate-600">Save card for faster checkout</span>
+                      </label>
+                    </>
+                  )}
+
+                  {paymentMethod === "paypal" && (
+                    <div className="py-6 text-center space-y-3">
+                      <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#003087] font-black italic text-xl flex items-center justify-center mx-auto">
+                        PP
+                      </div>
+                      <h4 className="text-sm font-extrabold text-[#0f172a]">Pay with PayPal</h4>
+                      <p className="text-xs text-slate-500 font-medium max-w-md mx-auto">
+                        Click &ldquo;Complete Secure Payment&rdquo; below to securely complete your registration via PayPal.
+                      </p>
                     </div>
+                  )}
+
+                  {paymentMethod === "wire" && (
+                    <div className="py-5 space-y-2 text-xs text-slate-600 font-medium">
+                      <h4 className="text-sm font-extrabold text-[#0f172a]">Wire Transfer / ACH Instructions</h4>
+                      <p>
+                        Upon clicking &ldquo;Complete Secure Payment&rdquo;, an official corporate invoice with ACH / Wire Transfer routing details will be sent to your email address.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Bottom Action Row: Back to Cart + Complete Secure Payment */}
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <Link
+                    href="/enroll"
+                    className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#0066cc] hover:underline"
+                  >
+                    <ArrowLeft size={15} />
+                    <span>Back to Cart</span>
+                  </Link>
+
+                  <button
+                    type="submit"
+                    className="w-full sm:w-auto rounded-full bg-gradient-to-r from-[#ff6a00] to-[#ea580c] hover:from-[#ea580c] hover:to-[#d9460f] px-8 py-4 text-sm font-extrabold text-white shadow-lg shadow-orange-500/25 flex items-center justify-center gap-2.5 cursor-pointer transition-all"
+                  >
+                    <Lock size={16} />
+                    <span>Complete Secure Payment</span>
+                    <ArrowRight size={16} />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT COLUMN (5 Cols): Order Summary + Need Help + Secure & Trusted Checkout */}
+            <div className="lg:col-span-5 space-y-4">
+              {/* Card 1: Order Summary */}
+              <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm space-y-5">
+                <div className="flex items-center gap-2.5">
+                  <ShoppingCart size={20} className="text-[#f97316]" />
+                  <h3 className="text-lg font-black text-[#0f172a]">Order Summary</h3>
+                </div>
+
+                {/* Selected Course Item */}
+                <div className="flex items-start gap-3.5 pt-1">
+                  <div className="w-14 h-14 rounded-2xl bg-[#eef5ff] border border-blue-100 text-[#0f172a] flex items-center justify-center shrink-0">
+                    <GraduationCap size={26} className="text-[#1e3a8a]" />
                   </div>
 
-                  {/* Subtotal table split */}
-                  <div className="border-t border-gray-50 pt-4 space-y-2.5 text-xs">
-                    <div className="flex items-center justify-between text-gray-500 font-bold">
-                      <span>Course Fee</span>
-                      <span>${cartItem.price.toFixed(2)}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <h4 className="text-sm font-extrabold text-[#0f172a] leading-snug">
+                        {cartItem.course}
+                      </h4>
+                      <button
+                        type="button"
+                        onClick={handleRemoveCartItem}
+                        className="inline-flex items-center gap-1 text-[11px] font-bold text-red-500 hover:text-red-700 shrink-0 cursor-pointer"
+                      >
+                        <Trash2 size={13} />
+                        <span>Remove</span>
+                      </button>
                     </div>
-                    <div className="flex items-center justify-between text-gray-500 font-bold">
-                      <span>Discount</span>
-                      <span className="text-emerald-500">- $0.00</span>
-                    </div>
-                    <div className="flex items-center justify-between text-brand-navy font-black text-sm border-t border-gray-50 pt-3">
-                      <span>Total (USD)</span>
-                      <span>${cartItem.price.toFixed(2)}</span>
-                    </div>
-                  </div>
 
-                  {/* CP Rewards */}
-                  <div className="bg-blue-50/40 border border-blue-100/50 rounded-2xl p-4 text-[10px] text-gray-600 font-semibold text-center leading-relaxed">
-                    Earn <strong className="text-brand-blue font-black">{rewardPoints} CP</strong> Rewards Points on this purchase
-                  </div>
+                    <span className="inline-block mt-1.5 px-2.5 py-0.5 rounded-full bg-[#eef5ff] border border-blue-200 text-[#0066cc] text-[11px] font-bold">
+                      {cartItem.format}
+                    </span>
 
-                  {/* Secure Checklines */}
-                  <div className="space-y-2 pt-2 border-t border-gray-50 text-[10px] text-gray-400 font-bold">
-                    <p className="flex items-center gap-2">✓ 100% Pass Support</p>
-                    <p className="flex items-center gap-2">✓ 30-Day Money Back Guarantee</p>
-                    <p className="flex items-center gap-2">✓ Secure & Encrypted Checkout</p>
+                    <div className="mt-3 space-y-1.5 text-xs text-slate-600 font-medium">
+                      <p className="flex items-center gap-2">
+                        <Calendar size={13} className="text-slate-400 shrink-0" />
+                        <span>{cartItem.date}</span>
+                      </p>
+                      <p className="flex items-center gap-2">
+                        <Clock size={13} className="text-slate-400 shrink-0" />
+                        <span>{cartItem.time}</span>
+                      </p>
+                      <p className="flex items-center gap-2">
+                        <Monitor size={13} className="text-slate-400 shrink-0" />
+                        <span>{cartItem.location}</span>
+                      </p>
+                      <p className="flex items-center gap-2">
+                        <Layers size={13} className="text-slate-400 shrink-0" />
+                        <span>{cartItem.duration}</span>
+                      </p>
+                    </div>
                   </div>
                 </div>
 
-                {/* Box 2: Need Help? */}
-                <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm text-left space-y-3.5">
-                  <h4 className="text-xs font-black text-brand-navy flex items-center gap-2">
-                    <Headphones size={16} className="text-brand-blue" />
-                    Need Help?
-                  </h4>
-                  <p className="text-[10px] text-gray-400 font-bold">Our training advisors are here to help you.</p>
-                  <div className="space-y-1.5 text-xs text-gray-700 font-bold">
-                    <p className="flex items-center gap-2">📞 +1 855-322-1201</p>
-                    <p className="flex items-center gap-2">✉ support@certificationplanner.com</p>
-                    <p className="flex items-center gap-2">💬 Live Chat Available</p>
+                {/* Price Breakdown */}
+                <div className="border-t border-slate-200/80 pt-4 space-y-2.5 text-xs sm:text-sm">
+                  <div className="flex items-center justify-between text-slate-700 font-semibold">
+                    <span>Course Fee</span>
+                    <span className="font-extrabold text-[#0f172a]">${cartItem.price.toFixed(2)}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-slate-700 font-semibold">
+                    <span>Discount (Enrollment Promo)</span>
+                    <span className="font-extrabold text-[#16a34a]">– $0.00</span>
                   </div>
                 </div>
 
-                {/* Box 3: We Accept */}
-                <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm text-left space-y-3">
-                  <h4 className="text-[10px] uppercase tracking-wider text-gray-400 font-black">We Accept</h4>
-                  <div className="grid grid-cols-3 gap-2 text-[9px] text-gray-400 font-black text-center">
-                    <div className="py-2 border border-gray-50 rounded-lg">VISA</div>
-                    <div className="py-2 border border-gray-50 rounded-lg">MC</div>
-                    <div className="py-2 border border-gray-50 rounded-lg">AMEX</div>
-                    <div className="py-2 border border-gray-50 rounded-lg">PayPal</div>
-                    <div className="py-2 border border-gray-50 rounded-lg">WIRE</div>
-                  </div>
+                {/* Total Box */}
+                <div className="rounded-2xl bg-[#eef5ff] px-5 py-3.5 flex items-center justify-between">
+                  <span className="text-base font-black text-[#0f172a]">Total (USD)</span>
+                  <span className="text-2xl font-black text-[#0f172a]">${cartItem.price.toFixed(2)}</span>
                 </div>
 
+                {/* CP Rewards Banner */}
+                <div className="rounded-xl bg-[#f8fafc] border border-slate-200/80 px-4 py-2.5 flex items-center justify-center gap-2 text-xs font-semibold text-slate-700">
+                  <Gift size={16} className="text-[#f97316] shrink-0" />
+                  <span>
+                    Earn <strong className="text-[#0066cc] font-extrabold">{rewardPoints} CP</strong> Rewards Points on this purchase
+                  </span>
+                </div>
+
+                {/* 3 Green Guarantee Checkmarks */}
+                <div className="space-y-2 pt-1 text-xs font-semibold text-slate-700">
+                  <p className="flex items-center gap-2.5">
+                    <Check size={15} strokeWidth={3} className="text-[#16a34a] shrink-0" />
+                    <span>100% Pass Support</span>
+                  </p>
+                  <p className="flex items-center gap-2.5">
+                    <Check size={15} strokeWidth={3} className="text-[#16a34a] shrink-0" />
+                    <span>30-Day Money Back Guarantee</span>
+                  </p>
+                  <p className="flex items-center gap-2.5">
+                    <Check size={15} strokeWidth={3} className="text-[#16a34a] shrink-0" />
+                    <span>Secure & Encrypted Checkout</span>
+                  </p>
+                </div>
               </div>
 
-            </div>
-          </>
-        )}
+              {/* Card 2: Need Help? */}
+              <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[#eef5ff] text-[#0066cc] flex items-center justify-center shrink-0">
+                    <Headphones size={20} />
+                  </div>
+                  <div>
+                    <h4 className="text-base font-black text-[#0f172a] leading-tight">Need Help?</h4>
+                    <p className="text-xs text-slate-500 font-medium">
+                      Our training advisors are here to help you.
+                    </p>
+                  </div>
+                </div>
 
+                <div className="space-y-2.5 text-xs sm:text-[13px] font-bold text-[#0f172a] pl-1">
+                  <a
+                    href="tel:+18887457575"
+                    className="flex items-center gap-2.5 hover:text-[#0066cc] transition-colors"
+                  >
+                    <Phone size={15} className="text-[#0066cc] shrink-0" />
+                    <span>+1 (888) 745-7575</span>
+                  </a>
+                  <a
+                    href="mailto:support@certificationplanner.com"
+                    className="flex items-center gap-2.5 hover:text-[#0066cc] transition-colors"
+                  >
+                    <Mail size={15} className="text-[#0066cc] shrink-0" />
+                    <span>support@certificationplanner.com</span>
+                  </a>
+                  <div className="flex items-center gap-2.5">
+                    <MessageSquare size={15} className="text-[#0066cc] shrink-0" />
+                    <span>Live Chat Available</span>
+                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-extrabold">
+                      Online
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 3: Secure & Trusted Checkout */}
+              <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm space-y-4">
+                <div className="flex items-center gap-2.5">
+                  <ShieldCheck size={20} className="text-[#0066cc]" />
+                  <h4 className="text-base font-black text-[#0f172a]">Secure & Trusted Checkout</h4>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2.5">
+                  {/* SSL Encrypted */}
+                  <div className="rounded-xl border border-slate-200/90 bg-[#f8fafc] px-3 py-2.5 flex items-center justify-center gap-2">
+                    <Lock size={18} className="text-[#16a34a] shrink-0" />
+                    <div className="text-left leading-tight">
+                      <p className="text-xs font-black text-[#0f172a]">SSL</p>
+                      <p className="text-[9px] font-semibold text-slate-500">Encrypted</p>
+                    </div>
+                  </div>
+
+                  {/* Stripe Secure Payment */}
+                  <div className="rounded-xl border border-slate-200/90 bg-[#f8fafc] px-3 py-2.5 flex flex-col items-center justify-center text-center leading-tight">
+                    <span className="px-2 py-0.5 rounded bg-[#635bff] text-white text-[10px] font-black tracking-tight">
+                      stripe
+                    </span>
+                    <p className="text-[9px] font-semibold text-slate-500 mt-1">Secure Payment</p>
+                  </div>
+
+                  {/* PCI Compliant */}
+                  <div className="rounded-xl border border-slate-200/90 bg-[#f8fafc] px-3 py-2.5 flex items-center justify-center gap-2">
+                    <Lock size={18} className="text-[#16a34a] shrink-0" />
+                    <div className="text-left leading-tight">
+                      <p className="text-xs font-black text-[#0f172a]">PCI</p>
+                      <p className="text-[9px] font-semibold text-slate-500">Compliant</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        )}
       </main>
 
-      <Footer />
+      {/* Sleek Single-Bar Dark Checkout Footer (Exact Match to Client Reference) */}
+      <footer className="bg-[#0b192c] text-white border-t border-slate-800 mt-5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
+          {/* Left: Brand Logo + Secure Checkout */}
+          <div className="flex items-center gap-4">
+            <Link href="/" className="flex items-center gap-1.5 font-black text-base tracking-tight">
+              <span className="text-[#0066cc]">CP</span>
+              <span className="text-white">Certification</span>
+              <span className="text-[#f97316]">Planner</span>
+            </Link>
+            <span className="text-slate-600">|</span>
+            <span className="inline-flex items-center gap-1.5 font-bold text-slate-200">
+              <Lock size={14} className="text-slate-300" />
+              Secure Checkout
+            </span>
+          </div>
+
+          {/* Center: Legal Links */}
+          <div className="flex items-center gap-3 text-slate-300 font-medium">
+            <Link href="/privacy-policy" className="hover:text-white transition-colors">
+              Privacy Policy
+            </Link>
+            <span className="text-slate-600">|</span>
+            <Link href="/terms" className="hover:text-white transition-colors">
+              Terms of Service
+            </Link>
+            <span className="text-slate-600">|</span>
+            <Link href="/refund-policy" className="hover:text-white transition-colors">
+              Refund Policy
+            </Link>
+          </div>
+
+          {/* Right: Support Phone */}
+          <a
+            href="tel:+18887457575"
+            className="inline-flex items-center gap-2 font-bold text-slate-200 hover:text-white transition-colors"
+          >
+            <Headphones size={15} className="text-[#38bdf8]" />
+            <span>Need Help? (888) 745-7575</span>
+          </a>
+        </div>
+      </footer>
     </div>
   );
 }

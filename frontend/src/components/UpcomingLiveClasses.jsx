@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { Clock, Video, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, Clock, Video, ChevronLeft, ChevronRight } from "lucide-react";
 
 const defaultClasses = [
   {
@@ -119,9 +119,25 @@ export default function UpcomingLiveClasses({ schedules = [], courses = [] }) {
 
   const getDistinctSchedules = (list = []) => {
     if (!list || list.length === 0) return [];
+    // Priority order matching Reference Image 1: PMP, CAPM, Lean Six Sigma Green Belt, CISSP, then others
+    const priorityFamilies = ["pmp", "capm", "lssgb", "cissp", "pmi-acp", "cism", "devops", "salesforce"];
     const distinct = [];
     const seenFamilies = new Set();
+
+    for (const targetFam of priorityFamilies) {
+      const match = list.find(s => {
+        const cObj = (courses || []).find(c => c.id === s.course_id || c.slug === s.course_slug);
+        const title = s.course_title || (cObj ? cObj.title : "");
+        return title && !title.toLowerCase().includes("plus") && getCourseFamily(title) === targetFam;
+      });
+      if (match) {
+        seenFamilies.add(targetFam);
+        distinct.push(match);
+      }
+    }
+
     for (const s of list) {
+      if (distinct.length >= 8) break;
       const cObj = (courses || []).find(c => c.id === s.course_id || c.slug === s.course_slug);
       const title = s.course_title || (cObj ? cObj.title : "");
       if (!title) continue;
@@ -129,20 +145,12 @@ export default function UpcomingLiveClasses({ schedules = [], courses = [] }) {
       if (!seenFamilies.has(family)) {
         seenFamilies.add(family);
         distinct.push(s);
-        if (distinct.length >= 8) break;
-      }
-    }
-    // If fewer than 8 distinct found, fill remainder with other available schedules
-    if (distinct.length < 8) {
-      for (const s of list) {
-        if (!distinct.some(d => d.id === s.id)) {
-          distinct.push(s);
-          if (distinct.length >= 8) break;
-        }
       }
     }
     return distinct.length > 0 ? distinct : list.slice(0, 8);
   };
+
+  const [startIndex, setStartIndex] = useState(0);
 
   const distinctList = (schedules && schedules.length > 0) ? getDistinctSchedules(schedules) : [];
 
@@ -164,7 +172,7 @@ export default function UpcomingLiveClasses({ schedules = [], courses = [] }) {
           title: courseTitle,
           dates: sch.date_range || sch.batch_date || "Upcoming Batch",
           time: timeStr,
-          location: sch.city || sch.format || "Live Online Classroom",
+          location: "Live Online Classroom",
           badgeColor: badgeColors[idx % badgeColors.length],
           btnColor: btnColors[idx % btnColors.length],
           slug: sch.course_slug || (courseObj ? courseObj.slug : "courses")
@@ -172,61 +180,105 @@ export default function UpcomingLiveClasses({ schedules = [], courses = [] }) {
       })
     : defaultClasses;
 
+  const visibleClasses = [];
+  for (let i = 0; i < Math.min(4, displayClasses.length); i++) {
+    const item = displayClasses[(startIndex + i) % displayClasses.length];
+    visibleClasses.push({
+      ...item,
+      badgeColor: badgeColors[i % badgeColors.length],
+      btnColor: btnColors[i % btnColors.length]
+    });
+  }
+
+  const handlePrev = () => {
+    setStartIndex(prev => (prev - 1 + displayClasses.length) % displayClasses.length);
+  };
+
+  const handleNext = () => {
+    setStartIndex(prev => (prev + 1) % displayClasses.length);
+  };
+
   return (
-    <section className="py-10 bg-white border-b border-gray-100">
-      <div className="mx-auto max-w-7xl px-4 md:px-6 space-y-8">
+    <section className="py-6 bg-white border-b border-gray-100">
+      <div className="mx-auto max-w-7xl px-4 md:px-6 space-y-5">
         
         {/* Header */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-gray-100 pb-4">
-          <h2 className="text-2xl md:text-4xl font-black text-brand-navy">
-            Upcoming <span className="text-brand-blue">Live Classes</span>
-          </h2>
-          <Link href="/courses" className="text-xs font-bold text-brand-blue hover:underline">
-            View Full Batch Calendar →
-          </Link>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-gray-100 pb-3">
+          <div className="text-left space-y-1">
+            <h2 className="text-2xl md:text-4xl font-black text-brand-navy">
+              Upcoming <span className="text-brand-blue">Live Classes</span>
+            </h2>
+            <p className="text-xs text-gray-500 font-semibold">
+              Flexible schedules with guaranteed-to-run classes.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={handlePrev}
+                className="h-9 w-9 rounded-xl border border-gray-200 hover:border-brand-blue hover:bg-blue-50/50 text-gray-600 hover:text-brand-blue flex items-center justify-center transition-all cursor-pointer"
+                aria-label="Previous Classes"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <button
+                type="button"
+                onClick={handleNext}
+                className="h-9 w-9 rounded-xl border border-gray-200 hover:border-brand-blue hover:bg-blue-50/50 text-gray-600 hover:text-brand-blue flex items-center justify-center transition-all cursor-pointer"
+                aria-label="Next Classes"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+            <Link href="/enroll" className="text-xs font-bold text-brand-blue hover:underline">
+              View Full Batch Calendar →
+            </Link>
+          </div>
         </div>
 
-        {/* Classes Grid */}
+        {/* Classes Grid (4 Cards Row) */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {displayClasses.map((item, idx) => (
+          {visibleClasses.map((item, idx) => (
             <div
               key={idx}
               className="bg-white rounded-3xl border border-gray-200/80 p-5 flex flex-col justify-between shadow-xs hover:shadow-xl transition-all duration-300 hover:translate-y-[-4px] text-left space-y-4"
             >
-              <div className="flex items-start gap-3">
-                {/* Date Badge */}
+              {/* Top: Date Badge + Course Title ONLY (no subtitle under title) */}
+              <div className="flex items-center gap-3.5">
                 <div className={`h-14 w-12 rounded-xl flex flex-col items-center justify-center shrink-0 shadow-xs ${item.badgeColor}`}>
                   <span className="text-[9px] font-bold uppercase tracking-wider">{item.month}</span>
                   <span className="text-base font-black leading-none">{item.day}</span>
                 </div>
 
-                {/* Title & Format */}
-                <div className="space-y-1">
-                  <h3 className="text-xs font-black text-brand-navy leading-snug line-clamp-2">{item.title}</h3>
-                  <div className="flex items-center gap-1 text-[10px] text-brand-blue font-bold">
-                    <Video size={10} /> {item.location}
-                  </div>
-                </div>
+                <h3 className="text-xs sm:text-sm font-black text-brand-navy leading-snug line-clamp-2">
+                  {item.title}
+                </h3>
               </div>
 
-              {/* Date & Time */}
-              <div className="space-y-1 pt-3 border-t border-gray-100 text-[10px] text-gray-500 font-semibold">
-                <div className="flex items-center gap-1.5 font-bold text-gray-700">
-                  <Clock size={12} className="text-brand-blue" />
+              {/* Middle: 3 Points above Enroll Now (Date, Time, Live Online Classroom) */}
+              <div className="space-y-2 pt-3 border-t border-gray-100 text-[11px] text-gray-600 font-semibold">
+                <div className="flex items-center gap-2 font-bold text-gray-700">
+                  <Calendar size={13} className="text-brand-blue shrink-0" />
                   <span>{item.dates}</span>
                 </div>
-                <div className="pl-4 text-gray-400">
-                  {item.time}
+                <div className="flex items-center gap-2 text-gray-500">
+                  <Clock size={13} className="text-brand-blue shrink-0" />
+                  <span>{item.time}</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-600 font-bold">
+                  <Video size={13} className="text-brand-blue shrink-0" />
+                  <span>Live Online Classroom</span>
                 </div>
               </div>
 
-              {/* Action Button */}
+              {/* Bottom: Action Button */}
               <div className="pt-2">
                 <Link
-                  href={item.slug && item.slug !== "courses" ? `/courses/${item.slug}` : "/courses"}
+                  href={item.slug && item.slug !== "courses" ? `/courses/${item.slug}` : "/enroll"}
                   className={`block w-full py-2.5 rounded-xl text-white text-xs font-bold transition-all shadow-xs text-center cursor-pointer ${item.btnColor}`}
                 >
-                  Enroll in Batch
+                  Enroll Now →
                 </Link>
               </div>
             </div>

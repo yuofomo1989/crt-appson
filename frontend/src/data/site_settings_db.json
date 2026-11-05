@@ -162,26 +162,25 @@
       "code": "PMP®"
     },
     {
-      "code": "CISSP®",
-      "image_url": "https://cloudsecuritypass.com/wp-content/uploads/2021/03/cissp-logo.png"
+      "code": "CAPM®"
     },
     {
-      "code": "aws"
+      "code": "PMI-ACP®"
     },
     {
-      "code": "Azure"
+      "code": "Lean Six Sigma"
     },
     {
-      "code": "Security+"
+      "code": "CISSP®"
     },
     {
-      "code": "ITIL®"
+      "code": "CISA®"
     },
     {
-      "code": "salesforce"
+      "code": "ITIL® 4"
     },
     {
-      "code": "CCNA"
+      "code": "Salesforce"
     }
   ],
   "popup_enabled": true,

@@ -12,8 +12,8 @@ export default function TrustBadges({ siteSettings = {} }) {
     },
     {
       icon: <Globe className="text-brand-blue" size={26} />,
-      title: "100+",
-      subtitle: "Countries",
+      title: "120+ Cities",
+      subtitle: "Worldwide",
     },
     {
       icon: <Users className="text-brand-blue" size={26} />,
@@ -33,9 +33,9 @@ export default function TrustBadges({ siteSettings = {} }) {
   ];
 
   return (
-    <section className="relative z-20 -mt-2 pb-4 pt-2 bg-transparent">
+    <section className="relative z-20 -mt-2 pb-2 pt-1 bg-transparent">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white border border-gray-100/90 rounded-2xl shadow-md py-6 px-4 sm:px-8">
+        <div className="bg-white border border-gray-100/90 rounded-2xl shadow-md py-4 px-4 sm:px-8">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 sm:gap-8 items-center">
             {dynamicBadges.map((badge, idx) => (
               <div

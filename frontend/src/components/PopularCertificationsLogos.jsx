@@ -4,26 +4,26 @@ import React from "react";
 import Link from "next/link";
 
 const defaultLogos = [
-  { name: "PMP®", code: "PMP®", color: "bg-orange-50 text-brand-orange border-orange-200" },
-  { name: "CISSP®", code: "CISSP®", color: "bg-blue-50 text-brand-navy border-blue-200" },
-  { name: "AWS", code: "aws", color: "bg-amber-50 text-amber-700 border-amber-200" },
-  { name: "Microsoft Azure", code: "Azure", color: "bg-cyan-50 text-cyan-700 border-cyan-200" },
-  { name: "CompTIA Security+", code: "Security+", color: "bg-red-50 text-red-700 border-red-200" },
-  { name: "ITIL®", code: "ITIL®", color: "bg-purple-50 text-purple-700 border-purple-200" },
-  { name: "Salesforce", code: "salesforce", color: "bg-sky-50 text-sky-700 border-sky-200" },
-  { name: "CCNA®", code: "CCNA", color: "bg-slate-100 text-slate-800 border-slate-300" }
+  { name: "PMP®", code: "PMP®", color: "bg-orange-50/70 text-brand-orange border-orange-200" },
+  { name: "CAPM®", code: "CAPM®", color: "bg-blue-50/70 text-brand-blue border-blue-200" },
+  { name: "PMI-ACP®", code: "PMI-ACP®", color: "bg-amber-50/70 text-amber-700 border-amber-200" },
+  { name: "Lean Six Sigma", code: "Lean Six Sigma", color: "bg-emerald-50/70 text-emerald-700 border-emerald-200" },
+  { name: "CISSP®", code: "CISSP®", color: "bg-red-50/70 text-red-700 border-red-200" },
+  { name: "CISA®", code: "CISA®", color: "bg-purple-50/70 text-purple-700 border-purple-200" },
+  { name: "ITIL® 4", code: "ITIL® 4", color: "bg-indigo-50/70 text-indigo-700 border-indigo-200" },
+  { name: "Salesforce", code: "Salesforce", color: "bg-sky-50/70 text-sky-700 border-sky-200" }
 ];
 
 export default function PopularCertificationsLogos({ siteSettings = {} }) {
   const colors = [
-    "bg-orange-50 text-brand-orange border-orange-200",
-    "bg-blue-50 text-brand-navy border-blue-200",
-    "bg-amber-50 text-amber-700 border-amber-200",
-    "bg-cyan-50 text-cyan-700 border-cyan-200",
-    "bg-red-50 text-red-700 border-red-200",
-    "bg-purple-50 text-purple-700 border-purple-200",
-    "bg-sky-50 text-sky-700 border-sky-200",
-    "bg-slate-100 text-slate-800 border-slate-300"
+    "bg-orange-50/70 text-brand-orange border-orange-200",
+    "bg-blue-50/70 text-brand-blue border-blue-200",
+    "bg-amber-50/70 text-amber-700 border-amber-200",
+    "bg-emerald-50/70 text-emerald-700 border-emerald-200",
+    "bg-red-50/70 text-red-700 border-red-200",
+    "bg-purple-50/70 text-purple-700 border-purple-200",
+    "bg-indigo-50/70 text-indigo-700 border-indigo-200",
+    "bg-sky-50/70 text-sky-700 border-sky-200"
   ];
 
   const displayLogos = siteSettings.popular_certs && siteSettings.popular_certs.length > 0
@@ -35,10 +35,10 @@ export default function PopularCertificationsLogos({ siteSettings = {} }) {
     : defaultLogos;
 
   return (
-    <section className="py-6 bg-slate-50/60 border-y border-gray-100">
+    <section className="py-4 bg-slate-50/60 border-y border-gray-100">
       <div className="mx-auto max-w-7xl px-4 md:px-6">
         
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mb-3.5">
           <h3 className="text-xl md:text-2xl font-black text-brand-navy">
             {siteSettings.popular_certs_title ? (
               <span dangerouslySetInnerHTML={{ __html: siteSettings.popular_certs_title }} />
@@ -46,7 +46,7 @@ export default function PopularCertificationsLogos({ siteSettings = {} }) {
               <>Popular <span className="text-brand-blue">Certifications</span></>
             )}
           </h3>
-          <Link href="/courses" className="text-xs font-bold text-brand-blue hover:underline">
+          <Link href="/certifications" className="text-xs font-bold text-brand-blue hover:underline">
             View All →
           </Link>
         </div>
@@ -55,18 +55,10 @@ export default function PopularCertificationsLogos({ siteSettings = {} }) {
           {displayLogos.map((cert, idx) => (
             <Link
               key={idx}
-              href="/courses"
-              className={`flex h-14 items-center justify-center rounded-2xl border font-black text-sm shadow-xs hover:shadow-md transition-all hover:scale-105 overflow-hidden p-2 bg-white ${cert.image_url ? 'border-gray-200' : cert.color}`}
+              href="/certifications"
+              className={`flex h-14 items-center justify-center rounded-2xl border font-black text-sm shadow-xs hover:shadow-md transition-all hover:scale-105 overflow-hidden p-2 bg-white ${cert.color}`}
             >
-              {cert.image_url ? (
-                <img
-                  src={cert.image_url}
-                  alt={cert.code || "Cert Logo"}
-                  className="max-h-8 max-w-full object-contain"
-                />
-              ) : (
-                <span>{cert.code}</span>
-              )}
+              <span>{cert.code}</span>
             </Link>
           ))}
         </div>

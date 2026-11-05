@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { UserCheck, ShieldCheck, Cloud, Award, ArrowUpRight, TrendingUp } from "lucide-react";
+import { UserCheck, ShieldCheck, Cloud, Award, Layers, Star } from "lucide-react";
 
 const defaultPaths = [
   {
@@ -11,39 +11,49 @@ const defaultPaths = [
     title: "Agile & Project Management",
     courses: "PMP®, CAPM®, PMI-ACP® and more",
     salary: "$115,000",
-    badge: "High Demand",
-    btnColor: "border-brand-blue/30 text-brand-blue hover:bg-brand-blue hover:text-white",
-    href: "/courses/agile-project-management"
+    badge: "Top Choice",
+    btnColor: "bg-brand-blue text-white hover:bg-blue-700 border-brand-blue",
+    href: "/category/agile-project-management"
   },
   {
-    icon: <ShieldCheck size={28} className="text-emerald-600" />,
+    icon: <Cloud size={28} className="text-emerald-600" />,
     iconBg: "bg-emerald-50 text-emerald-600 border-emerald-100",
-    title: "Cybersecurity",
-    courses: "CISSP®, CEH®, Security+ and more",
-    salary: "$120,000",
-    badge: "High Demand",
-    btnColor: "border-emerald-500/30 text-emerald-600 hover:bg-emerald-600 hover:text-white",
-    href: "/courses?path=Cybersecurity"
+    title: "DevOps & Salesforce",
+    courses: "Salesforce Administrator, DevOps and more",
+    salary: "$115,000",
+    badge: "Top Choice",
+    btnColor: "bg-emerald-600 text-white hover:bg-emerald-700 border-emerald-600",
+    href: "/category/devops-and-sf-certification"
   },
   {
-    icon: <Cloud size={28} className="text-brand-orange" />,
+    icon: <ShieldCheck size={28} className="text-brand-orange" />,
     iconBg: "bg-orange-50 text-brand-orange border-orange-100",
-    title: "Salesforce & Cloud",
-    courses: "Admin, App Builder, Business Analyst and more",
-    salary: "$110,000",
-    badge: "High Demand",
-    btnColor: "border-brand-orange/30 text-brand-orange hover:bg-brand-orange hover:text-white",
-    href: "/courses?path=Cloud"
+    title: "Information Security",
+    courses: "CISSP®, CISA®, CISM® and more",
+    salary: "$115,000",
+    badge: "Top Choice",
+    btnColor: "bg-brand-orange text-white hover:bg-orange-600 border-brand-orange",
+    href: "/category/information-security-certification"
   },
   {
-    icon: <span className="text-2xl font-black text-purple-600 font-serif">Σ</span>,
+    icon: <Award size={28} className="text-purple-600" />,
     iconBg: "bg-purple-50 text-purple-600 border-purple-100",
-    title: "Lean Six Sigma",
-    courses: "Green Belt, Black Belt and more",
-    salary: "$95,000",
-    badge: "High Demand",
-    btnColor: "border-purple-500/30 text-purple-600 hover:bg-purple-600 hover:text-white",
-    href: "/courses?path=Quality"
+    title: "IT Service and Architecture",
+    courses: "ITIL® 4 Foundation, TOGAF® and more",
+    salary: "$115,000",
+    badge: "Top Choice",
+    btnColor: "bg-purple-600 text-white hover:bg-purple-700 border-purple-600",
+    href: "/category/itil-certification"
+  },
+  {
+    icon: <Layers size={28} className="text-teal-600" />,
+    iconBg: "bg-teal-50 text-teal-600 border-teal-100",
+    title: "Lean and Six Sigma",
+    courses: "Green Belt, Black Belt, Yellow Belt and more",
+    salary: "$115,000",
+    badge: "Top Choice",
+    btnColor: "bg-teal-600 text-white hover:bg-teal-700 border-teal-600",
+    href: "/category/lean-six-sigma-certification"
   }
 ];
 
@@ -66,21 +76,24 @@ export default function CareerPaths({ categories = [], courses = [] }) {
           "bg-blue-50 text-brand-blue border-blue-100",
           "bg-emerald-50 text-emerald-600 border-emerald-100",
           "bg-orange-50 text-brand-orange border-orange-100",
-          "bg-purple-50 text-purple-600 border-purple-100"
+          "bg-purple-50 text-purple-600 border-purple-100",
+          "bg-teal-50 text-teal-600 border-teal-100"
         ];
 
         const btnColors = [
-          "border-brand-blue/30 text-brand-blue hover:bg-brand-blue hover:text-white",
-          "border-emerald-500/30 text-emerald-600 hover:bg-emerald-600 hover:text-white",
-          "border-brand-orange/30 text-brand-orange hover:bg-brand-orange hover:text-white",
-          "border-purple-500/30 text-purple-600 hover:bg-purple-600 hover:text-white"
+          "bg-brand-blue text-white hover:bg-blue-700 border-brand-blue",
+          "bg-emerald-600 text-white hover:bg-emerald-700 border-emerald-600",
+          "bg-brand-orange text-white hover:bg-orange-600 border-brand-orange",
+          "bg-purple-600 text-white hover:bg-purple-700 border-purple-600",
+          "bg-teal-600 text-white hover:bg-teal-700 border-teal-600"
         ];
 
         const icons = [
           <UserCheck key={1} size={28} className="text-brand-blue" />,
-          <ShieldCheck key={2} size={28} className="text-emerald-600" />,
-          <Cloud key={3} size={28} className="text-brand-orange" />,
-          <Award key={4} size={28} className="text-purple-600" />
+          <Cloud key={2} size={28} className="text-emerald-600" />,
+          <ShieldCheck key={3} size={28} className="text-brand-orange" />,
+          <Award key={4} size={28} className="text-purple-600" />,
+          <Layers key={5} size={28} className="text-teal-600" />
         ];
 
         return {
@@ -89,19 +102,19 @@ export default function CareerPaths({ categories = [], courses = [] }) {
           title: cat.name,
           courses: coursesString,
           salary: cat.avg_salary || "$115,000",
-          badge: cat.badge_text || "High Demand",
+          badge: cat.badge_text || "Top Choice",
           btnColor: btnColors[idx % btnColors.length],
-          href: `/courses?category=${encodeURIComponent(cat.name)}`
+          href: cat.slug ? `/category/${cat.slug}` : `/courses?category=${encodeURIComponent(cat.name)}`
         };
       })
     : defaultPaths;
 
   return (
-    <section id="career-paths" className="py-10 md:py-14 bg-white">
+    <section id="career-paths" className="py-6 md:py-8 bg-white">
       <div className="mx-auto max-w-7xl px-4 md:px-6">
         
         {/* Header */}
-        <div className="text-center max-w-2xl mx-auto mb-8 md:mb-10 space-y-3">
+        <div className="text-center max-w-2xl mx-auto mb-5 space-y-1.5">
           <h2 className="text-3xl md:text-5xl font-black text-brand-navy tracking-tight">
             Choose Your <span className="text-brand-blue">Career Path</span>
           </h2>
@@ -110,44 +123,44 @@ export default function CareerPaths({ categories = [], courses = [] }) {
           </p>
         </div>
 
-        {/* Dynamic Cards Grid */}
-        <div className="grid gap-5" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))" }}>
+        {/* Dynamic 5-Column Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           {displayPaths.map((path, idx) => (
             <div
               key={idx}
-              className="bg-white rounded-3xl border border-gray-200/80 p-6 flex flex-col justify-between hover:shadow-xl transition-all duration-300 hover:translate-y-[-4px] text-center space-y-6"
+              className="bg-white rounded-3xl border border-gray-200/80 p-5 flex flex-col justify-between hover:shadow-xl transition-all duration-300 hover:translate-y-[-4px] text-center space-y-4"
             >
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {/* Icon wrapper */}
-                <div className={`mx-auto h-16 w-16 rounded-2xl flex items-center justify-center border shadow-xs ${path.iconBg}`}>
+                <div className={`mx-auto h-14 w-14 rounded-2xl flex items-center justify-center border shadow-xs ${path.iconBg}`}>
                   {path.icon}
                 </div>
 
-                <div className="space-y-2">
-                  <h3 className="text-lg font-black text-brand-navy leading-snug">
+                <div className="space-y-1.5">
+                  <h3 className="text-base font-black text-brand-navy leading-snug">
                     {path.title}
                   </h3>
-                  <p className="text-xs text-gray-500 font-semibold leading-relaxed">
+                  <p className="text-xs text-gray-500 font-semibold leading-relaxed line-clamp-3">
                     {path.courses}
                   </p>
                 </div>
               </div>
 
-              <div className="space-y-4 pt-4 border-t border-gray-100">
-                <div className="space-y-1">
+              <div className="space-y-3 pt-3 border-t border-gray-100">
+                <div className="space-y-0.5">
                   <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Avg. Salary</p>
                   <p className="text-xl font-black text-brand-navy">{path.salary}</p>
                 </div>
 
                 <div className="inline-flex items-center justify-center gap-1 text-[11px] font-bold text-emerald-600">
-                  {path.badge} <TrendingUp size={12} />
+                  <Star size={12} className="fill-emerald-500 text-emerald-500" /> {path.badge}
                 </div>
 
                 <Link
                   href={path.href}
-                  className={`block w-full py-3 rounded-xl border text-xs font-bold transition-all shadow-xs ${path.btnColor}`}
+                  className={`block w-full py-2.5 rounded-xl border text-xs font-bold transition-all shadow-xs ${path.btnColor}`}
                 >
-                  Explore Path
+                  Explore Path →
                 </Link>
               </div>
             </div>
@@ -155,9 +168,9 @@ export default function CareerPaths({ categories = [], courses = [] }) {
         </div>
 
         {/* View All CTA Link */}
-        <div className="text-center mt-8">
+        <div className="text-center mt-5">
           <Link
-            href="/courses"
+            href="/certifications"
             className="inline-flex items-center gap-1.5 text-xs font-extrabold text-brand-blue hover:underline"
           >
             View All Certifications →
