@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageHeroBanner from "@/components/PageHeroBanner";
+import initialSiteSettings from "@/data/site_settings_db.json";
 import {
   Shield,
   FileText,
@@ -116,12 +118,14 @@ function PolicyIllustration() {
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export default function PoliciesPage() {
-  const [siteSettings, setSiteSettings] = useState(null);
+  const [siteSettings, setSiteSettings] = useState(initialSiteSettings || {});
 
   useEffect(() => {
     fetch("/api/settings/")
       .then((r) => r.json())
-      .then((d) => setSiteSettings(d))
+      .then((d) => {
+        if (d) setSiteSettings(d.data || d);
+      })
       .catch(() => {});
   }, []);
 
@@ -132,32 +136,19 @@ export default function PoliciesPage() {
     <div className="min-h-screen bg-white">
       <Navbar siteSettings={siteSettings} />
 
-      {/* Breadcrumb */}
-      <div className="border-b border-gray-100 bg-gray-50">
-        <div className="mx-auto max-w-7xl px-6 py-2.5 flex items-center gap-2 text-xs text-gray-500">
-          <Link href="/" className="hover:text-brand-blue transition-colors">Home</Link>
-          <ChevronRight size={12} className="text-gray-300" />
-          <span className="text-gray-800 font-medium">Policies</span>
-        </div>
-      </div>
-
-      {/* ── Hero ── */}
-      <section className="bg-white py-8 lg:py-10">
-        <div className="mx-auto max-w-7xl px-6 lg:flex lg:items-center lg:gap-8">
-          <div className="lg:flex-1">
-            <p className="text-xs font-bold uppercase tracking-widest text-brand-orange mb-3">Policies</p>
-            <h1 className="text-3xl font-extrabold leading-tight text-brand-navy md:text-4xl lg:text-[2.6rem]">
-              Our Policies.<br />Your Trust.
-            </h1>
-            <p className="mt-3 max-w-md text-sm text-gray-500 leading-relaxed">
-              We are committed to transparency, security, and delivering the best experience for our learners and customers. Please review our policies below to understand how we operate.
-            </p>
+      <PageHeroBanner
+        pageKey="policies"
+        siteSettings={siteSettings}
+        breadcrumb={
+          <div className="flex items-center gap-2 text-xs text-gray-500">
+            <Link href="/" className="hover:text-brand-blue transition-colors">
+              Home
+            </Link>
+            <ChevronRight size={12} className="text-gray-300" />
+            <span className="text-gray-800 font-medium">Policies</span>
           </div>
-          <div className="mt-6 lg:mt-0 lg:flex-1 flex justify-center lg:justify-end">
-            <PolicyIllustration />
-          </div>
-        </div>
-      </section>
+        }
+      />
 
       {/* ── Policy Cards + Sidebar ── */}
       <section className="bg-gray-50 py-8">

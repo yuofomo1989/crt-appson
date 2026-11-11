@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ConsultationModal from "@/components/ConsultationModal";
+import PageHeroBanner from "@/components/PageHeroBanner";
 import Link from "next/link";
 import {
   Star,
@@ -367,87 +368,21 @@ export default function CategoryClientPage({ slug }) {
       <Navbar siteSettings={siteSettings} />
 
       {/* ====================================================================
-          SECTION 1: LIGHT CORPORATE HERO + 5-ITEM STATS STRIP (Image 2 Match)
+          SECTION 1: DYNAMIC CANVAS HERO + 5-ITEM STATS STRIP
           ==================================================================== */}
-      <section className="relative bg-gradient-to-b from-[#F4F8FF] via-white to-white pt-4 pb-4 px-4 md:px-6 overflow-hidden">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-12 gap-6 items-center">
-            
-            {/* Left Column (6 Cols): Heading, Subtitle, 2 Buttons, Trustpilot */}
-            <div className="lg:col-span-6 space-y-4 text-left pb-2">
-              <h1 className="text-3xl sm:text-4xl lg:text-[48px] font-black text-[#0B1E33] tracking-tight leading-[1.12]">
-                {heroTitle}
-              </h1>
-
-              <p className="text-sm sm:text-base text-slate-600 font-medium leading-relaxed max-w-xl">
-                {heroSubtitle}
-              </p>
-
-              {/* CTA Buttons */}
-              <div className="flex flex-wrap items-center gap-4 pt-1">
-                <a
-                  href="#popular-certifications"
-                  className="px-7 py-3.5 rounded-xl bg-[#0066FF] hover:bg-blue-700 font-bold text-white text-xs sm:text-sm shadow-lg shadow-blue-500/20 transition-all flex items-center gap-2"
-                >
-                  <span>Explore Certifications</span>
-                  <ArrowRight size={15} />
-                </a>
-
-                <button
-                  type="button"
-                  onClick={() => openModalWithTitle(`Talk to ${categoryName} Learning Advisor`)}
-                  className="px-6 py-3.5 rounded-xl bg-white hover:bg-blue-50/50 font-bold text-[#0066FF] text-xs sm:text-sm border border-[#0066FF]/40 shadow-xs transition-colors flex items-center gap-2 cursor-pointer"
-                >
-                  <Headphones size={15} className="text-[#0066FF]" />
-                  <span>Talk to an Advisor</span>
-                </button>
-              </div>
-
-              {/* Trustpilot Review Strip */}
-              <div className="flex flex-wrap items-center gap-2.5 pt-2 text-xs font-semibold text-gray-700">
-                <div className="flex gap-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <span key={i} className="flex h-5 w-5 items-center justify-center rounded-xs bg-[#00B67A] text-white text-[11px] font-bold">
-                      ★
-                    </span>
-                  ))}
-                </div>
-                <span className="font-bold text-gray-800">4.8/5</span>
-                <span className="text-gray-300">|</span>
-                <span className="text-brand-blue font-bold">1,500+ Reviews on</span>
-                <span className="flex items-center gap-1 font-bold text-gray-900">
-                  <span className="text-[#00B67A]">★</span> Trustpilot
-                </span>
-              </div>
-            </div>
-
-            {/* Right Column (6 Cols): Signature Professionals Image + Floating 50,000+ Badge */}
-            <div className="lg:col-span-6 relative flex items-center justify-center lg:justify-end min-h-[280px]">
-              <div className="relative w-full max-w-[580px]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={heroImage}
-                  alt={`${categoryName} Live Training`}
-                  className="w-full h-auto object-contain select-none pointer-events-none"
-                />
-
-                {/* Floating 50,000+ Badge */}
-                <div className="absolute bottom-4 right-2 sm:right-4 bg-[#0066FF] text-white px-5 py-3 rounded-2xl shadow-xl shadow-blue-600/30 border border-white/20 flex items-center gap-3 z-20">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/20 text-white">
-                    <Users size={20} />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-base sm:text-lg font-black leading-none">50,000+</p>
-                    <p className="text-[11px] text-blue-100 font-semibold mt-0.5">Professionals Trained</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-          {/* 5-Item Stats Strip Underneath Hero */}
-          <div className="mt-4 bg-white border border-slate-200/80 rounded-2xl shadow-sm py-5 px-4 sm:px-8">
+      <PageHeroBanner
+        pageKey={`category:${category?.slug || slug}`}
+        siteSettings={siteSettings}
+        templateVars={{ category_name: categoryName }}
+        fallbackTitle={categoryName}
+        fallbackHighlight="Certifications"
+        fallbackSubtitle={heroSubtitle}
+        fallbackPrimaryText="Explore Certifications"
+        fallbackPrimaryUrl="#popular-certifications"
+        fallbackSecondaryText="Talk to an Advisor"
+        onSecondaryClick={() => openModalWithTitle(`Talk to ${categoryName} Learning Advisor`)}
+        bottomSlot={
+          <div className="bg-white border border-slate-200/80 rounded-2xl shadow-sm py-5 px-4 sm:px-8">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 items-center lg:divide-x lg:divide-slate-100">
               <div className="flex items-center gap-3.5 lg:pr-4">
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#0066FF]">
@@ -500,9 +435,8 @@ export default function CategoryClientPage({ slug }) {
               </div>
             </div>
           </div>
-
-        </div>
-      </section>
+        }
+      />
 
       {/* ====================================================================
           SECTION 2: CAREER ROADMAP PATH (5 Tinted Cards + Arrows + Recommended)

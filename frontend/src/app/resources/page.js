@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageHeroBanner from "@/components/PageHeroBanner";
+import initialSiteSettings from "@/data/site_settings_db.json";
 import {
   Search,
   ArrowRight,
@@ -170,7 +172,7 @@ export default function ResourcesPage() {
   const [extraCount, setExtraCount] = useState(0);
 
   const [dbArticles, setDbArticles] = useState(initialArticles || []);
-  const [siteSettings, setSiteSettings] = useState(null);
+  const [siteSettings, setSiteSettings] = useState(initialSiteSettings || {});
 
   useEffect(() => {
     async function fetchResourceData() {
@@ -185,7 +187,7 @@ export default function ResourcesPage() {
           setDbArticles(aRes.data);
         }
         if (sRes) {
-          setSiteSettings(sRes);
+          setSiteSettings(sRes.data || sRes);
         }
       } catch (err) {
         console.error("Error fetching resources data:", err);
@@ -240,13 +242,11 @@ export default function ResourcesPage() {
     <div className="min-h-screen bg-[#f8fafc] font-sans antialiased text-slate-800 text-left">
       <Navbar siteSettings={siteSettings} />
 
-      {/* ── 1. CORPORATE HERO SECTION + 5-ITEM STATS STRIP ────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#eef5ff] via-[#f6f9ff] to-[#dbeafe] border-b border-blue-100/80 pt-3 pb-5">
-        {/* Decorative right background swooshes */}
-        <div className="pointer-events-none absolute -right-24 -bottom-24 w-[480px] h-[480px] rounded-full bg-gradient-to-tr from-[#0052cc]/20 via-[#f97316]/15 to-transparent blur-2xl" />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 relative z-10">
-          {/* Breadcrumb */}
+      {/* ── 1. DYNAMIC CANVAS HERO SECTION + 5-ITEM STATS STRIP ────────────────── */}
+      <PageHeroBanner
+        pageKey="resources"
+        siteSettings={siteSettings}
+        breadcrumb={
           <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
             <Link href="/" className="hover:text-[#0066cc] transition-colors">
               Home
@@ -254,118 +254,47 @@ export default function ResourcesPage() {
             <ChevronRight size={13} className="text-slate-400" />
             <span className="text-slate-700 font-semibold">Resources &amp; Articles</span>
           </div>
-
-          {/* Hero Split Content */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-1">
-            {/* Left Column (6 Cols) */}
-            <div className="lg:col-span-6 space-y-5">
-              <span className="inline-block px-3.5 py-1 rounded-full bg-[#dbeafe] text-[#0066cc] text-[11px] font-extrabold uppercase tracking-wider">
-                RESOURCE HUB
-              </span>
-
-              <h1 className="text-3xl sm:text-4xl lg:text-[44px] font-black tracking-tight text-[#0f172a] leading-[1.12]">
-                Insights. Guidance.
-                <br />
-                <span className="text-[#0066cc]">Career Growth.</span>
-              </h1>
-
-              <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed max-w-xl">
-                Expert articles, exam preparation tips, industry insights, and career resources to help you get certified and grow your career.
-              </p>
-
-              {/* Search Bar */}
-              <div className="relative max-w-xl">
-                <input
-                  type="text"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search articles, topics, or certifications..."
-                  className="w-full rounded-2xl border border-slate-200/90 bg-white py-3.5 pl-5 pr-14 text-xs sm:text-sm font-medium text-slate-800 placeholder:text-slate-400 shadow-sm outline-none focus:border-[#0066cc] focus:ring-2 focus:ring-blue-500/15 transition-all"
-                />
-                <button
-                  type="button"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-xl bg-[#0066cc] hover:bg-[#0052a3] text-white flex items-center justify-center shadow-sm transition-colors cursor-pointer"
-                >
-                  <Search size={17} />
-                </button>
-              </div>
-
-              {/* Popular Tags */}
-              <div className="flex flex-wrap items-center gap-2 pt-0.5">
-                <span className="text-xs font-extrabold text-[#0f172a] mr-1">Popular:</span>
-                {["PMP Exam Guide", "Lean Six Sigma", "CAPM", "Agile", "CISSP"].map((tag) => (
-                  <button
-                    key={tag}
-                    type="button"
-                    onClick={() => setSearch(tag === search ? "" : tag)}
-                    className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer border ${
-                      search === tag
-                        ? "bg-[#0066cc] text-white border-[#0066cc]"
-                        : "bg-white text-slate-700 border-slate-200/90 hover:border-[#0066cc] hover:text-[#0066cc]"
-                    }`}
-                  >
-                    {tag}
-                  </button>
-                ))}
-              </div>
+        }
+        customActions={
+          <div className="space-y-3">
+            {/* Search Bar */}
+            <div className="relative max-w-xl">
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search articles, topics, or certifications..."
+                className="w-full rounded-2xl border border-slate-200/90 bg-white py-3.5 pl-5 pr-14 text-xs sm:text-sm font-medium text-slate-800 placeholder:text-slate-400 shadow-sm outline-none focus:border-[#0066cc] focus:ring-2 focus:ring-blue-500/15 transition-all"
+              />
+              <button
+                type="button"
+                className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-xl bg-[#0066cc] hover:bg-[#0052a3] text-white flex items-center justify-center shadow-sm transition-colors cursor-pointer"
+              >
+                <Search size={17} />
+              </button>
             </div>
 
-            {/* Right Column (6 Cols): Woman with Laptop + Books + 146+ Badge + 4 Checklist Pills */}
-            <div className="lg:col-span-6 relative">
-              <div className="relative rounded-3xl overflow-hidden bg-gradient-to-tr from-[#e0ecff] to-[#f8fbff] border border-white/80 shadow-lg h-[310px] sm:h-[340px] flex items-end">
-                <img
-                  src="/resources_hero_laptop.jpg"
-                  alt="Resources & Insights Hub"
-                  className="w-full h-full object-cover object-left"
-                  onError={(e) => {
-                    e.target.src = "/about_us_professionals.jpg";
-                  }}
-                />
-
-                {/* Stack of 3 Certification Books at Bottom Center */}
-                <div className="hidden sm:flex flex-col items-center absolute bottom-3 left-[44%] -translate-x-1/2 z-20 drop-shadow-md">
-                  <div className="w-28 py-1 px-3 rounded-t-md bg-[#0066cc] text-white text-[10px] font-black text-center border-b border-blue-800 shadow-xs">
-                    PMP®
-                  </div>
-                  <div className="w-30 py-1 px-3 bg-[#f97316] text-white text-[10px] font-black text-center border-b border-orange-700 shadow-xs">
-                    Agile
-                  </div>
-                  <div className="w-32 py-1 px-3 rounded-b-md bg-[#0f172a] text-white text-[10px] font-black text-center shadow-xs">
-                    Lean Six Sigma
-                  </div>
-                </div>
-
-                {/* Top-Right Large Blue Pill Badge: 146+ Articles & Guides */}
-                <div className="absolute top-4 right-4 z-20 rounded-full bg-gradient-to-r from-[#0052cc] to-[#003d99] text-white px-5 py-2.5 shadow-xl border border-blue-400/30 flex items-center gap-3">
-                  <BookOpen size={26} className="text-blue-100 shrink-0" />
-                  <div className="leading-tight">
-                    <p className="text-xl sm:text-2xl font-black">146+</p>
-                    <p className="text-[11px] font-semibold text-blue-100">Articles &amp; Guides</p>
-                  </div>
-                </div>
-
-                {/* Right Stacked 4 White Checklist Pills */}
-                <div className="hidden sm:flex flex-col gap-2 absolute bottom-4 right-4 z-20 w-52">
-                  {[
-                    "Exam Preparation Tips",
-                    "Industry Insights",
-                    "Career Growth Guides",
-                    "Best Practices & More"
-                  ].map((item) => (
-                    <div
-                      key={item}
-                      className="rounded-xl bg-white/95 backdrop-blur-md border border-slate-200/80 px-3.5 py-2 shadow-sm flex items-center gap-2 text-xs font-extrabold text-[#0f172a]"
-                    >
-                      <CheckCircle2 size={15} className="text-[#16a34a] shrink-0" />
-                      <span>{item}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+            {/* Popular Tags */}
+            <div className="flex flex-wrap items-center gap-2 pt-0.5">
+              <span className="text-xs font-extrabold text-[#0f172a] mr-1">Popular:</span>
+              {["PMP Exam Guide", "Lean Six Sigma", "CAPM", "Agile", "CISSP"].map((tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => setSearch(tag === search ? "" : tag)}
+                  className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer border ${
+                    search === tag
+                      ? "bg-[#0066cc] text-white border-[#0066cc]"
+                      : "bg-white text-slate-700 border-slate-200/90 hover:border-[#0066cc] hover:text-[#0066cc]"
+                  }`}
+                >
+                  {tag}
+                </button>
+              ))}
             </div>
           </div>
-
-          {/* 5-Item Stats Strip Card */}
+        }
+        bottomSlot={
           <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 divide-y sm:divide-y-0 sm:divide-x divide-slate-200/70 overflow-hidden">
             <div className="p-4 flex items-center justify-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0066cc] flex items-center justify-center shrink-0">
@@ -417,8 +346,8 @@ export default function ResourcesPage() {
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        }
+      />
 
       {/* ── 2. BROWSE BY CATEGORY + FEATURED ARTICLE ──────────────────────── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-2 space-y-5">

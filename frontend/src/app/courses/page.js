@@ -4,11 +4,13 @@ import React, { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PreFooter from "@/components/PreFooter";
+import PageHeroBanner from "@/components/PageHeroBanner";
 import { Star, Clock, Calendar, Search, ArrowRight, ShieldCheck, Filter, X, Award, ChevronRight, Check } from "lucide-react";
 import Link from "next/link";
 
 import initialCourses from "@/data/courses_db.json";
 import initialCategories from "@/data/categories_db.json";
+import initialSiteSettings from "@/data/site_settings_db.json";
 
 const allCourses = [];
 const levels = ["All Levels", "Beginner", "Intermediate", "Advanced"];
@@ -16,7 +18,7 @@ const levels = ["All Levels", "Beginner", "Intermediate", "Advanced"];
 export default function Certifications() {
   const [coursesList, setCoursesList] = useState(initialCourses || []);
   const [categoriesList, setCategoriesList] = useState(initialCategories || []);
-  const [siteSettings, setSiteSettings] = useState(null);
+  const [siteSettings, setSiteSettings] = useState(initialSiteSettings || {});
   const [loading, setLoading] = useState(false);
 
   const [selectedPath, setSelectedPath] = useState("All Paths");
@@ -38,7 +40,7 @@ export default function Certifications() {
         const catData = await catRes.json();
         if (setRes.json) {
           const setData = await setRes.json().catch(() => null);
-          if (setData) setSiteSettings(setData);
+          if (setData) setSiteSettings(setData.data || setData);
         }
 
         if (cData.status === 'success' && cData.data && cData.data.length > 0) {
@@ -81,17 +83,19 @@ export default function Certifications() {
     <div className="min-h-screen bg-slate-50/50 flex flex-col justify-between">
       <Navbar siteSettings={siteSettings} />
 
-      <main className="max-w-7xl mx-auto px-4 py-12 md:px-6 flex-1 space-y-8 w-full">
-        
-        {/* Header */}
-        <div className="text-center max-w-2xl mx-auto space-y-3">
-          <h1 className="text-3xl md:text-5xl font-black text-brand-navy tracking-tight">
-            Explore All <span className="text-brand-blue">Certifications</span>
-          </h1>
-          <p className="text-xs md:text-sm text-gray-500 font-semibold leading-relaxed">
-            Find the right program to validate your skills, grow your career, and match your professional path.
-          </p>
-        </div>
+      <PageHeroBanner
+        pageKey="certifications"
+        siteSettings={siteSettings}
+        fallbackPill="GLOBAL CERTIFICATION CATALOG"
+        fallbackTitle="Explore All"
+        fallbackHighlight="Certifications"
+        fallbackSubtitle="Choose from 120+ industry-recognized certification bootcamps with guaranteed-to-run cohorts and 100% money-back pass assurance."
+        fallbackPrimaryText="Browse Courses Below"
+        fallbackPrimaryUrl="#catalog-grid"
+        fallbackSecondaryText="Talk to an Advisor"
+      />
+
+      <main id="catalog-grid" className="max-w-7xl mx-auto px-4 py-8 md:px-6 flex-1 space-y-6 w-full">
 
         {/* Search Row */}
         <div className="bg-white rounded-3xl border border-gray-100 p-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">

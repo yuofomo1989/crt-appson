@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageHeroBanner from "@/components/PageHeroBanner";
+import initialSiteSettings from "@/data/site_settings_db.json";
 import {
   Award,
   Users,
@@ -155,6 +157,17 @@ const ALUMNI_STORIES = [
 
 export default function AboutPage() {
   const [activeSlide, setActiveSlide] = useState(0);
+  const [siteSettings, setSiteSettings] = useState(initialSiteSettings || {});
+
+  useEffect(() => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+    fetch(`${apiUrl}/settings/`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (d) setSiteSettings(d.data || d);
+      })
+      .catch(() => {});
+  }, []);
 
   const prevSlide = () => {
     setActiveSlide((prev) => (prev === 0 ? ALUMNI_STORIES.length - 1 : prev - 1));
@@ -168,14 +181,13 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] font-sans antialiased text-slate-800 text-left flex flex-col justify-between">
-      <Navbar />
+      <Navbar siteSettings={siteSettings} />
 
-      {/* ── 1. LIGHT CORPORATE HERO + 5-ITEM STATS STRIP ───────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#eef5ff] via-[#f6f9ff] to-[#dbeafe] border-b border-blue-100/80 pt-3 pb-5">
-        <div className="pointer-events-none absolute -right-20 -bottom-20 w-[460px] h-[460px] rounded-full bg-gradient-to-tr from-[#0052cc]/20 via-[#f97316]/20 to-transparent blur-2xl" />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 relative z-10">
-          {/* Breadcrumb */}
+      {/* ── 1. DYNAMIC CANVAS HERO + 5-ITEM STATS STRIP ───────────────────── */}
+      <PageHeroBanner
+        pageKey="about"
+        siteSettings={siteSettings}
+        breadcrumb={
           <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
             <Link href="/" className="hover:text-[#0066cc] transition-colors">
               Home
@@ -183,90 +195,8 @@ export default function AboutPage() {
             <ChevronRight size={13} className="text-slate-400" />
             <span className="text-slate-700 font-semibold">About Us</span>
           </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            {/* Left Column (6 Cols) */}
-            <div className="lg:col-span-6 space-y-5">
-              <span className="inline-block px-3.5 py-1 rounded-full bg-white border border-slate-200 text-[#0f172a] text-[11px] font-extrabold uppercase tracking-wider shadow-2xs">
-                ABOUT CERTIFICATION PLANNER
-              </span>
-
-              <h1 className="text-3xl sm:text-4xl lg:text-[44px] font-black tracking-tight text-[#0f172a] leading-[1.1]">
-                Empowering Careers
-                <br />
-                <span className="text-[#f97316]">One Certification</span>
-                <br />
-                at a Time
-              </h1>
-
-              <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed max-w-xl">
-                A trusted global training partner since 2009, helping professionals and organizations build in-demand skills, achieve recognized certifications, and advance their careers.
-              </p>
-
-              {/* CTA Buttons */}
-              <div className="flex flex-wrap items-center gap-3.5 pt-1">
-                <Link
-                  href="/courses"
-                  className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#ff6a00] to-[#ea580c] hover:from-[#ea580c] hover:to-[#d9460f] px-6 py-3.5 text-xs sm:text-sm font-extrabold text-white shadow-md shadow-orange-500/20 transition-all"
-                >
-                  <span>Explore Certifications</span>
-                  <ArrowRight size={15} />
-                </Link>
-                <Link
-                  href="/contact"
-                  className="inline-flex items-center gap-2 rounded-full border-2 border-[#0066cc] bg-white hover:bg-blue-50 px-6 py-3 text-xs sm:text-sm font-extrabold text-[#0066cc] transition-all"
-                >
-                  <Headphones size={15} />
-                  <span>Talk to an Advisor</span>
-                </Link>
-              </div>
-
-              {/* Trustpilot Strip */}
-              <div className="flex flex-wrap items-center gap-2.5 pt-1 text-xs font-bold text-slate-700">
-                <div className="flex items-center gap-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <span
-                      key={i}
-                      className="w-4 h-4 rounded-xs bg-[#00b67a] text-white flex items-center justify-center text-[10px]"
-                    >
-                      ★
-                    </span>
-                  ))}
-                </div>
-                <span className="font-black text-[#0f172a]">4.6/5</span>
-                <span className="text-slate-300">|</span>
-                <span className="text-slate-600">
-                  1,500+ Reviews on <strong className="text-[#0f172a]">★ Trustpilot</strong>
-                </span>
-              </div>
-            </div>
-
-            {/* Right Column (6 Cols): Team Photo + 50,000+ Professionals Trained Badge */}
-            <div className="lg:col-span-6 relative">
-              <div className="relative rounded-3xl overflow-hidden border border-white/80 shadow-xl bg-white h-[290px] sm:h-[330px]">
-                <img
-                  src="/about_us_professionals.jpg"
-                  alt="About Certification Planner"
-                  className="w-full h-full object-cover object-center"
-                />
-
-                {/* Top-Right Blue Pill Badge: 50,000+ Professionals Trained Worldwide */}
-                <div className="absolute top-4 right-4 z-20 rounded-full bg-gradient-to-r from-[#0052cc] to-[#003d99] text-white px-5 py-2.5 shadow-xl border border-blue-300/30 flex items-center gap-3">
-                  <Users size={26} className="text-blue-100 shrink-0" />
-                  <div className="leading-tight">
-                    <p className="text-xl sm:text-2xl font-black">50,000+</p>
-                    <p className="text-[10px] font-semibold text-blue-100">
-                      Professionals Trained
-                      <br />
-                      Worldwide
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 5-Item Stats Strip Card */}
+        }
+        bottomSlot={
           <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 divide-y sm:divide-y-0 sm:divide-x divide-slate-200/70 overflow-hidden">
             <div className="p-4 flex items-center justify-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0066cc] flex items-center justify-center shrink-0">
@@ -318,8 +248,8 @@ export default function AboutPage() {
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        }
+      />
 
       {/* ── 2. OUR MISSION & OUR VISION SPLIT CARDS ────────────────────────── */}
       <section className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-2">

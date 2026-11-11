@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageHeroBanner from "@/components/PageHeroBanner";
 import {
   Building2,
   Users,
@@ -202,13 +203,11 @@ export default function CorporateTrainingPage() {
     <div className="min-h-screen bg-[#f8fafc] text-slate-800 flex flex-col font-sans antialiased text-left">
       <Navbar siteSettings={siteSettings} />
 
-      {/* ── 1. LIGHT CORPORATE HERO + 5-ITEM STATS STRIP ───────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#eef5ff] via-[#f6f9ff] to-[#dbeafe] border-b border-blue-100/80 pt-3 pb-5">
-        {/* Decorative diagonal blue/orange swooshes on right */}
-        <div className="pointer-events-none absolute -right-20 -bottom-20 w-[460px] h-[460px] rounded-full bg-gradient-to-tr from-[#0052cc]/20 via-[#f97316]/20 to-transparent blur-2xl" />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 relative z-10">
-          {/* Breadcrumb */}
+      {/* ── 1. DYNAMIC CANVAS HERO + 5-ITEM STATS STRIP ───────────────────── */}
+      <PageHeroBanner
+        pageKey="corporate-training"
+        siteSettings={siteSettings}
+        breadcrumb={
           <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
             <Link href="/" className="hover:text-[#0066cc] transition-colors">
               Home
@@ -216,88 +215,8 @@ export default function CorporateTrainingPage() {
             <ChevronRight size={13} className="text-slate-400" />
             <span className="text-slate-700 font-semibold">Corporate Training</span>
           </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            {/* Left Column (6 Cols) */}
-            <div className="lg:col-span-6 space-y-5">
-              <span className="inline-block px-3.5 py-1 rounded-full bg-[#dbeafe] border border-blue-200 text-[#0066cc] text-[11px] font-extrabold uppercase tracking-wider">
-                CORPORATE TRAINING &amp; ENTERPRISE SOLUTIONS
-              </span>
-
-              <h1 className="text-3xl sm:text-4xl lg:text-[42px] font-black tracking-tight text-[#0f172a] leading-[1.12]">
-                Empower Your Teams with
-                <br />
-                <span className="text-[#f97316]">Custom Corporate Training</span>
-              </h1>
-
-              <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed max-w-xl">
-                Build high-performing teams with flexible, role-based training programs in project management, Agile, Lean Six Sigma, IT, and more — tailored to your business goals.
-              </p>
-
-              {/* CTA Buttons */}
-              <div className="flex flex-wrap items-center gap-3.5 pt-1">
-                <a
-                  href="#proposal-form"
-                  className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#ff6a00] to-[#ea580c] hover:from-[#ea580c] hover:to-[#d9460f] px-6 py-3.5 text-xs sm:text-sm font-extrabold text-white shadow-md shadow-orange-500/20 transition-all"
-                >
-                  <span>Request a Training Proposal</span>
-                  <ArrowRight size={15} />
-                </a>
-                <Link
-                  href="/contact"
-                  className="inline-flex items-center gap-2 rounded-full border-2 border-[#0066cc] bg-white hover:bg-blue-50 px-6 py-3 text-xs sm:text-sm font-extrabold text-[#0066cc] transition-all"
-                >
-                  <Headphones size={15} />
-                  <span>Talk to a Training Advisor</span>
-                </Link>
-              </div>
-
-              {/* Trustpilot Strip */}
-              <div className="flex flex-wrap items-center gap-2.5 pt-1 text-xs font-bold text-slate-700">
-                <div className="flex items-center gap-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <span
-                      key={i}
-                      className="w-4 h-4 rounded-xs bg-[#00b67a] text-white flex items-center justify-center text-[10px]"
-                    >
-                      ★
-                    </span>
-                  ))}
-                </div>
-                <span className="font-black text-[#0f172a]">4.6/5</span>
-                <span className="text-slate-300">|</span>
-                <span className="text-slate-600">
-                  1,500+ Reviews on <strong className="text-[#0f172a]">★ Trustpilot</strong>
-                </span>
-              </div>
-            </div>
-
-            {/* Right Column (6 Cols): Corporate Team Photo + 500+ Enterprise Clients Badge */}
-            <div className="lg:col-span-6 relative">
-              <div className="relative rounded-3xl overflow-hidden border border-white/80 shadow-xl bg-white h-[290px] sm:h-[330px]">
-                <img
-                  src="/about_us_professionals.jpg"
-                  alt="Corporate Training Enterprise Solutions"
-                  className="w-full h-full object-cover object-center"
-                />
-
-                {/* Top-Right Blue Pill Badge: 500+ Enterprise Clients Trained */}
-                <div className="absolute top-4 right-4 z-20 rounded-full bg-gradient-to-r from-[#0052cc] to-[#003d99] text-white px-5 py-2.5 shadow-xl border border-blue-300/30 flex items-center gap-3">
-                  <Users size={26} className="text-blue-100 shrink-0" />
-                  <div className="leading-tight">
-                    <p className="text-xl sm:text-2xl font-black">500+</p>
-                    <p className="text-[10px] font-semibold text-blue-100">
-                      Enterprise Clients
-                      <br />
-                      Trained
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 5-Item Stats Strip Card */}
+        }
+        bottomSlot={
           <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 divide-y sm:divide-y-0 sm:divide-x divide-slate-200/70 overflow-hidden">
             <div className="p-4 flex items-center justify-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0066cc] flex items-center justify-center shrink-0">
@@ -349,8 +268,8 @@ export default function CorporateTrainingPage() {
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        }
+      />
 
       {/* ── 2. POPULAR CERTIFICATIONS FOR CORPORATE TRAINING (7 PILLS) ─────── */}
       <section className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-3">

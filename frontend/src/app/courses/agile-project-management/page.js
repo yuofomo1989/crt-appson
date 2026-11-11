@@ -1,11 +1,13 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PreFooter from "@/components/PreFooter";
+import PageHeroBanner from "@/components/PageHeroBanner";
+import initialSiteSettings from "@/data/site_settings_db.json";
 import { useModal } from "@/context/ModalContext";
 import {
   Star,
@@ -231,185 +233,51 @@ const comparisonData = [
 
 export default function AgileCategoryPage() {
   const { openConsultationModal } = useModal();
+  const [siteSettings, setSiteSettings] = useState(initialSiteSettings || {});
+
+  useEffect(() => {
+    fetch("/api/settings/")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((res) => {
+        if (res && res.status === "success" && res.data) {
+          setSiteSettings(res.data);
+        } else if (res && res.data) {
+          setSiteSettings(res.data);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <div className="min-h-screen bg-white flex flex-col justify-between font-sans">
       <Navbar />
 
       <main className="flex-1 w-full space-y-16 lg:space-y-24 pb-16">
         
-        {/* 1. HERO SECTION */}
-        <section className="relative bg-gradient-to-b from-slate-50 via-blue-50/20 to-white pt-6 pb-12 md:pb-20 border-b border-gray-100">
-          <div className="max-w-7xl mx-auto px-4 md:px-6">
-            
-            {/* Breadcrumb */}
-            <nav className="flex items-center gap-2 text-xs font-semibold text-gray-500 mb-8">
-              <Link href="/" className="hover:text-brand-blue">Home</Link>
-              <ChevronRight size={12} />
-              <Link href="/courses" className="hover:text-brand-blue">Certifications</Link>
-              <ChevronRight size={12} />
-              <span className="text-brand-navy font-bold">Agile & Project Management</span>
-            </nav>
-
-            <div className="grid lg:grid-cols-12 gap-12 items-center">
-              
-              {/* Left Column Text */}
-              <div className="lg:col-span-7 space-y-6 text-left">
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-brand-navy tracking-tight leading-tight">
-                  Agile &amp; Project Management <span className="text-brand-blue">Certifications</span>
-                </h1>
-
-                <p className="text-sm md:text-base text-gray-600 font-medium leading-relaxed max-w-2xl">
-                  Gain the skills, tools, and confidence to lead projects, empower teams, and deliver results that matter.
-                </p>
-
-                {/* 3 Feature Badges */}
-                <div className="grid sm:grid-cols-3 gap-3 pt-2">
-                  <div className="flex items-center gap-2.5 bg-white border border-gray-200/80 rounded-2xl p-3 shadow-xs">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-brand-blue shrink-0">
-                      <Video size={18} />
-                    </div>
-                    <div className="text-left">
-                      <p className="text-xs font-black text-brand-navy">Live Instructor-Led</p>
-                      <p className="text-[10px] text-gray-500 font-semibold">Training</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2.5 bg-white border border-gray-200/80 rounded-2xl p-3 shadow-xs">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 shrink-0">
-                      <CheckCircle2 size={18} />
-                    </div>
-                    <div className="text-left">
-                      <p className="text-xs font-black text-brand-navy">Guaranteed-to-Run</p>
-                      <p className="text-[10px] text-gray-500 font-semibold">Classes</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2.5 bg-white border border-gray-200/80 rounded-2xl p-3 shadow-xs">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-brand-orange shrink-0">
-                      <Shield size={18} />
-                    </div>
-                    <div className="text-left">
-                      <p className="text-xs font-black text-brand-navy">Pass Assurance</p>
-                      <p className="text-[10px] text-gray-500 font-semibold">We've Got Your Back</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* CTA Buttons */}
-                <div className="flex flex-wrap items-center gap-4 pt-4">
-                  <a
-                    href="#popular-courses"
-                    className="inline-flex items-center gap-2 rounded-2xl bg-brand-orange px-7 py-4 text-sm font-bold text-white shadow-lg hover:bg-opacity-90 transition-all hover:shadow-xl hover:translate-y-[-2px]"
-                  >
-                    Explore Certifications
-                    <ArrowRight size={16} />
-                  </a>
-
-                  <button
-                    onClick={() => openConsultationModal("Talk to an Advisor")}
-                    className="inline-flex items-center gap-2 rounded-2xl border-2 border-brand-blue/30 bg-white px-7 py-4 text-sm font-bold text-brand-blue hover:bg-blue-50 transition-all shadow-xs cursor-pointer"
-                  >
-                    <Phone size={16} className="text-brand-blue" />
-                    Talk to an Advisor
-                  </button>
-                </div>
-
-                {/* Sub Rating Bar */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-8 border-t border-gray-200/60">
-                  <div className="flex items-center gap-2">
-                    <Star size={18} className="text-amber-400 fill-amber-400 shrink-0" />
-                    <div className="text-left">
-                      <p className="text-xs font-black text-brand-navy">4.8/5</p>
-                      <p className="text-[10px] text-gray-500 font-semibold">Student Rating</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Globe size={18} className="text-brand-blue shrink-0" />
-                    <div className="text-left">
-                      <p className="text-xs font-black text-brand-navy">100+</p>
-                      <p className="text-[10px] text-gray-500 font-semibold">Countries</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Users size={18} className="text-emerald-600 shrink-0" />
-                    <div className="text-left">
-                      <p className="text-xs font-black text-brand-navy">50,000+</p>
-                      <p className="text-[10px] text-gray-500 font-semibold">Professionals Trained</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Award size={18} className="text-purple-600 shrink-0" />
-                    <div className="text-left">
-                      <p className="text-xs font-black text-brand-navy">20+ Years</p>
-                      <p className="text-[10px] text-gray-500 font-semibold">Of Excellence</p>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-
-              {/* Right Column Hero Graphic / Photo with Floating Cards */}
-              <div className="lg:col-span-5 relative flex justify-center">
-                <div className="relative w-full max-w-md">
-                  
-                  {/* Outer Glow Decor */}
-                  <div className="absolute -inset-4 rounded-3xl bg-gradient-to-tr from-brand-blue/20 via-brand-orange/20 to-emerald-200/30 blur-2xl opacity-60"></div>
-
-                  {/* Main Hero Card Image */}
-                  <div className="relative overflow-hidden rounded-3xl border-4 border-white bg-white shadow-2xl">
-                    <Image
-                      src="/images/agile_hero_professional.jpg"
-                      alt="Agile & Project Management Leaders"
-                      width={500}
-                      height={400}
-                      className="w-full h-80 object-cover object-center"
-                      priority
-                    />
-                    
-                    {/* Live Stream Overlay Tag */}
-                    <div className="absolute top-3 left-3 bg-brand-navy/90 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-md">
-                      <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping"></span>
-                      PMP® Live Class
-                    </div>
-                  </div>
-
-                  {/* Top-Right Floating Badge (Salary & Growth) */}
-                  <div className="absolute -top-6 -right-6 bg-white/95 backdrop-blur-md rounded-2xl p-4 border border-gray-100 shadow-xl space-y-1 text-left hidden sm:block max-w-[180px]">
-                    <div className="flex items-center justify-between text-[10px] text-gray-400 font-bold uppercase">
-                      <span>Average Salary</span>
-                    </div>
-                    <p className="text-base font-black text-brand-navy">$120,000+</p>
-                    <p className="text-[10px] font-bold text-gray-500">Project Manager</p>
-                    <div className="pt-1.5 border-t border-gray-100 flex items-center justify-between text-[10px]">
-                      <span className="font-bold text-gray-500">Job Growth</span>
-                      <span className="font-black text-emerald-600 flex items-center gap-0.5">
-                        33% <TrendingUp size={10} />
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Bottom-Right Floating Badge (PMI Authorized Partner) */}
-                  <div className="absolute -bottom-6 -left-6 bg-white/95 backdrop-blur-md rounded-2xl p-4 border border-gray-100 shadow-xl flex items-center gap-3 text-left max-w-[220px]">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-navy text-white font-black text-xs shrink-0 shadow-md">
-                      PMI®
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Authorized</p>
-                      <p className="text-xs font-black text-brand-navy leading-tight">Training Partner</p>
-                      <p className="text-[9px] text-brand-blue font-bold">Project Management Institute</p>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-
-            </div>
-
-          </div>
-        </section>
+        {/* 1. HERO SECTION (1:1 Canvas Powered via PageHeroBanner) */}
+        <PageHeroBanner
+          pageKey="category:agile-project-management"
+          siteSettings={siteSettings}
+          breadcrumb={[
+            { label: "Home", href: "/" },
+            { label: "Certifications", href: "/courses" },
+            { label: "Agile & Project Management" }
+          ]}
+          templateVars={{
+            title: "Agile & Project Management",
+            subtitle: "Gain the skills, tools, and confidence to lead projects, empower teams, and deliver results that matter."
+          }}
+          fallback={{
+            pill: "Authorized Training Partner",
+            title: "Agile & Project Management",
+            highlight: "Certifications",
+            subtitle: "Gain the skills, tools, and confidence to lead projects, empower teams, and deliver results that matter.",
+            ctaPrimary: "Explore Certifications",
+            ctaPrimaryHref: "#popular-courses",
+            ctaSecondary: "Talk to an Advisor",
+            onSecondaryClick: () => openConsultationModal("Talk to an Advisor")
+          }}
+        />
 
         {/* 2. EXPLORE YOUR CAREER PATH */}
         <section className="max-w-7xl mx-auto px-4 md:px-6 text-center space-y-10">

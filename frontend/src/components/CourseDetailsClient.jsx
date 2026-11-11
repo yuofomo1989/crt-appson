@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageHeroBanner from "@/components/PageHeroBanner";
 import {
   Star,
   Shield,
@@ -299,16 +300,39 @@ export default function CourseDetailsClient({ course, schedules = [] }) {
       <Navbar siteSettings={siteSettings} />
 
       {/* ====================================================================
-          1. BREADCRUMB + SIGNATURE CORPORATE HERO + 5-ITEM STATS STRIP
+          1. BREADCRUMB + DYNAMIC CANVAS HERO + 5-ITEM STATS STRIP
           ==================================================================== */}
-      <section className="relative bg-gradient-to-b from-[#F4F8FF] via-white to-white pt-3 pb-4 px-4 md:px-6 overflow-hidden">
-        <div className="max-w-7xl mx-auto">
-          
-          {/* Top Breadcrumb */}
-          <nav className="text-[11px] text-slate-500 font-semibold flex flex-wrap gap-1.5 items-center pb-3">
-            <Link href="/" className="hover:text-[#0066FF] transition-colors">Home</Link>
+      <PageHeroBanner
+        pageKey={`course:${currentCourse.slug || slug}`}
+        siteSettings={siteSettings}
+        templateVars={{
+          category_name: currentCourse.category_name || "Project Management",
+          course_acronym: courseAcronym,
+          course_title: currentCourse.title || "PMP® Certification Training",
+          course_description:
+            currentCourse.description ||
+            `A comprehensive, instructor-led ${courseAcronym} exam preparation course designed to help you pass with confidence and advance your project management career.`,
+        }}
+        fallbackPill={`${(currentCourse.category_name || "Project Management").toUpperCase()} CERTIFICATION`}
+        fallbackTitle={`Become a ${courseAcronym} Certified`}
+        fallbackHighlight="Project Leader"
+        fallbackSubtitle={
+          currentCourse.description ||
+          `A comprehensive, instructor-led ${courseAcronym} exam preparation course designed to help you pass with confidence and advance your project management career.`
+        }
+        fallbackPrimaryText="Enroll Now"
+        fallbackPrimaryUrl="#training-formats"
+        fallbackSecondaryText="Talk to an Advisor"
+        onSecondaryClick={() => openModal(`Talk to an Advisor - ${currentCourse.title}`)}
+        breadcrumb={
+          <nav className="text-[11px] text-slate-500 font-semibold flex flex-wrap gap-1.5 items-center">
+            <Link href="/" className="hover:text-[#0066FF] transition-colors">
+              Home
+            </Link>
             <ChevronRight size={12} className="text-slate-300" />
-            <Link href="/certifications" className="hover:text-[#0066FF] transition-colors">Certifications</Link>
+            <Link href="/certifications" className="hover:text-[#0066FF] transition-colors">
+              Certifications
+            </Link>
             <ChevronRight size={12} className="text-slate-300" />
             <Link
               href={`/category/${currentCourse.category_slug || "agile-project-management"}`}
@@ -321,89 +345,9 @@ export default function CourseDetailsClient({ course, schedules = [] }) {
               {currentCourse.title || "PMP® Certification Exam Preparation Training"}
             </span>
           </nav>
-
-          <div className="grid lg:grid-cols-12 gap-8 items-center">
-            
-            {/* Left Column (6 Cols): Pill, H1, Subtitle, 2 Buttons, Trustpilot */}
-            <div className="lg:col-span-6 space-y-4 text-left pb-4">
-              <span className="inline-block px-3.5 py-1 rounded-full bg-blue-100/80 text-[#0066FF] text-[10px] font-black uppercase tracking-wider">
-                {(currentCourse.category_name || "Project Management").toUpperCase()} CERTIFICATION
-              </span>
-
-              <h1 className="text-3xl sm:text-4xl lg:text-[46px] font-black text-[#0B1E33] tracking-tight leading-[1.12]">
-                Become a {courseAcronym} Certified<br />
-                <span className="text-[#FF6B00]">Project Leader</span>
-              </h1>
-
-              <p className="text-sm sm:text-base text-slate-600 font-medium leading-relaxed max-w-xl">
-                {currentCourse.description || `A comprehensive, instructor-led ${courseAcronym} exam preparation course designed to help you pass with confidence and advance your project management career.`}
-              </p>
-
-              {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-4 pt-1">
-                <a
-                  href="#training-formats"
-                  className="px-7 py-3.5 rounded-full bg-[#FF6B00] hover:bg-orange-600 font-bold text-white text-xs sm:text-sm shadow-lg shadow-orange-500/25 transition-all flex items-center gap-2"
-                >
-                  <span>Enroll Now</span>
-                  <ArrowRight size={15} />
-                </a>
-
-                <button
-                  type="button"
-                  onClick={() => openModal(`Talk to an Advisor - ${currentCourse.title}`)}
-                  className="px-6 py-3.5 rounded-full bg-white hover:bg-blue-50/50 font-bold text-[#0066FF] text-xs sm:text-sm border border-[#0066FF]/40 shadow-xs transition-colors flex items-center gap-2 cursor-pointer"
-                >
-                  <Headphones size={15} className="text-[#0066FF]" />
-                  <span>Talk to an Advisor</span>
-                </button>
-              </div>
-
-              {/* Trustpilot Review Strip */}
-              <div className="flex flex-wrap items-center gap-2.5 pt-2 text-xs font-semibold text-gray-700">
-                <div className="flex gap-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <span key={i} className="flex h-5 w-5 items-center justify-center rounded-xs bg-[#00B67A] text-white text-[11px] font-bold">
-                      ★
-                    </span>
-                  ))}
-                </div>
-                <span className="font-bold text-gray-800">4.8/5</span>
-                <span className="text-gray-300">|</span>
-                <span className="text-[#0066FF] font-bold">1,500+ Reviews on</span>
-                <span className="flex items-center gap-1 font-bold text-gray-900">
-                  <span className="text-[#00B67A]">★</span> Trustpilot
-                </span>
-              </div>
-            </div>
-
-            {/* Right Column (6 Cols): Signature Professionals Image + Floating 50,000+ Badge */}
-            <div className="lg:col-span-6 relative flex items-center justify-center lg:justify-end min-h-[280px]">
-              <div className="relative w-full max-w-[580px]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={heroImage}
-                  alt={currentCourse.title || "PMP Certification Training"}
-                  className="w-full h-auto object-contain select-none pointer-events-none"
-                />
-
-                {/* Floating 50,000+ Badge */}
-                <div className="absolute bottom-4 right-2 sm:right-4 bg-[#0066FF] text-white px-5 py-3 rounded-2xl shadow-xl shadow-blue-600/30 border border-white/20 flex items-center gap-3 z-20">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/20 text-white">
-                    <Users size={20} />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-base sm:text-lg font-black leading-none">50,000+</p>
-                    <p className="text-[11px] text-blue-100 font-semibold mt-0.5">Professionals Trained</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-          {/* 5-Item Stats Strip Underneath Hero */}
-          <div className="mt-4 bg-white border border-slate-200/80 rounded-2xl shadow-sm py-5 px-4 sm:px-8">
+        }
+        bottomSlot={
+          <div className="bg-white border border-slate-200/80 rounded-2xl shadow-sm py-5 px-4 sm:px-8">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 items-center lg:divide-x lg:divide-slate-100">
               <div className="flex items-center gap-3.5 lg:pr-4">
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#0066FF]">
@@ -456,9 +400,8 @@ export default function CourseDetailsClient({ course, schedules = [] }) {
               </div>
             </div>
           </div>
-
-        </div>
-      </section>
+        }
+      />
 
       {/* ====================================================================
           2. CHOOSE YOUR TRAINING FORMAT (3 Tinted Cards + 5-Item Strip Below)

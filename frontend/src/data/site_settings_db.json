@@ -1,201 +1,324 @@
 {
-  "support_phone": "(888) 745-7575",
-  "support_email": "support@certificationplanner.com",
-  "trustpilot_rating": "4.9/5",
-  "total_students_trained": "50,000+",
-  "hero_title": "#1 Authorized Professional Training & Certification Bootcamps",
-  "hero_subtitle": "Live instructor-led bootcamps designed for first-attempt exam pass guarantee.",
-  "hero_image_url": "/uploads/Modern_Remote_Team_Collaboration_1793281267382.png",
-  "hero_image_width": 800,
-  "hero_image_height": 520,
-  "hero_image_offset_x": 5,
-  "hero_image_offset_y": -20,
-  "hero_image_align": "center",
-  "schedule_day_types": [
-    "Weekday (Mon-Thu)",
-    "Weekend (Sat-Sun)",
-    "Bootcamp (4 Days)",
-    "Evening (Mon-Fri)"
-  ],
-  "top_bar_badge": "Guaranteed-to-Run Classes",
-  "top_bar_text": "PMI Authorized Training Partner",
-  "header_menu_items": [
-    {
-      "id": 1786637378095,
-      "title": "Certifications",
-      "url": "/certifications",
-      "children": [
+    "support_phone": "(888) 745-7575",
+    "support_email": "support@certificationplanner.com",
+    "trustpilot_rating": "4.9/5",
+    "total_students_trained": "50,000+",
+    "hero_title": "#1 Authorized Professional Training & Certification Bootcamps",
+    "hero_subtitle": "Live instructor-led bootcamps designed for first-attempt exam pass guarantee.",
+    "hero_image_url": "/uploads/image11_1794399929010.png",
+    "hero_image_width": 610,
+    "hero_image_height": "auto",
+    "hero_image_offset_x": -260,
+    "hero_image_offset_y": 35,
+    "hero_image_align": "right",
+    "schedule_day_types": [
+        "Weekday (Mon-Thu)",
+        "Weekend (Sat-Sun)",
+        "Bootcamp (4 Days)",
+        "Evening (Mon-Fri)"
+    ],
+    "top_bar_badge": "Guaranteed-to-Run Classes",
+    "top_bar_text": "PMI Authorized Training Partner",
+    "header_menu_items": [
         {
-          "title": "⚡ View All Certifications",
-          "url": "/certifications"
+            "id": 1786637378095,
+            "title": "Certifications",
+            "url": "/certifications",
+            "children": [
+                {
+                    "title": "⚡ View All Certifications",
+                    "url": "/certifications"
+                },
+                {
+                    "title": "Agile & Project Management",
+                    "url": "/category/agile-project-management"
+                },
+                {
+                    "title": "Information Security",
+                    "url": "/category/information-security-certification"
+                },
+                {
+                    "title": "Lean and Six Sigma",
+                    "url": "/category/lean-six-sigma-certification"
+                },
+                {
+                    "title": "DevOps & Salesforce",
+                    "url": "/category/devops-and-sf-certification"
+                },
+                {
+                    "title": "IT Service & Architecture",
+                    "url": "/category/itil-certification"
+                }
+            ]
         },
         {
-          "title": "Agile & Project Management",
-          "url": "/category/agile-project-management"
+            "id": 1788363268461,
+            "title": "Resources",
+            "url": "/resources",
+            "children": []
         },
         {
-          "title": "Information Security",
-          "url": "/category/information-security-certification"
+            "id": 1793288436473,
+            "title": "Corporate Training",
+            "url": "/corporate-training",
+            "children": []
         },
         {
-          "title": "Lean and Six Sigma",
-          "url": "/category/lean-six-sigma-certification"
+            "id": 1793288446144,
+            "title": "About Us",
+            "url": "/about",
+            "children": []
         },
         {
-          "title": "DevOps & Salesforce",
-          "url": "/category/devops-and-sf-certification"
-        },
-        {
-          "title": "IT Service & Architecture",
-          "url": "/category/itil-certification"
+            "id": 1793288453791,
+            "title": "Contact Us",
+            "url": "/contact",
+            "children": []
         }
-      ]
-    },
-    {
-      "id": 1788363268461,
-      "title": "Resources",
-      "url": "/resources",
-      "children": []
-    },
-    {
-      "id": 1793288436473,
-      "title": "Corporate Training",
-      "url": "/corporate-training",
-      "children": []
-    },
-    {
-      "id": 1793288446144,
-      "title": "About Us",
-      "url": "/about",
-      "children": []
-    },
-    {
-      "id": 1793288453791,
-      "title": "Contact Us",
-      "url": "/contact",
-      "children": []
+    ],
+    "footer_text": "Certification Planner is a leading North American professional training provider offering guaranteed bootcamps.",
+    "footer_copyright": "© 2026 Certification Planner LLC. All rights reserved.",
+    "footer_columns": [
+        {
+            "id": 1,
+            "title": "Certifications",
+            "links": [
+                {
+                    "name": "Agile & Project Management",
+                    "href": "/courses/agile-project-management"
+                },
+                {
+                    "name": "PMP® Certification",
+                    "href": "/courses/pmp-certification"
+                },
+                {
+                    "name": "CAPM® Certification",
+                    "href": "/courses/capm-certification"
+                },
+                {
+                    "name": "CISSP® Exam Prep",
+                    "href": "/courses/cissp-certification"
+                },
+                {
+                    "name": "AWS Solutions Architect",
+                    "href": "/courses/aws-solutions-architect"
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "title": "Training Options",
+            "links": [
+                {
+                    "name": "Live Online Classroom",
+                    "href": "/training#live"
+                },
+                {
+                    "name": "In-Person Classroom",
+                    "href": "/training#in-person"
+                },
+                {
+                    "name": "Self-Paced Learning",
+                    "href": "/training#self-paced"
+                },
+                {
+                    "name": "Corporate Group Training",
+                    "href": "/corporate-training"
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "title": "Support & Legal",
+            "links": [
+                {
+                    "name": "Our Policies",
+                    "href": "/policies"
+                },
+                {
+                    "name": "About Us",
+                    "href": "/about"
+                },
+                {
+                    "name": "Terms of Service",
+                    "href": "/terms"
+                },
+                {
+                    "name": "Privacy Policy",
+                    "href": "/privacy"
+                },
+                {
+                    "name": "Refund Policy",
+                    "href": "/refunds"
+                }
+            ]
+        }
+    ],
+    "hero_title_size": "46px",
+    "nav_link_size": "14px",
+    "prefooter_title": "Ready to Advance Your Career?",
+    "popular_certs": [
+        {
+            "code": "PMP®"
+        },
+        {
+            "code": "CAPM®"
+        },
+        {
+            "code": "PMI-ACP®"
+        },
+        {
+            "code": "Lean Six Sigma"
+        },
+        {
+            "code": "CISSP®"
+        },
+        {
+            "code": "CISA®"
+        },
+        {
+            "code": "ITIL® 4"
+        },
+        {
+            "code": "Salesforce"
+        }
+    ],
+    "popup_enabled": true,
+    "admin_entrance_code": "cp_sec_bdqg2a",
+    "admin_entrance_path": "cp-control-qh4gn7",
+    "admin_entrance_enabled": true,
+    "admin_stealth_mode": true,
+    "hero_image_fit": "cover",
+    "hero_image_fade": 0,
+    "hero_show_circle": false,
+    "hero_show_badge": true,
+    "logo_url": "/uploads/CertificationPlanner_Logo_with_CP_Checkmark_1793291698139.png",
+    "logo_height": 62,
+    "office_address_line1": "2150 South 1300 East #500",
+    "office_address_line2": "Salt Lake City, UT 84106",
+    "office_address_country": "United States",
+    "office_address_full": "2150 South 1300 East #500, Salt Lake City, UT 84106",
+    "hero_layout": "overlay",
+    "hero_banner_height": 500,
+    "hero_bg_url": "/uploads/Blue_and_Orange_Gradient_Waves_1794399542840.png",
+    "hero_bg_fit": "fill",
+    "hero_bg_zoom": 100,
+    "hero_bg_offset_x": 0,
+    "hero_bg_offset_y": 0,
+    "hero_bg_color": "#eaf4ff",
+    "hero_main_enabled": true,
+    "hero_floating_cards": [
+        {
+            "id": "tile-1",
+            "label": "Floating Image 1 (Top)",
+            "enabled": true,
+            "url": "/uploads/hero_tile_1.png",
+            "x": 82,
+            "y": 11,
+            "width": 140,
+            "height": 94,
+            "radius": 14,
+            "border": 3,
+            "shadow": true,
+            "liveDot": false,
+            "zIndex": 20
+        },
+        {
+            "id": "tile-2",
+            "label": "Floating Image 2 (Bottom)",
+            "enabled": true,
+            "url": "/uploads/hero_tile_2.png",
+            "x": 86,
+            "y": 31,
+            "width": 138,
+            "height": 88,
+            "radius": 14,
+            "border": 3,
+            "shadow": true,
+            "liveDot": false,
+            "zIndex": 20
+        }
+    ],
+    "hero_text_offset_x": 57,
+    "hero_text_offset_y": -10,
+    "hero_text_max_width": 580,
+    "hero_text_align": "left",
+    "hero_text_z": 30,
+    "hero_text_backdrop": "none",
+    "hero_show_trustpilot": true,
+    "page_heroes": {
+        "corporate-training": {
+            "hero_layout": "overlay",
+            "hero_banner_height": 390,
+            "hero_bg_url": "/uploads/Blue_and_Orange_Gradient_Waves_1794405942296.png",
+            "hero_bg_fit": "fill",
+            "hero_bg_zoom": 100,
+            "hero_bg_offset_x": 0,
+            "hero_bg_offset_y": 0,
+            "hero_bg_color": "#eaf4ff",
+            "hero_main_enabled": true,
+            "hero_image_url": "/uploads/corp1_1794405968150.png",
+            "hero_image_fit": "contain",
+            "hero_image_fade": 1,
+            "hero_image_width": 780,
+            "hero_image_height": "auto",
+            "hero_image_offset_x": -300,
+            "hero_image_offset_y": 27,
+            "hero_image_align": "right",
+            "hero_image_z": 10,
+            "hero_show_circle": false,
+            "hero_floating_cards": [
+                {
+                    "id": "tile-1",
+                    "label": "Floating Image 1 (Top)",
+                    "enabled": true,
+                    "url": "/uploads/hero_tile_1.png",
+                    "x": 78.5,
+                    "y": 16.2,
+                    "width": 140,
+                    "height": 94,
+                    "radius": 14,
+                    "border": 3,
+                    "shadow": true,
+                    "liveDot": false,
+                    "zIndex": 20
+                },
+                {
+                    "id": "tile-2",
+                    "label": "Floating Image 2 (Bottom)",
+                    "enabled": true,
+                    "url": "/uploads/hero_tile_2.png",
+                    "x": 80.9,
+                    "y": 35.5,
+                    "width": 138,
+                    "height": 88,
+                    "radius": 14,
+                    "border": 3,
+                    "shadow": true,
+                    "liveDot": false,
+                    "zIndex": 20
+                }
+            ],
+            "hero_pill_text": "CORPORATE TRAINING & ENTERPRISE SOLUTIONS",
+            "hero_text_offset_x": 0,
+            "hero_text_offset_y": 0,
+            "hero_text_max_width": 580,
+            "hero_title_size": "46px",
+            "hero_text_align": "left",
+            "hero_text_z": 30,
+            "hero_text_backdrop": "none",
+            "hero_show_trustpilot": true,
+            "hero_show_badge": true,
+            "hero_badge_x": 76,
+            "hero_badge_y": 72,
+            "hero_badge_count": "500+",
+            "hero_badge_subtitle": "Enterprise Clients Trained",
+            "hero_title": "Empower Your Teams with",
+            "hero_highlight_text": "Custom Corporate Training",
+            "hero_subtitle": "Build high-performing teams with flexible, role-based training programs in project management, Agile, Lean Six Sigma, IT, and more — tailored to your business goals.",
+            "hero_cta_primary_text": "Request a Training Proposal",
+            "hero_cta_primary_url": "#proposal-form",
+            "hero_cta_secondary_text": "Talk to a Training Advisor"
+        }
     }
-  ],
-  "footer_text": "Certification Planner is a leading North American professional training provider offering guaranteed bootcamps.",
-  "footer_copyright": "© 2026 Certification Planner LLC. All rights reserved.",
-  "footer_columns": [
-    {
-      "id": 1,
-      "title": "Certifications",
-      "links": [
-        {
-          "name": "Agile & Project Management",
-          "href": "/courses/agile-project-management"
-        },
-        {
-          "name": "PMP® Certification",
-          "href": "/courses/pmp-certification"
-        },
-        {
-          "name": "CAPM® Certification",
-          "href": "/courses/capm-certification"
-        },
-        {
-          "name": "CISSP® Exam Prep",
-          "href": "/courses/cissp-certification"
-        },
-        {
-          "name": "AWS Solutions Architect",
-          "href": "/courses/aws-solutions-architect"
-        }
-      ]
-    },
-    {
-      "id": 2,
-      "title": "Training Options",
-      "links": [
-        {
-          "name": "Live Online Classroom",
-          "href": "/training#live"
-        },
-        {
-          "name": "In-Person Classroom",
-          "href": "/training#in-person"
-        },
-        {
-          "name": "Self-Paced Learning",
-          "href": "/training#self-paced"
-        },
-        {
-          "name": "Corporate Group Training",
-          "href": "/corporate-training"
-        }
-      ]
-    },
-    {
-      "id": 3,
-      "title": "Support & Legal",
-      "links": [
-        {
-          "name": "Our Policies",
-          "href": "/policies"
-        },
-        {
-          "name": "About Us",
-          "href": "/about"
-        },
-        {
-          "name": "Terms of Service",
-          "href": "/terms"
-        },
-        {
-          "name": "Privacy Policy",
-          "href": "/privacy"
-        },
-        {
-          "name": "Refund Policy",
-          "href": "/refunds"
-        }
-      ]
-    }
-  ],
-  "hero_title_size": "48px",
-  "nav_link_size": "14px",
-  "prefooter_title": "Ready to Advance Your Career?",
-  "popular_certs": [
-    {
-      "code": "PMP®"
-    },
-    {
-      "code": "CAPM®"
-    },
-    {
-      "code": "PMI-ACP®"
-    },
-    {
-      "code": "Lean Six Sigma"
-    },
-    {
-      "code": "CISSP®"
-    },
-    {
-      "code": "CISA®"
-    },
-    {
-      "code": "ITIL® 4"
-    },
-    {
-      "code": "Salesforce"
-    }
-  ],
-  "popup_enabled": true,
-  "admin_entrance_code": "cp_sec_bdqg2a",
-  "admin_entrance_path": "cp-control-qh4gn7",
-  "admin_entrance_enabled": true,
-  "admin_stealth_mode": true,
-  "hero_image_fit": "contain",
-  "hero_image_fade": 14,
-  "hero_show_circle": false,
-  "hero_show_badge": true,
-  "logo_url": "/uploads/CertificationPlanner_Logo_with_CP_Checkmark_1793291698139.png",
-  "logo_height": 62,
-  "office_address_line1": "2150 South 1300 East #500",
-  "office_address_line2": "Salt Lake City, UT 84106",
-  "office_address_country": "United States",
-  "office_address_full": "2150 South 1300 East #500, Salt Lake City, UT 84106"
 }

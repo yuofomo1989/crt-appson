@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageHeroBanner from "@/components/PageHeroBanner";
 import {
   Phone,
   Mail,
@@ -143,13 +144,12 @@ export default function ContactPage() {
     <div className="min-h-screen bg-[#f8fafc] text-slate-800 font-sans antialiased text-left flex flex-col justify-between">
       <Navbar siteSettings={siteSettings} />
 
-      {/* ── 1. LIGHT CORPORATE HERO + 4-CARD CONTACT STRIP ────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#eef5ff] via-[#f6f9ff] to-[#dbeafe] border-b border-blue-100/80 pt-3 pb-5">
-        {/* Decorative diagonal blue/orange swooshes on right */}
-        <div className="pointer-events-none absolute -right-20 -bottom-20 w-[460px] h-[460px] rounded-full bg-gradient-to-tr from-[#0052cc]/20 via-[#f97316]/20 to-transparent blur-2xl" />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 relative z-10">
-          {/* Breadcrumb */}
+      {/* ── 1. DYNAMIC CANVAS HERO + 4-CARD CONTACT STRIP ────────────────── */}
+      <PageHeroBanner
+        pageKey="contact"
+        siteSettings={siteSettings}
+        onSecondaryClick={() => openModal("Talk to a Training Advisor")}
+        breadcrumb={
           <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
             <Link href="/" className="text-[#0066cc] hover:underline font-semibold">
               Home
@@ -157,71 +157,9 @@ export default function ContactPage() {
             <ChevronRight size={13} className="text-slate-400" />
             <span className="text-slate-700 font-semibold">Contact Us</span>
           </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            {/* Left Column (6 Cols) */}
-            <div className="lg:col-span-6 space-y-5">
-              <span className="inline-block px-3.5 py-1 rounded-full bg-[#dbeafe] text-[#0066cc] text-[11px] font-extrabold uppercase tracking-wider">
-                CONTACT US
-              </span>
-
-              <h1 className="text-3xl sm:text-4xl lg:text-[44px] font-black tracking-tight text-[#0f172a] leading-[1.12]">
-                We’re Here to <span className="text-[#0066cc]">Help You</span>
-              </h1>
-
-              <p className="text-xs sm:text-sm text-slate-700 font-medium leading-relaxed max-w-xl">
-                Have a question, need guidance, or want to discuss training for your team? Our experts are ready to help you choose the right certification path and achieve your goals.
-              </p>
-
-              {/* CTA Buttons */}
-              <div className="flex flex-wrap items-center gap-3.5 pt-1">
-                <button
-                  type="button"
-                  onClick={() => openModal("Get a Free Consultation")}
-                  className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#ff6a00] to-[#ea580c] hover:from-[#ea580c] hover:to-[#d9460f] px-6 py-3.5 text-xs sm:text-sm font-extrabold text-white shadow-md shadow-orange-500/20 transition-all cursor-pointer"
-                >
-                  <span>Get a Free Consultation</span>
-                  <ArrowRight size={15} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => openModal("Talk to a Training Advisor")}
-                  className="inline-flex items-center gap-2 rounded-full border-2 border-[#0066cc] bg-white hover:bg-blue-50 px-6 py-3 text-xs sm:text-sm font-extrabold text-[#0066cc] transition-all cursor-pointer"
-                >
-                  <Headphones size={15} />
-                  <span>Talk to a Training Advisor</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Right Column (6 Cols): Support Agent with Headset + "How can we help you?" Speech Bubble */}
-            <div className="lg:col-span-6 relative">
-              <div className="relative rounded-3xl overflow-hidden border border-white/80 shadow-xl bg-white h-[270px] sm:h-[310px]">
-                <img
-                  src="/images/contact_agent_clean.jpg?v=2"
-                  alt="Customer Support Representative"
-                  className="w-full h-full object-cover object-top"
-                  onError={(e) => {
-                    e.target.src = "/resources_hero_laptop.jpg";
-                  }}
-                />
-
-                {/* Top-Right Speech Bubble: "How can we help you?" */}
-                <div className="absolute top-6 right-6 z-20 bg-white rounded-2xl px-5 py-3 shadow-xl border border-slate-100">
-                  <p className="text-xs sm:text-sm font-black text-[#0f172a] leading-snug">
-                    How can
-                    <br />
-                    we help you?
-                  </p>
-                  {/* Speech Bubble Tail */}
-                  <div className="w-3.5 h-3.5 bg-white rotate-45 absolute -bottom-1.5 left-5 border-r border-b border-slate-100" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 4-Card Contact Methods Row */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
+        }
+        bottomSlot={
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-1">
             {/* Card 1: Call Us */}
             <a
               href="tel:+18002071897"
@@ -297,8 +235,8 @@ export default function ContactPage() {
               <ChevronRight size={16} className="text-[#0066cc] shrink-0" />
             </div>
           </div>
-        </div>
-      </section>
+        }
+      />
 
       {/* ── 2. MAIN CONTENT: SEND US A MESSAGE + HOW CAN WE HELP ──────────── */}
       <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-5">
