@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Phone, Mail, ArrowRight, HelpCircle } from "lucide-react";
 
 const defaultFaqs = [
   {
@@ -24,64 +24,132 @@ const defaultFaqs = [
 ];
 
 export default function FaqSection({ siteSettings = {} }) {
-  const [openIdx, setOpenIdx] = useState(-1);
+  const [openIdx, setOpenIdx] = useState(0);
 
   const displayFaqs = siteSettings.homepage_faqs && siteSettings.homepage_faqs.length > 0
     ? siteSettings.homepage_faqs
     : defaultFaqs;
 
+  const phone = siteSettings.phone || "(888) 745-7575";
+  const email = siteSettings.email || "support@certificationplanner.com";
+
   return (
-    <section className="py-6 md:py-8 bg-slate-50/60 border-b border-gray-100">
+    <section className="py-8 md:py-12 bg-slate-50/60 border-b border-gray-100">
       <div className="mx-auto max-w-7xl px-4 md:px-6">
-        <div className="grid lg:grid-cols-12 gap-6 lg:gap-10 items-start">
+        <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           
-          {/* Left Column (4 Cols): Title & Contact Us Link (Matches Reference Image 1) */}
-          <div className="lg:col-span-4 space-y-3 text-left">
-            <h2 className="text-3xl md:text-4xl font-black text-brand-navy tracking-tight leading-tight">
-              {siteSettings.faq_title ? (
-                <span dangerouslySetInnerHTML={{ __html: siteSettings.faq_title }} />
-              ) : (
-                <>
-                  Frequently Asked<br />
-                  <span className="text-brand-blue">Questions</span>
-                </>
-              )}
-            </h2>
-            <p className="text-xs md:text-sm text-gray-500 font-semibold leading-relaxed">
-              Have more questions? Our team is happy to help.
-            </p>
-            <div className="pt-1">
-              <Link
-                href="/contact"
-                className="inline-flex items-center gap-1.5 text-xs md:text-sm font-extrabold text-brand-blue hover:underline"
-              >
-                Contact Us →
-              </Link>
+          {/* Left Column (5 Cols): Title & Interactive Support Box */}
+          <div className="lg:col-span-5 space-y-5 text-left">
+            <div>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-blue-50 text-brand-blue border border-blue-100/80 mb-3">
+                <HelpCircle size={13} />
+                Help & Support
+              </span>
+              <h2 className="text-3xl md:text-4xl font-black text-brand-navy tracking-tight leading-tight">
+                {siteSettings.faq_title ? (
+                  <span dangerouslySetInnerHTML={{ __html: siteSettings.faq_title }} />
+                ) : (
+                  <>
+                    Frequently Asked<br />
+                    <span className="text-brand-blue">Questions</span>
+                  </>
+                )}
+              </h2>
+              <p className="mt-2.5 text-xs md:text-sm text-gray-500 font-semibold leading-relaxed">
+                Have more questions? Our learning advisors and course specialists are ready to help you choose the best certification path.
+              </p>
+            </div>
+
+            {/* Support Information Card that fills the empty space beautifully */}
+            <div className="rounded-2xl border border-gray-200/90 bg-white p-5 shadow-xs space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                  </span>
+                  <h4 className="text-xs font-black text-brand-navy uppercase tracking-wider">
+                    Advisors Available Now
+                  </h4>
+                </div>
+                <span className="text-[11px] text-gray-400 font-medium">Mon–Fri, 8AM–8PM ET</span>
+              </div>
+
+              <div className="space-y-2.5 pt-1 border-t border-gray-100">
+                <a
+                  href={`tel:${phone.replace(/[^\d+]/g, "")}`}
+                  className="flex items-center justify-between p-2.5 rounded-xl hover:bg-blue-50/60 border border-transparent hover:border-blue-100 transition-all group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-brand-blue group-hover:bg-brand-blue group-hover:text-white transition-colors">
+                      <Phone size={14} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Call Toll-Free</p>
+                      <p className="text-xs font-black text-brand-navy group-hover:text-brand-blue transition-colors">{phone}</p>
+                    </div>
+                  </div>
+                  <ArrowRight size={13} className="text-gray-300 group-hover:text-brand-blue group-hover:translate-x-0.5 transition-all" />
+                </a>
+
+                <a
+                  href={`mailto:${email}`}
+                  className="flex items-center justify-between p-2.5 rounded-xl hover:bg-orange-50/60 border border-transparent hover:border-orange-100 transition-all group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-50 text-brand-orange group-hover:bg-brand-orange group-hover:text-white transition-colors">
+                      <Mail size={14} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Email Inquiry</p>
+                      <p className="text-xs font-black text-brand-navy group-hover:text-brand-orange transition-colors truncate max-w-[190px]">{email}</p>
+                    </div>
+                  </div>
+                  <ArrowRight size={13} className="text-gray-300 group-hover:text-brand-orange group-hover:translate-x-0.5 transition-all" />
+                </a>
+              </div>
+
+              <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
+                <Link
+                  href="/contact"
+                  className="inline-flex items-center gap-1.5 text-xs font-extrabold text-brand-blue hover:underline"
+                >
+                  Contact Support Desk →
+                </Link>
+                <Link
+                  href="/policies"
+                  className="text-xs font-bold text-gray-400 hover:text-brand-navy transition-colors"
+                >
+                  View Policies
+                </Link>
+              </div>
             </div>
           </div>
 
-          {/* Right Column (8 Cols): Accordion FAQ Items */}
-          <div className="lg:col-span-8 space-y-2.5 text-left">
+          {/* Right Column (7 Cols): Accordion FAQ Items */}
+          <div className="lg:col-span-7 space-y-3 text-left pt-1">
             {displayFaqs.map((faq, idx) => {
               const isOpen = openIdx === idx;
               return (
                 <div
                   key={idx}
-                  className="bg-white rounded-2xl border border-gray-200/80 overflow-hidden shadow-xs transition-all duration-200"
+                  className={`bg-white rounded-2xl border transition-all duration-200 overflow-hidden ${
+                    isOpen ? "border-brand-blue/30 shadow-md ring-1 ring-brand-blue/10" : "border-gray-200/80 shadow-xs hover:border-gray-300"
+                  }`}
                 >
                   <button
                     type="button"
                     onClick={() => setOpenIdx(isOpen ? -1 : idx)}
-                    className="w-full p-5 flex items-center justify-between gap-4 text-left font-extrabold text-xs sm:text-sm text-brand-navy hover:text-brand-blue transition-colors cursor-pointer"
+                    className="w-full p-4 sm:p-5 flex items-center justify-between gap-4 text-left font-black text-xs sm:text-sm text-brand-navy hover:text-brand-blue transition-colors cursor-pointer"
                   >
                     <span>{faq.q}</span>
-                    <span className="text-gray-400 shrink-0">
-                      {isOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                    <span className={`shrink-0 transition-transform duration-200 ${isOpen ? "text-brand-blue rotate-180" : "text-gray-400"}`}>
+                      <ChevronDown size={18} />
                     </span>
                   </button>
 
                   {isOpen && (
-                    <div className="px-5 pb-5 pt-2 text-xs text-gray-600 font-semibold leading-relaxed border-t border-gray-100/60 bg-slate-50/30">
+                    <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-gray-600 font-medium leading-relaxed border-t border-gray-100/70 bg-slate-50/40">
                       <p>{faq.a}</p>
                     </div>
                   )}
