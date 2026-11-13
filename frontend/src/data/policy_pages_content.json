@@ -1,0 +1,450 @@
+{
+  "privacy": {
+    "slug": "privacy",
+    "title": "Privacy Policy",
+    "shortDesc": "Learn how we collect, use, protect, and share your personal information when you use our website and services.",
+    "badge": "Data Protection & Security",
+    "effectiveDate": "January 2026",
+    "sections": [
+      {
+        "heading": "1. Introduction & Scope",
+        "content": [
+          "In this policy, the words \"we,\" \"our,\" and \"us\" refer to Certification Planner, LLC. The procedures mentioned in this section apply to all personnel and users who access this website (certificationplanner.com) and utilize our training services.",
+          "Certification Planner takes the privacy of our participants very seriously and is dedicated to protecting their privacy rights. We ensure that your information is kept secure and handled with the highest level of confidentiality."
+        ]
+      },
+      {
+        "heading": "2. Our Information Practices",
+        "content": [
+          "We make every effort to ensure the accuracy and reliability of the information presented on our website; however, the content on the website is subject to change without prior notice. Certification Planner will not be responsible for any damages resulting from the use of information stored on our servers or accessed through our website.",
+          "All our digital training materials and downloadable resources are inspected and virus-free; however, Certification Planner cannot be held liable for damages arising from unexpected technical issues or external virus infections outside our control."
+        ]
+      },
+      {
+        "heading": "3. Use of Information Stored by Certification Planner",
+        "content": [
+          "We believe in complete transparency regarding the collection and usage of your personal data:"
+        ],
+        "bullets": [
+          "Our users maintain complete control over the privacy and dissemination of their personal information.",
+          "Certification Planner will never disclose, sell, rent, or exchange users' personal information to any third party for commercial marketing or unsolicited promotional purposes.",
+          "Users are always free to opt in or decline to receive promotional announcements, course updates, and special offers from Certification Planner."
+        ]
+      },
+      {
+        "heading": "4. Information Collection & Payment Security",
+        "content": [
+          "We do not collect or harvest users' details without their consent; we only collect information you willingly provide to us during inquiries, registrations, or consultations. We may use your contact information to deliver student support, request feedback, provide schedule updates, or share information about relevant certifications.",
+          "When enrolling in in-person bootcamp, live virtual training, or self-paced courses, you are required to make an online payment. During registration, you may provide details such as your name, corporate affiliation, email address, phone number, billing address, and payment credentials.",
+          "Payment Security: All credit card and electronic transactions are processed through verified, Level-1 PCI-DSS compliant payment gateways with Secure Encryption Technology (SSL/TLS). Certification Planner does NOT store your credit card numbers or CVV codes on its local servers."
+        ]
+      },
+      {
+        "heading": "5. Course Material & Intellectual Property Rights",
+        "content": [
+          "All course materials, practice questions, study guides, and LMS resources provided by Certification Planner are proprietary and designed exclusively for individual training and educational purposes. Certification Planner reserves the right to modify, refresh, and enhance course curriculum without prior notice to reflect industry changes."
+        ]
+      },
+      {
+        "heading": "6. Updating & Correcting Your Personal Details",
+        "content": [
+          "If you believe that any information we hold concerning you is incorrect, outdated, or incomplete, please contact our support desk immediately at support@certificationplanner.com, and we will promptly rectify the records."
+        ]
+      },
+      {
+        "heading": "7. Account Deletion & Right to Erasure",
+        "content": [
+          "To permanently delete your user account and erase your personal profile data from our learning systems, please submit a formal request via email to support@certificationplanner.com with the subject line \"Account Erasure Request\"."
+        ]
+      },
+      {
+        "heading": "8. Changes to this Privacy Policy",
+        "content": [
+          "Certification Planner reserves all rights to amend, update, or revise this Privacy Policy at any time without prior notification. Any updates become effective immediately upon posting to this page."
+        ]
+      }
+    ]
+  },
+  "terms": {
+    "slug": "terms",
+    "title": "Terms of Use & Conditions",
+    "shortDesc": "Read the terms that govern your access to and use of our website, services, and content.",
+    "badge": "Legal Terms of Service",
+    "effectiveDate": "January 2026",
+    "sections": [
+      {
+        "heading": "1. Introduction & Agreement",
+        "content": [
+          "In this policy, the words \"we,\" \"our,\" and \"us\" refer to Certification Planner, LLC. The policies and conditions mentioned herein apply to all individuals, corporate delegates, and visitors who access this website or enroll in our training programs.",
+          "By accessing this website, enrolling in courses, or purchasing materials, you acknowledge that you have read, understood, and agreed to be legally bound by these Terms of Use."
+        ]
+      },
+      {
+        "heading": "2. Intellectual Property & Permitted Use",
+        "content": [
+          "All content, including texts, syllabus structures, images, training materials, graphical elements, audio, and videos available on this website, are protected under international copyright and trademark laws. All intellectual property belongs exclusively to Certification Planner, LLC or its respective partners, affiliates, and licensors.",
+          "Under no circumstances may Certification Planner's content be copied, modified, reproduced, distributed, uploaded, republished, posted, publicly displayed, or transmitted for commercial or personal exploitation without explicit prior written authorization from Certification Planner, LLC.",
+          "You may not use any official trademarks, logos, certification badges, or watermarks displayed on the website without prior written consent from Certification Planner, LLC."
+        ]
+      },
+      {
+        "heading": "3. Purchase Transactions & Enrollment Terms",
+        "content": [
+          "Transactions for the purchase of courses, exam vouchers, or educational services are governed strictly by these Terms of Use. No additional, conflicting, or contradictory terms in any client purchase order, RFP, or informal communication shall be binding unless expressly agreed upon in a written contract signed by an authorized officer of Certification Planner, LLC.",
+          "Certification Planner reserves the right to refuse service, cancel orders, or deny access to any user or entity at our sole discretion."
+        ]
+      },
+      {
+        "heading": "4. Pricing & Market Adjustments",
+        "content": [
+          "Certification Planner reserves all rights to adjust prices, course offerings, and bundled packages due to changing market conditions, accrediting body exam fee changes, course discontinuations, promotional expirations, or typographic advertising errors. Any details on the site may change without prior notice or financial obligation."
+        ]
+      },
+      {
+        "heading": "5. Guaranteed to Run Bootcamp Policy",
+        "content": [
+          "Certification Planner makes every professional effort to run all scheduled training workshops and bootcamps. However, we reserve the right to postpone classes, adjust modalities, or reschedule dates in unexpected circumstances such as instructor health emergencies, extreme weather conditions, low class viability, or force majeure events.",
+          "In circumstances where an in-person or live virtual class cannot proceed as originally planned, enrolled participants may choose among the following remedies:",
+          "1. Reschedule the training to any future published date at no additional fee.",
+          "2. Switch to an alternative training format (e.g., Live Virtual or Self-Paced LMS) with an appropriate price adjustment or refund.",
+          "3. Receive a Certification Planner Credit Voucher valid for one full calendar year."
+        ]
+      },
+      {
+        "heading": "6. Terms of Credit Vouchers",
+        "content": [
+          "Credit Vouchers issued by Certification Planner adhere to the following binding conditions:"
+        ],
+        "bullets": [
+          "Credit vouchers are valid for exactly one year (12 months) from the date of issue.",
+          "A credit voucher can be redeemed for any certification course or training program of equal value.",
+          "Vouchers can be applied across multiple courses or training modalities, provided the total combined invoice does not exceed the voucher amount.",
+          "Each voucher code may be redeemed once and cannot be combined with conflicting promotional discounts.",
+          "To schedule in-person or live classroom dates using a voucher, a minimum of 7 business days' advance notice is required.",
+          "Credit vouchers may be transferred to a colleague or team member upon written approval from Certification Planner management."
+        ]
+      },
+      {
+        "heading": "7. Mandatory In-Person Classroom Safety Protocols",
+        "content": [
+          "For in-person classroom bootcamps, all participants and instructors are expected to adhere to local health, safety, and sanitary regulations. Anyone exhibiting communicable illness symptoms must notify the training coordinator immediately and transition to virtual attendance.",
+          "Certification Planner coordinates with venue partners to maintain clean and secure training environments; however, participants attend in-person sessions at their own discretion and responsibility."
+        ]
+      },
+      {
+        "heading": "8. 100% Pass Guarantee Terms",
+        "content": [
+          "For select qualifying bootcamps (such as PMP, Lean Six Sigma Green/Black Belt, and ITIL), Certification Planner offers a 100% Pass Guarantee commitment subject to the following criteria:",
+          "1. The student must attend 100% of the live training hours without unexcused absences.",
+          "2. The student must complete all mandatory practice tests and mock assessments in the LMS with an 85%+ score prior to attempting the official examination.",
+          "3. The official certification examination must be taken within 30 to 45 calendar days following the conclusion of the bootcamp.",
+          "4. In the rare event of an unsuccessful first attempt, Certification Planner will provide complimentary re-training attendance in an upcoming bootcamp session and 1-on-1 coaching review with an instructor."
+        ]
+      }
+    ]
+  },
+  "refund": {
+    "slug": "refunds",
+    "title": "Refund Policy",
+    "shortDesc": "Understand our refund eligibility, request process, and timelines for courses and certification products.",
+    "badge": "Transparent Refund Terms",
+    "effectiveDate": "January 2026",
+    "sections": [
+      {
+        "heading": "1. Standard Cancellation & Refund Schedule",
+        "content": [
+          "At Certification Planner, LLC, we maintain a clear and equitable cancellation and refund schedule for all course enrollments:"
+        ],
+        "bullets": [
+          "Cancellation from Enrollment up to 2 Weeks (14 Days) Prior to Class Start Date: Eligible for a refund subject to a mandatory 10% administrative processing fee to cover registration setup, seat reservation, and digital materials generation.",
+          "Cancellation Within 2 Weeks (Less than 14 Days) of Class Start Date: Due to committed instructor booking, venue arrangements, and software licensing allocations, NO cash refunds can be processed for cancellations made within 14 days of the scheduled class start date."
+        ]
+      },
+      {
+        "heading": "2. Documented Medical & Emergency Exceptions",
+        "content": [
+          "We recognize that unforeseen life events happen. In cases of sudden medical emergencies, hospitalization, or immediate family crises, special accommodations may be granted at management discretion:",
+          "Participants may submit formal documentation (such as medical certificates or hospital notices) to request a complimentary reschedule or transfer to a live virtual cohort or self-paced program without penalty."
+        ]
+      },
+      {
+        "heading": "3. Refund Request Submission & Processing Timeline",
+        "content": [
+          "To initiate a formal refund request, the enrolled participant or corporate sponsor must submit an email to support@certificationplanner.com detailing the order number, student name, enrolled course, and reason for cancellation.",
+          "All refund requests undergo review by the finance department and, upon approval, are processed within 30 business days back to the original method of payment."
+        ]
+      },
+      {
+        "heading": "4. Administrative Charges & Non-Refundable Items",
+        "content": [
+          "The mandatory 10% administration charge covers credit card merchant fees, platform software provisioning, and administrative setup, and is strictly non-negotiable.",
+          "Please note that exam vouchers issued by external credentialing bodies (e.g., PMI®, AXELOS®, Scrum Alliance®, CompTIA®) that have already been generated, assigned, or released to the candidate are 100% non-refundable under all circumstances."
+        ]
+      },
+      {
+        "heading": "5. Credit Voucher Alternative",
+        "content": [
+          "If a student is unable to attend their scheduled class and does not qualify for a cash refund, Certification Planner provides the option to receive a CP Credit Voucher with 1-year validity:",
+          "The credit voucher can be redeemed against any future course or transferred to a corporate colleague with prior management notice."
+        ]
+      },
+      {
+        "heading": "6. Contact & Escalation Desk",
+        "content": [
+          "For all inquiries, status updates, or escalations regarding refunds, please contact our accounting department directly at support@certificationplanner.com or call our toll-free line at (888) 745-7575."
+        ]
+      }
+    ]
+  },
+  "cancellation": {
+    "slug": "cancellation",
+    "title": "Cancellation & Reschedule Policy",
+    "shortDesc": "Review our cancellation terms for training sessions, exams, and other services.",
+    "badge": "Course Rescheduling & Cancellations",
+    "effectiveDate": "January 2026",
+    "sections": [
+      {
+        "heading": "1. Rescheduling Guidelines & Timelines",
+        "content": [
+          "Certification Planner understands that project commitments and business schedules shift. To accommodate schedule changes while maintaining class viability, our Reschedule Policy is structured as follows:"
+        ],
+        "bullets": [
+          "Reschedule Requests Made More Than 2 Weeks (14+ Days) Before Class: A reschedule request submitted at least 14 days prior to the start date will be processed subject to a nominal 10% administrative fee.",
+          "Reschedule Requests Made Within 2 Weeks (Less Than 14 Days) of Class: Reschedule requests received within 14 days of class start cannot be accommodated through standard processing, as instructor travel and live seats are permanently reserved."
+        ]
+      },
+      {
+        "heading": "2. Emergency Rescheduling with Documentation",
+        "content": [
+          "In verified cases of acute illness, family emergency, or corporate deployment emergencies, students may petition for an emergency reschedule with supporting verification.",
+          "Upon review and management approval, the attendee will be transitioned to an upcoming virtual cohort or future calendar date without paying repeat course tuition."
+        ]
+      },
+      {
+        "heading": "3. Step-by-Step Procedure to Request a Reschedule",
+        "content": [
+          "1. Send an email to support@certificationplanner.com with the subject line \"Reschedule Request - [Your Name] - [Course Name]\".",
+          "2. Include your registered email address, invoice/order number, and your preferred new dates from our published calendar.",
+          "3. Our operations coordinator will reply within 1 business day with the availability confirmation and revised onboarding instructions."
+        ]
+      },
+      {
+        "heading": "4. Rescheduling by Certification Planner",
+        "content": [
+          "In rare events where Certification Planner must reschedule a class due to instructor illness, severe weather, or force majeure events, enrolled attendees will be notified promptly by email and phone.",
+          "Attendees will be offered immediate priority enrollment into the next available schedule, a transition to live virtual training, or a full Credit Voucher with extended validity."
+        ]
+      }
+    ]
+  },
+  "ip-policy": {
+    "slug": "ip-policy",
+    "title": "Intellectual Property Policy",
+    "shortDesc": "Learn how we protect our content, trademarks, and intellectual property and how you may use our materials.",
+    "badge": "Copyrights & Trademarks",
+    "effectiveDate": "January 2026",
+    "sections": [
+      {
+        "heading": "1. Proprietary Rights of Certification Planner",
+        "content": [
+          "All educational assets published on this website or delivered through our learning portals—including course syllabi, slides, study guides, diagnostic exams, video lectures, coding labs, logos, graphics, and instructional blueprints—are the exclusive intellectual property of Certification Planner, LLC, protected under United States and international copyright, trade dress, and patent laws."
+        ]
+      },
+      {
+        "heading": "2. Prohibited Uses & Enforcement",
+        "content": [
+          "Enrollment in a Certification Planner course grants the candidate a single, personal, non-exclusive, non-transferable license to access the materials solely for individual educational purposes.",
+          "Strictly Prohibited Actions Include:"
+        ],
+        "bullets": [
+          "Distributing, publishing, copying, uploading, or sharing training courseware onto file-sharing sites, torrents, or corporate intranets.",
+          "Recording, screen-capturing, or broadcasting live virtual instructor sessions without written authorization.",
+          "Using Certification Planner content to conduct commercial training, workshops, or bootcamps for third parties.",
+          "Modifying, reverse-engineering, decompiling, or creating derivative works based on our study guides or mock simulators."
+        ]
+      },
+      {
+        "heading": "3. Third-Party Trademarks & Official Attributions",
+        "content": [
+          "Certification Planner, LLC respects the intellectual property rights of partner organizations and accrediting bodies. All third-party trademarks, certification titles, and brand names mentioned on our website remain the property of their respective owners:"
+        ],
+        "bullets": [
+          "ITIL® and PRINCE2® are registered trademarks of AXELOS Limited, used under permission of AXELOS Limited. All rights reserved.",
+          "IT Infrastructure Library is a registered trademark of AXELOS Limited, used under permission of AXELOS Limited.",
+          "Certified ScrumMaster® (CSM) and Certified Scrum Trainer® (CST) are registered trademarks of SCRUM ALLIANCE®.",
+          "Professional Scrum Master (PSM) is a registered trademark of Scrum.org.",
+          "CBAP® is a registered certification mark owned by the International Institute of Business Analysis (IIBA®). Certified Business Analysis Professional, EEP, and the EEP logo are trademarks owned by IIBA.",
+          "CISSP® is a registered mark of The International Information Systems Security Certification Consortium ((ISC)²).",
+          "PMP®, CAPM®, PMI-ACP®, and PMBOK® Guide are registered marks of the Project Management Institute, Inc.",
+          "Veteran Planner and Job Planner are registered trademarks of Certification Planner, LLC, used under permission."
+        ]
+      },
+      {
+        "heading": "4. Copyright Infringement & DMCA Notices",
+        "content": [
+          "If you believe that any material on our website infringes upon your copyright or trademark rights, please send a formal DMCA notice to legal@certificationplanner.com with detailed evidence and contact information."
+        ]
+      }
+    ]
+  },
+  "payment-policy": {
+    "slug": "payment-policy",
+    "title": "Payment & Billing Policy",
+    "shortDesc": "Learn about accepted payment methods, billing, pricing, and related transaction information.",
+    "badge": "Secure Billing & Invoicing",
+    "effectiveDate": "January 2026",
+    "sections": [
+      {
+        "heading": "1. Accepted Payment Methods",
+        "content": [
+          "Certification Planner supports a variety of secure payment methods to make enrollment seamless for individual learners and corporate clients:"
+        ],
+        "bullets": [
+          "Major Credit & Debit Cards: Visa, MasterCard, American Express, and Discover.",
+          "Corporate Invoicing & Purchase Orders (POs): Available for pre-approved corporate clients, government agencies, and enterprise teams (Net 15 / Net 30 terms upon credit approval).",
+          "Wire Transfer & ACH Payments: Available for national and international corporate enrollments.",
+          "Enterprise Group Purchasing: Dedicated account managers and consolidated billing schedules for teams of 5 or more attendees."
+        ]
+      },
+      {
+        "heading": "2. Encryption & Financial Data Security",
+        "content": [
+          "Security is our primary concern. All electronic checkout transactions are transmitted via TLS 1.3 / 256-bit SSL encrypted channels directly to our payment gateway partners.",
+          "Certification Planner NEVER stores, logs, or views your complete credit card number or CVV card verification codes on our web servers."
+        ]
+      },
+      {
+        "heading": "3. Pricing, Currencies, & Taxes",
+        "content": [
+          "All standard tuition prices listed on the website are in United States Dollars (USD) unless explicitly designated otherwise.",
+          "Where applicable by state, local, or national law, applicable sales tax, VAT, or digital service fees will be calculated and displayed during final checkout."
+        ]
+      },
+      {
+        "heading": "4. Invoices & Receipts",
+        "content": [
+          "Upon successful transaction confirmation, an itemized digital receipt and enrollment confirmation is automatically dispatched to your registered billing email address.",
+          "If you need a specialized corporate invoice with your organization's tax ID, address, or custom purchase order number, contact billing@certificationplanner.com."
+        ]
+      }
+    ]
+  },
+  "account-policy": {
+    "slug": "account-policy",
+    "title": "Account & User Profile Policy",
+    "shortDesc": "Understand your responsibilities for account security, activity, and ensuring accurate information.",
+    "badge": "Account Management & Access",
+    "effectiveDate": "January 2026",
+    "sections": [
+      {
+        "heading": "1. Account Registration & User Credentials",
+        "content": [
+          "When creating an account on Certification Planner's learning portal, you agree to provide true, accurate, current, and complete information regarding your legal identity, corporate email, and professional credentials.",
+          "You are strictly responsible for maintaining the confidentiality of your login credentials and password, and for all activities conducted under your user account."
+        ]
+      },
+      {
+        "heading": "2. Single-User License & Non-Sharing Policy",
+        "content": [
+          "Course registrations, LMS access, diagnostic exam simulators, and digital courseware licenses are granted exclusively to the individually registered student.",
+          "Account sharing, simultaneous logins across distinct IP addresses, or redistributing portal credentials to unauthorized individuals is strictly prohibited and results in immediate account suspension without refund."
+        ]
+      },
+      {
+        "heading": "3. Profile Updates & Data Accuracy",
+        "content": [
+          "Students are encouraged to keep their email, phone number, and physical mailing address up to date to ensure delivery of printed course binders, physical certificates, and digital exam vouchers."
+        ]
+      },
+      {
+        "heading": "4. Account Termination & Data Deletion",
+        "content": [
+          "Certification Planner reserves the right to terminate or deactivate any account that violates our code of conduct, breaches intellectual property rules, or engages in fraudulent activity.",
+          "To request voluntary account closure and data deletion, submit a written ticket to support@certificationplanner.com."
+        ]
+      }
+    ]
+  },
+  "communication-policy": {
+    "slug": "communication-policy",
+    "title": "Communication & Notification Policy",
+    "shortDesc": "Learn how we communicate with you about your orders, updates, and important notifications.",
+    "badge": "Student & Corporate Communications",
+    "effectiveDate": "January 2026",
+    "sections": [
+      {
+        "heading": "1. Operational & Educational Communications",
+        "content": [
+          "By enrolling in a training program with Certification Planner, you consent to receive operational communications essential for your learning experience. These include:",
+          "• Registration confirmations and payment receipts.",
+          "• Classroom venue directions or live Zoom/Teams virtual meeting credentials.",
+          "• Instructor introductions, pre-class reading assignments, and syllabus guides.",
+          "• Official exam voucher codes and scheduling instructions."
+        ]
+      },
+      {
+        "heading": "2. Customer Support Response Standards",
+        "content": [
+          "We take pride in providing responsive, high-touch support to our students and corporate clients:",
+          "• Email Support (support@certificationplanner.com): Typical response within 1 business day.",
+          "• Telephone Assistance ((888) 745-7575): Available Monday through Friday, 8:00 AM – 8:00 PM Eastern Time.",
+          "• Live Chat Support: Available during business hours for rapid consultation and course selection assistance."
+        ]
+      },
+      {
+        "heading": "3. Promotional Messages & Opt-Out Rights",
+        "content": [
+          "We may occasionally dispatch educational newsletters, career guides, or promotional discount announcements to our registered community.",
+          "You may opt out of promotional emails at any time by clicking the \"Unsubscribe\" link situated in the footer of any promotional email, or by emailing unsubscribe@certificationplanner.com. Operational class notices will still be delivered."
+        ]
+      },
+      {
+        "heading": "4. Official Communication Channels",
+        "content": [
+          "All official correspondence, legal notices, and formal inquiries should be directed to:",
+          "Certification Planner, LLC\n2150 South 1300 East #500, Salt Lake City, UT 84106\nEmail: support@certificationplanner.com | Phone: (888) 745-7575"
+        ]
+      }
+    ]
+  },
+  "disclaimer": {
+    "slug": "disclaimer",
+    "title": "Legal Disclaimer & Trademark Notices",
+    "shortDesc": "Important legal notices, non-affiliation statements, and registered trademark acknowledgments.",
+    "badge": "Legal Disclaimers",
+    "effectiveDate": "January 2026",
+    "sections": [
+      {
+        "heading": "1. General Website Disclaimer",
+        "content": [
+          "The information, educational curriculum, and training resources provided on this website are intended solely for professional upskilling, education, and career development. While Certification Planner, LLC strives to maintain the most current and accurate data, course materials and exam formats are subject to change without prior notice.",
+          "Certification Planner makes no express warranties beyond our published 100% Pass Guarantee terms and shall not be held liable for indirect, incidental, or consequential damages resulting from the use of our services."
+        ]
+      },
+      {
+        "heading": "2. Official Accrediting Body Trademark Acknowledgments",
+        "content": [
+          "The following official trademarks, service marks, and trade names are acknowledged as the exclusive property of their respective governing organizations:"
+        ],
+        "bullets": [
+          "ITIL® is a registered trademark of AXELOS Limited, used under permission of AXELOS Limited. All rights reserved.",
+          "IT Infrastructure Library is a registered trademark of AXELOS Limited, used under permission of AXELOS Limited. All rights reserved.",
+          "PRINCE2® is a registered trademark of AXELOS Limited, used under permission of AXELOS Limited. All rights reserved.",
+          "Certified ScrumMaster® (CSM) and Certified Scrum Trainer® (CST) are registered trademarks of SCRUM ALLIANCE®.",
+          "Professional Scrum Master (PSM) is a registered trademark of Scrum.org.",
+          "CBAP® is a registered certification mark owned by the International Institute of Business Analysis (IIBA®). Certified Business Analysis Professional, EEP, and the EEP logo are trademarks owned by IIBA.",
+          "CISSP® is a registered mark of The International Information Systems Security Certification Consortium ((ISC)²).",
+          "PMP®, CAPM®, PMI-ACP®, and PMBOK® are registered marks of the Project Management Institute, Inc.",
+          "CompTIA® and related certification names are trademarks of the Computing Technology Industry Association, Inc.",
+          "Veteran Planner and Job Planner are registered trademarks of Certification Planner, LLC, used under permission."
+        ]
+      },
+      {
+        "heading": "3. Independence of Training Provider",
+        "content": [
+          "Certification Planner, LLC is an independent commercial training institution. Unless explicitly specified, Certification Planner is not a subsidiary or direct affiliate of AXELOS Limited, Scrum Alliance, Scrum.org, or (ISC)², and course delivery is carried out under sanctioned accreditation, licensed partner curricula, or authorized trainer credentials."
+        ]
+      }
+    ]
+  }
+}

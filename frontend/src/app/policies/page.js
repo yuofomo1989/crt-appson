@@ -73,6 +73,12 @@ const policies = [
     desc: "Learn how we communicate with you about your orders, updates, and important notifications.",
     href: "/communication-policy",
   },
+  {
+    icon: Shield,
+    title: "Legal Disclaimer & Trademarks",
+    desc: "Official trademark acknowledgments, accrediting partner attributions, and non-affiliation disclaimers.",
+    href: "/disclaimer",
+  },
 ];
 
 // ─── Clipboard / Shield SVG Illustration ─────────────────────────────────────
