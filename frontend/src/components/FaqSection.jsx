@@ -31,7 +31,7 @@ export default function FaqSection({ siteSettings = {} }) {
     : defaultFaqs;
 
   return (
-    <section className="py-10 md:py-16 bg-slate-50/60 border-b border-gray-100">
+    <section className="py-10 md:py-16 bg-white/50 backdrop-blur-xs border-b border-gray-100/60">
       <div className="mx-auto max-w-7xl px-4 md:px-6">
         <div className="grid lg:grid-cols-12 gap-8 lg:gap-14 items-center">
           

@@ -199,7 +199,7 @@ export default function UpcomingLiveClasses({ schedules = [], courses = [] }) {
   };
 
   return (
-    <section className="py-6 bg-white border-b border-gray-100">
+    <section className="py-6 bg-transparent border-b border-gray-100/70">
       <div className="mx-auto max-w-7xl px-4 md:px-6 space-y-5">
         
         {/* Header */}

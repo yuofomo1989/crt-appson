@@ -65,7 +65,7 @@ export default function Testimonials({ siteSettings = {} }) {
     : displayTestimonials;
 
   return (
-    <section className="py-6 md:py-8 bg-white border-b border-gray-100 overflow-hidden">
+    <section className="py-6 md:py-8 bg-transparent border-b border-gray-100/70 overflow-hidden">
       <div className="mx-auto max-w-7xl px-4 md:px-6">
         <div className="grid lg:grid-cols-12 gap-7 items-center">
           

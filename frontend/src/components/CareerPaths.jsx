@@ -110,7 +110,7 @@ export default function CareerPaths({ categories = [], courses = [] }) {
     : defaultPaths;
 
   return (
-    <section id="career-paths" className="py-6 md:py-8 bg-white">
+    <section id="career-paths" className="py-6 md:py-8 bg-transparent">
       <div className="mx-auto max-w-7xl px-4 md:px-6">
         
         {/* Header */}

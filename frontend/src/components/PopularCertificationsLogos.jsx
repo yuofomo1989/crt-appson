@@ -35,7 +35,7 @@ export default function PopularCertificationsLogos({ siteSettings = {} }) {
     : defaultLogos;
 
   return (
-    <section className="py-4 bg-slate-50/60 border-y border-gray-100">
+    <section className="py-4 bg-white/60 backdrop-blur-xs border-y border-blue-100/40">
       <div className="mx-auto max-w-7xl px-4 md:px-6">
         
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mb-3.5">
